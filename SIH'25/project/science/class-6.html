@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>LabMasters : Gravity Grab</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto&family=Poppins&family=Playfair+Display&display=swap" rel="stylesheet" />
+<style>
+  body {
+    background: #F3F8DA;
+    font-family: 'Poppins', sans-serif;
+  }
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #558B58;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+  }
+  /* Cute button styles */
+  button, .btn {
+    background: linear-gradient(135deg, #a4d19e, #70b54b);
+    border: none;
+    border-radius: 22px;
+    padding: 0.85rem 2.2rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    box-shadow:
+      0 4px 6px rgba(112,181,75,0.6),
+      inset 0 -3px 8px rgba(255,255,255,0.4);
+    transition: all 0.25s ease-in-out;
+    user-select: none;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  }
+  button:hover, .btn:hover {
+    background: linear-gradient(135deg, #70b54b, #a4d19e);
+    box-shadow:
+      0 8px 14px rgba(112,181,75,0.9),
+      inset 0 -4px 12px rgba(255,255,255,0.6);
+    transform: translateY(-4px) scale(1.05);
+  }
+  button:active, .btn:active {
+    background: linear-gradient(135deg, #5ea33e, #7ab865);
+    box-shadow:
+      0 2px 6px rgba(90,160,50,0.8),
+      inset 0 -2px 5px rgba(255,255,255,0.3);
+    transform: translateY(0) scale(0.95);
+  }
+  .popup-card {
+    background: #CEE1BE;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(97,146,43,0.35);
+    font-family: 'Roboto', sans-serif;
+    color: #2e3f11;
+    max-width: 480px;
+  }
+  .popup-bg {
+    background: rgba(0, 0, 0, 0.35);
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .tracker {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 12rem;
+    background: #F3F8DA;
+    color: #558B58;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(97,146,43,0.45);
+    font-family: 'Roboto', sans-serif;
+    user-select: none;
+  }
+  .tracker h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+  }
+  .tracker p {
+    margin: 0.35rem 0;
+    font-size: 1.1rem;
+  }
+  .star {
+    color: #ffbf00;
+    font-size: 1.3rem;
+  }
+  .game-board {
+    background: #d7e3a6;
+    border-radius: 25px;
+    box-shadow: 0 15px 45px rgba(97,146,43,0.35);
+    position: relative;
+    width: 500px;
+    height: 400px;
+    margin: auto;
+  }
+  .score-flash {
+    animation: flash-bg 1.2s ease forwards;
+  }
+  @keyframes flash-bg {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: #90b46e; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const GRAVITY = 0.5;
+const FLOOR_Y = 350;
+const APPLE_PER_STAR = 5;
+const QUIZ_TIME = 45; 
+const TOTAL_QUESTIONS = 10;
+
+const GRAVITY_QUESTIONS = [
+  {q:"An apple falls from 10 m height. What force pulls it down?", options:["Friction","Gravity","Wind","Magnetism"], answer:"Gravity"},
+  {q:"If a stone falls freely for 2 s, velocity v = g*t. What is v (g=10 m/s²)?", options:["10","20","5","15"], answer:"20"},
+  {q:"If g=10 m/s², how far will an apple fall in 3s (s=½ g t²)?", options:["45 m","15 m","30 m","60 m"], answer:"45"},
+  {q:"Which direction does gravity act?", options:["Upwards","Downwards","Sideways","None"], answer:"Downwards"},
+  {q:"A ball dropped from 5 m hits the ground. What concept is shown?", options:["Gravity","Friction","Magnetism","Inertia"], answer:"Gravity"},
+  {q:"Acceleration due to gravity on Earth is approximately?", options:["10 m/s²","9.8 m/s²","Both","None"], answer:"Both"},
+  {q:"If a feather falls in air slowly, what force slows it?", options:["Gravity","Air resistance","Magnetism","Tension"], answer:"Air resistance"},
+  {q:"Velocity of free fall after 4s (g=10)?", options:["40","20","10","50"], answer:"40"},
+  {q:"Distance traveled in first 5 s of free fall (s=½ g t²)?", options:["125 m","50 m","100 m","75 m"], answer:"125"},
+  {q:"Object in free fall experiences what acceleration?", options:["0","g","2g","g/2"], answer:"g"}
+];
+
+function Class6Physics() {
+  const [apples, setApples] = React.useState([]);
+  const [basketX, setBasketX] = React.useState(200);
+  const [basketTargetX, setBasketTargetX] = React.useState(200);
+  const [score, setScore] = React.useState(0);
+  const [caughtApples, setCaughtApples] = React.useState(0);
+  const [stars, setStars] = React.useState(0);
+  const [showRules, setShowRules] = React.useState(true);
+  const [quizActive, setQuizActive] = React.useState(false);
+  const [currentQuestion, setCurrentQuestion] = React.useState(null);
+  const [showQuestion, setShowQuestion] = React.useState(false);
+  const [quizTime, setQuizTime] = React.useState(QUIZ_TIME);
+  const [quizScore, setQuizScore] = React.useState(0);
+  const [quizIndex, setQuizIndex] = React.useState(0);
+  const [gameStarted, setGameStarted] = React.useState(false);
+  const [quizOver, setQuizOver] = React.useState(false);
+
+  // Drop apples
+  React.useEffect(() => {
+    if(quizActive || !gameStarted) return; 
+    const interval = setInterval(() => {
+      setApples(prev => [...prev, {x: Math.random()*440, y:0, v:0, caught:false, bounced:false}]);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [quizActive, gameStarted]);
+
+  // Move apples with bounce
+  React.useEffect(() => {
+    if(quizActive || !gameStarted) return; 
+    const moveInterval = setInterval(() => {
+      setApples(prev => prev.map(a => {
+        if(a.caught) return a;
+        
+        let newV = a.v + GRAVITY;
+        let newY = a.y + newV;
+        let newX = a.x + (a.vx || 0);
+        
+        if(newY >= FLOOR_Y){
+          if(!a.bounced){
+            newV = -newV*0.5;
+            newY = FLOOR_Y + newV;
+            const vx = (Math.random()*4 -2);
+            return {...a, y:newY, v:newV, bounced:true, vx};
+          } else if(Math.abs(newV) > 1){
+            newV = -newV*0.4;
+            newY = FLOOR_Y + newV;
+            return {...a, y:newY, v:newV};
+          } else {
+            return {...a, y:FLOOR_Y, v:0, vx:0};
+          }
+        }
+        return {...a, y:newY, v:newV, x:newX};
+      }));
+    }, 50);
+    return () => clearInterval(moveInterval);
+  }, [quizActive, gameStarted]);
+
+  // Basket movement
+  React.useEffect(() => {
+    const keyHandler = e => {
+      if(e.key==="ArrowLeft") setBasketTargetX(x => Math.max(0,x-20));
+      if(e.key==="ArrowRight") setBasketTargetX(x => Math.min(440,x+60));
+    };
+    window.addEventListener("keydown", keyHandler);
+    return () => window.removeEventListener("keydown", keyHandler);
+  }, []);
+
+  // Mouse drag, desktop
+  React.useEffect(() => {
+    let isDragging = false;
+    const handleMouseDown = (e) => {
+      isDragging = true;
+    };
+    const handleMouseMove = (e) => {
+      if(isDragging) {
+        const rect = document.querySelector(".game-board").getBoundingClientRect();
+        let newX = e.clientX - rect.left - 30;
+        setBasketTargetX(Math.max(0, Math.min(440, newX)));
+      }
+    };
+    
+    const handleMouseUp = () => { isDragging = false; };
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    
+    return () => {
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  // Touch support, mobile
+  React.useEffect(() => {
+        const handleTouchMove = (e) => {
+          const rect = document.querySelector(".game-board").getBoundingClientRect();
+          let touchX = e.touches[0].clientX - rect.left - 30;
+          setBasketTargetX(Math.max(0, Math.min(440, touchX)));
+        };
+        
+        const gameBoard = document.querySelector(".game-board");
+        if(gameBoard){
+          gameBoard.addEventListener("touchmove", handleTouchMove);
+        }
+        
+        return () => {
+          if(gameBoard){
+            gameBoard.removeEventListener("touchmove", handleTouchMove);
+          }
+        };
+  }, []);
+
+  // Catch apples only if touching basket
+  React.useEffect(() => {
+    if(quizActive || !gameStarted) return;
+    setApples(prev => prev.map(a => {
+      if(!a.caught && a.y >= FLOOR_Y-10 && a.y <= FLOOR_Y && a.x+20 > basketX && a.x < basketX+60){
+        setScore(s => s+1);
+        setCaughtApples(c => c+1);
+        return {...a, caught:true};
+      }
+      return a;
+    }));
+  }, [apples, basketX, quizActive, gameStarted]);
+
+  // Smooth basket movement
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setBasketX(x => x + (basketTargetX - x) * 0.2); // easing factor
+      }, 30);
+      return () => clearInterval(interval);
+  }, [basketTargetX]);
+
+  // Stars logic
+  React.useEffect(() => {
+    setStars(Math.floor(caughtApples/APPLE_PER_STAR));
+    if(caughtApples>=15 && !quizActive && !quizOver){
+      setQuizActive(true);
+      pickQuizQuestion(0);
+    }
+  }, [caughtApples]);
+
+  // Quiz timer
+  React.useEffect(() => {
+    if(!quizActive || !showQuestion) return;
+    setQuizTime(QUIZ_TIME);
+    const timer = setInterval(() => {
+      setQuizTime(t => {
+        if(t<=1){
+          handleNextQuiz(false);
+          return 0;
+        }
+        return t-1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [quizActive, showQuestion, quizIndex]);
+
+  const pickQuizQuestion = (index) => {
+    setCurrentQuestion(GRAVITY_QUESTIONS[index]);
+    setShowQuestion(true);
+    setQuizTime(QUIZ_TIME);
+  };
+
+  const handleNextQuiz = (correct) => {
+    if(correct) setQuizScore(s => s+1);
+    if(quizIndex < TOTAL_QUESTIONS -1){
+      setQuizIndex(i => i+1);
+      pickQuizQuestion(quizIndex+1);
+    } else {
+      setShowQuestion(false);
+      setQuizActive(false);
+      setQuizOver(true);
+    }
+  };
+
+  const restartGame = () => {
+    setApples([]);
+    setBasketX(200);
+    setScore(0);
+    setCaughtApples(0);
+    setStars(0);
+    setQuizActive(false);
+    setCurrentQuestion(null);
+    setShowQuestion(false);
+    setQuizScore(0);
+    setQuizIndex(0);
+    setGameStarted(false);
+    setQuizOver(false);
+    setShowRules(true);
+  };
+
+  return (
+    <div className="p-6 min-h-screen">
+      <header className="flex items-center justify-center gap-3 mb-6">
+        <img src="class-6.png" alt="Logo" className="w-20 h-20 rounded-full" />
+        <h1 className="text-5xl title">Gravity Grab</h1>
+      </header>
+
+    {/* Popup Rules */}
+    {showRules && (
+        <div className="fixed inset-0 flex items-center justify-center popup-bg z-50">
+            <div className="popup-card rounded-xl p-6 shadow-xl max-w-lg text-center">
+                <h2 className="text-3xl font-bold mb-4 title">📜 Rules</h2>
+                    <p className="mb-4 text-sm leading-relaxed">
+                        🍎 <b>Catch falling apples</b> with arrow keys.<br/>
+                        🍎 Apples are counted only if they <b>touch the basket</b>.<br/>
+                        🍎 Once apples hit the ground, you <b>cannot catch</b> them.<br/>
+                        🍎 <b>Stars</b> unlock for every 5 apples caught.<br/>
+                        🍎 After 15 apples, a <b>gravity quiz</b> of 10 questions starts.<br/>
+                        🍎 Each correct quiz answer = <b>1 mark</b>, 45 seconds per question.
+                    </p>
+                    <button onClick={()=>{setShowRules(false); setGameStarted(true);}}
+                        className="px-6 py-2 bg-[#85A563] text-white rounded-lg font-semibold hover:bg-[#72904f]">
+                        Start Game
+                    </button>
+          </div>
+        </div>
+      )}
+
+    {/* Back Button */}
+      <button onClick={() => window.location.href = "phy.html"}
+      className="absolute top-6 left-6 px-4 py-2 bg-[#CBE2AC] rounded-lg font-semibold hover:bg-[#A7C085]">
+      Back
+      </button>
+
+    
+    {/* Restart Button */}
+    {!showRules && !showQuestion && (
+        <button onClick={restartGame} 
+        className="absolute top-6 left-32 px-4 py-2 bg-[#CBE2AC] rounded-lg font-semibold hover:bg-[#A7C085]">
+        Restart
+    </button>
+    )}
+
+      {/* Tracker */}
+      <div className="absolute top-6 right-6 bg-[#F3F8DA] p-4 rounded-xl shadow w-48 text-sm font-['Roboto']">
+        <h2 className="text-lg font-semibold text-[#85A563] mb-2">Tracker</h2>
+        <p>Score: {score}</p>
+        <p>Apples caught: {caughtApples}</p>
+        <p>Stars: {Array.from({length:stars},(_,i)=>"★").join('')}</p>
+        {quizActive && <p>Quiz Time: {quizTime}s</p>}
+      </div>
+
+      {/* Game Board */}
+      {!quizActive && gameStarted && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          {/* Left Button */}
+          <button onClick={() => setBasketTargetX(x => Math.max(0, x - 40))}
+            className="px-4 py-20 bg-[#85A563] text-white rounded-lg text-xl font-bold shadow hover:bg-[#72904f]">
+            ◀
+          </button>
+          
+          {/* Game Board Container */}
+          <div className="bg-[#D8E8C2] p-4 rounded-xl shadow w-[500px] h-[400px] relative mx-auto overflow-hidden game-board">
+            {/* Basket */}
+            <div className="absolute bottom-0 w-20 h-5 bg-[#333]" style={{ left: basketX }}/>
+            
+            {/* Apples */}
+            {apples.map((a, i) => (
+              <div key={i} className="absolute text-2xl" style={{ left: a.x, top: a.y }}>
+                🍎 <span className="text-xs">v={a.v.toFixed(1)}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Right Button */}
+          <button onClick={() => setBasketTargetX(x => Math.min(440, x + 40))}
+            className="px-4 py-20 bg-[#85A563] text-white rounded-lg text-xl font-bold shadow hover:bg-[#72904f]">
+            ▶
+          </button>
+        </div>
+      )}
+
+      {/* Quiz */}
+      {quizActive && showQuestion && currentQuestion && (
+        <div className="popup-bg fixed inset-0 flex items-center justify-center z-50">
+          <div className="popup-card rounded-xl p-6 shadow-xl max-w-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 title">🌟 Quiz</h2>
+            <p className="mb-4 text-sm font-['Roboto']"><b>Question {quizIndex+1}/10:</b> {currentQuestion.q}</p>
+            {currentQuestion.options.map(opt => (
+              <button key={opt} onClick={()=>handleNextQuiz(opt === currentQuestion.answer)}
+                className="px-4 py-2 m-2 bg-[#A7C085] text-white rounded hover:bg-[#85A563]">{opt}</button>
+            ))}
+            <p className="mt-2 text-xs text-gray-700">⏱ <b>45s per question</b></p>
+          </div>
+        </div>
+      )}
+
+      {/* Quiz Over Popup */}
+      {quizOver && (
+        <div className="popup-bg fixed inset-0 flex items-center justify-center z-50">
+          <div className="popup-card rounded-xl p-6 shadow-xl max-w-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 title">🎉 Quiz Completed!</h2>
+            <p className="mb-4 text-sm font-['Roboto']">You scored <b>{quizScore} / {TOTAL_QUESTIONS}</b> marks in the gravity quiz.</p>
+            <button onClick={restartGame} className="px-6 py-2 bg-[#85A563] text-white rounded-lg font-semibold hover:bg-[#72904f]">
+              Restart Game
+            </button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<Class6Physics />);
+</script>
+</body>
+</html>

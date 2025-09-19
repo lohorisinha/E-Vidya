@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>LabMasters : Signal Sync</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=EB+Garamond&display=swap" rel="stylesheet" />
+<style>
+  body {
+    background: #F3F8DA;
+    font-family: 'Poppins', sans-serif;
+  }
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #85A563;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+  }
+  .popup-bg {
+    background: rgba(0,0,0,0.4);
+  }
+  .popup-card {
+    background: #CEE1BE;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 12px 30px rgba(86,130,63,0.4);
+    max-width: 600px;
+    margin: auto;
+  }
+  button, .btn {
+    background: linear-gradient(135deg, #a4d19e, #70b84b);
+    border: none;
+    border-radius: 22px;
+    padding: 0.85rem 2.2rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(112,181,75,0.7);
+    user-select: none;
+    transition: all 0.25s ease-in-out;
+    font-size: 1.15rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  button:hover, .btn:hover {
+    background: linear-gradient(135deg, #70b84b, #a4d19e);
+    box-shadow: 0 10px 25px rgba(70,130,50,0.9);
+    transform: translateY(-4px) scale(1.05);
+  }
+  button:active, .btn:active {
+    background: linear-gradient(135deg, #5ea33e, #7ab865);
+    box-shadow: 0 4px 14px rgba(90,160,50,0.7);
+    transform: translateY(0) scale(0.95);
+  }
+  .game-container {
+    max-width: 900px;
+    margin: auto;
+    background-color: #D8E3B0;
+    border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(85,135,54,0.6);
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+  }
+  .game-area {
+    flex: 2;
+  }
+  .sidebar {
+    flex: 1;
+    border-left: 2px solid #bbeabf;
+    padding-left: 1.5rem;
+  }
+  label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  input[type="range"] {
+    width: 100%;
+  }
+  .slider-value {
+    margin-top: 0.25rem;
+    font-weight: 600;
+    color: #4a6a21;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+function PhysicsLab() {
+  return (
+    <div className="p-6 min-h-screen">
+      <header className="flex items-center justify-center gap-3 mb-6">
+        <img src="class-9.png" alt="Logo" className="w-20 h-20 rounded-full" />
+        <h1 className="text-5xl title">Signal Sync</h1>
+        </header>
+      <SoundGame />
+    </div>
+  );
+}
+
+function SoundGame() {
+  const [frequency, setFrequency] = React.useState(200);
+  const [amplitude, setAmplitude] = React.useState(50);
+  const [targetFreq, setTargetFreq] = React.useState(300);
+  const [targetAmp, setTargetAmp] = React.useState(40);
+  const [score, setScore] = React.useState(0);
+  const [time, setTime] = React.useState(100);
+  const [stars, setStars] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+
+  const canvasRef = React.useRef(null);
+
+  // hold detection
+  const [holdProgress, setHoldProgress] = React.useState(0);
+  const [inZone, setInZone] = React.useState(false);
+  const holdDuration = 2000; // 2 sec
+  const holdInterval = React.useRef(null);
+
+  React.useEffect(() => {
+    let timer;
+    if (!paused && time > 0) {
+      timer = setInterval(() => setTime((t) => t - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [paused, time]);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    const drawWave = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.strokeStyle = 'orange';
+      ctx.lineWidth = 2;
+
+      for (let x = 0; x < canvas.width; x++) {
+        const y = canvas.height / 2 + amplitude * Math.sin((x / canvas.width) * frequency * 2 * Math.PI);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    };
+
+    drawWave();
+  }, [frequency, amplitude]);
+
+  React.useEffect(() => {
+    const inRange = Math.abs(frequency - targetFreq) <= 5 && Math.abs(amplitude - targetAmp) <= 5;
+
+    setInZone(inRange);
+
+    if (inRange) {
+      if (!holdInterval.current) {
+        holdInterval.current = setInterval(() => {
+          setHoldProgress((p) => {
+            if (p + 100 >= holdDuration) {
+              clearInterval(holdInterval.current);
+              holdInterval.current = null;
+              setScore((s) => s + 2);
+
+              if ((score + 2) % 5 === 0) {
+                setStars((st) => st + 1);
+              }
+
+              setTargetFreq(Math.floor(Math.random() * 400) + 100);
+              setTargetAmp(Math.floor(Math.random() * 80) + 20);
+
+              return 0;
+            }
+            return p + 100;
+          });
+        }, 100);
+      }
+    } else {
+      setHoldProgress(0);
+      if (holdInterval.current) {
+        clearInterval(holdInterval.current);
+        holdInterval.current = null;
+      }
+    }
+    return () => {
+      if (holdInterval.current) {
+        clearInterval(holdInterval.current);
+        holdInterval.current = null;
+      }
+    };
+  }, [frequency, amplitude, targetFreq, targetAmp]);
+
+  return (
+    <div className="game-container">
+      <div className="game-area">
+        <div className="flex justify-between mb-6">
+          <button onClick={() => alert('Back pressed')} className="btn">← Back</button>
+          <button onClick={() => setPaused(!paused)} className="btn">
+            {paused ? 'Resume' : 'Pause'}
+          </button>
+        </div>
+
+        <h2 className="text-xl font-bold mb-3">🎵 Match the Sound Wave!</h2>
+        <p className="mb-6">Hold the sliders at the correct frequency & amplitude for 2 seconds to score.</p>
+
+        <div className="mb-6">
+          <label>Frequency</label>
+          <input type="range" min="100" max="500" value={frequency} onChange={(e) => setFrequency(+e.target.value)} />
+          <div className="slider-value">{frequency} Hz</div>
+        </div>
+
+        <div className="mb-6">
+          <label>Amplitude</label>
+          <input type="range" min="20" max="100" value={amplitude} onChange={(e) => setAmplitude(+e.target.value)} />
+          <div className="slider-value">{amplitude} px</div>
+        </div>
+
+        <div className="relative w-full flex justify-center items-center mb-6">
+          <svg width={60} height={60} className="transform -rotate-90">
+            <circle
+              cx={30}
+              cy={30}
+              r={28}
+              stroke="#ddd"
+              strokeWidth={4}
+              fill="none"
+            />
+            <circle
+              cx={30}
+              cy={30}
+              r={28}
+              stroke={inZone ? 'green' : 'red'}
+              strokeWidth={4}
+              fill="none"
+              strokeDasharray={2 * Math.PI * 28}
+              strokeDashoffset={2 * Math.PI * 28 - (holdProgress / holdDuration) * 2 * Math.PI * 28}
+            />
+          </svg>
+          <span className="absolute text-lg font-bold">{inZone ? `${Math.min((holdProgress / 1000).toFixed(1), 2)}s` : '❌'}</span>
+        </div>
+
+        <canvas ref={canvasRef} width={500} height={200} className="border rounded shadow" />
+      </div>
+
+      <div className="sidebar text-green-900">
+        <h3 className="font-bold text-lg mb-4">🎯 Target</h3>
+        <p>Frequency: {targetFreq} Hz</p>
+        <p>Amplitude: {targetAmp} px</p>
+        <hr className="my-5 border-green-300" />
+        <p className="text-lg font-semibold">Score: {score}</p>
+        <p>Time: {time}s</p>
+        <p className="text-lg font-semibold">Stars: {stars}</p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<PhysicsLab />);
+</script>
+</body>
+</html>

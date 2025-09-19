@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>STEM Forest Runner — Choose Your Hero & Class</title>
+<style>
+:root{--bg1:#e8f8ff;--bg2:#d7f1ea;--accent:#ff8a00;--panel:#fff9e6;--ui:#2b5f3a}
+html,body{height:100%;margin:0;font-family: 'Comic Sans MS', Trebuchet MS, Arial, sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+#root{position:relative;width:100vw;height:100vh;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:14px;top:12px;z-index:60;background:rgba(0,0,0,0.33);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
+#hint{position:absolute;right:12px;top:12px;z-index:60;background:rgba(0,0,0,0.22);color:#fff;padding:8px 12px;border-radius:8px}
+.modal{position:absolute;left:50%;top:18%;transform:translateX(-50%);z-index:200;width:min(720px,92%);background:var(--panel);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.2);padding:18px;text-align:center;display:none}
+.options{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px}
+.options button{width:100%;max-width:420px;padding:12px 16px;border-radius:12px;border:none;font-size:18px;cursor:pointer}
+.btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;border:none;font-weight:800;cursor:pointer}
+#gameOver{display:none;position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:220;background:rgba(0,0,0,0.78);color:#fff;padding:18px;border-radius:12px;font-size:22px;text-align:center;min-width:320px}
+#gameOver.show{display:block;animation:pop .22s ease-out}
+@keyframes pop{0%{transform:translate(-50%,-46%) scale(.96);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+/* Front screen styles */
+#frontScreen{position:absolute;inset:0;background:linear-gradient(180deg,#a2d9ff 0%, #fefcea 100%);display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:28px;z-index:250}
+.leftCol{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.title{font-size:44px;color:var(--ui);text-shadow:0 4px 0 rgba(255,255,255,0.6);margin-bottom:4px}
+.subtitle{color:#2b4f3a;margin-bottom:6px;font-weight:700}
+.charRow{display:flex;gap:18px;align-items:center;justify-content:flex-start;margin-bottom:14px}
+.charCard{width:140px;height:160px;border-radius:14px;background:linear-gradient(180deg,#fff,#f7fff5);box-shadow:0 8px 18px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:4px solid transparent;transition:transform .22s, box-shadow .22s, border-color .22s}
+.charCard:hover{transform:translateY(-6px);box-shadow:0 14px 24px rgba(0,0,0,0.16)}
+.charCard.selected{border-color:var(--accent);transform:translateY(-8px);}
+.charFace{width:84px;height:84px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:46px}
+.charName{margin-top:8px;font-weight:800;color:#274a31}
+.controls{margin-top:12px;display:flex;gap:12px;align-items:center}
+.small{font-size:14px;padding:8px 12px}
+.hintText{font-size:14px;color:#2b4f3a;margin-top:6px}
+
+/* class selector */
+.classRow{display:flex;gap:8px;align-items:center;margin-left:8px}
+.classBtn{padding:8px 10px;border-radius:8px;border:2px solid rgba(0,0,0,0.06);background:#fff;cursor:pointer;font-weight:800}
+.classBtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* comic boxes on right */
+.rightCol{width:360px;display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.comic{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,0.12);max-width:320px}
+.comic h3{margin:0 0 6px 0;color:#1f5b35}
+.comic p{margin:0;color:#264c3a;font-weight:700}
+.fact{font-size:14px}
+.smallNote{font-size:13px;color:#2b4f3a;margin-top:6px}
+
+@media (max-width:900px){ #frontScreen{flex-direction:column;align-items:center;justify-content:center;padding:20px} .rightCol{width:100%;align-items:center} .leftCol{align-items:center} }
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="frontScreen" aria-label="Choose your character and class screen">
+    <div class="leftCol">
+      <div style="text-align:left">
+        <div class="title">STEM Forest Runner 🌲</div>
+        <div class="subtitle">Pick a hero and your class level — then tackle STEM questions!</div>
+      </div>
+
+      <div class="charRow" role="list" aria-label="Character choices">
+        <div class="charCard" role="listitem" data-char="fox" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff0e6,#ffecd8)">🦊</div>
+          <div class="charName">Foxy</div>
+        </div>
+
+        <div class="charCard" role="listitem" data-char="bunny" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff,#f1f8ff)">🐰</div>
+          <div class="charName">Bunny</div>
+        </div>
+
+        <div class="charCard" role="listitem" data-char="panda" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff,#f7f7f9)">🐼</div>
+          <div class="charName">Panda</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="controls">
+          <button id="startGameBtn" class="btn">Start Adventure</button>
+          <button id="howBtn" class="btn small" style="background:#4caf50">How to Play</button>
+          <button id="surpriseBtn" class="btn small" style="background:#3aa1ff">Surprise Me</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:flex-start">
+          <div style="font-weight:900;color:#274a31;margin-bottom:6px">Select Class</div>
+          <div class="classRow" role="list" aria-label="Class selection">
+            <button class="classBtn" data-class="6">6</button>
+            <button class="classBtn" data-class="7">7</button>
+            <button class="classBtn" data-class="8">8</button>
+            <button class="classBtn" data-class="9">9</button>
+            <button class="classBtn" data-class="10">10</button>
+            <button class="classBtn" data-class="11">11</button>
+            <button class="classBtn" data-class="12">12</button>
+          </div>
+          <div class="smallNote">Questions will match the chosen class (STEM topics).</div>
+        </div>
+      </div>
+
+      <div class="hintText">Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.</div>
+    </div>
+
+    <div class="rightCol">
+      <div class="comic" id="stemBox">
+        <h3>What is STEM?</h3>
+        <p><strong>S</strong>cience • <strong>T</strong>echnology • <strong>E</strong>ngineering • <strong>M</strong>athematics</p>
+        <div class="smallNote">Learn by playing — answer questions to help your hero jump obstacles!</div>
+      </div>
+
+      <div class="comic" id="factBox">
+        <h3>Interesting Facts</h3>
+        <p class="fact" id="factText">Did you know: A single lightning bolt is five times hotter than the surface of the Sun!</p>
+      </div>
+
+      <div class="comic" id="tipBox">
+        <h3>Quick Tip</h3>
+        <p class="fact">Press 1 / 2 / 3 for quick answers — perfect for fast learners!</p>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" aria-label="Game canvas"></canvas>
+
+  <div class="hud" id="hud">Score: <strong id="score">0</strong></div>
+  <div id="hint">Tap answer buttons ✅</div>
+
+  <div id="quiz" class="modal" role="dialog" aria-modal="true" aria-labelledby="qtitle">
+    <h2 id="qtitle">Question</h2>
+    <div id="qtext" style="font-size:18px;margin-bottom:12px"></div>
+    <div class="options" id="qopts"></div>
+    <div style="margin-top:12px;color:#333;font-size:14px">Correct → jump & continue • Wrong → fall & Game Over</div>
+  </div>
+
+  <div id="gameOver" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+    <div id="gameOverTitle" style="font-size:26px;font-weight:900;margin-bottom:8px">Game Over 😢</div>
+    <div style="font-size:16px;margin-bottom:10px">Your score: <strong id="finalScore">0</strong></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:8px">
+      <button id="retrySame" class="btn">Try Again (same hero)</button>
+      <button id="chooseChar" class="btn small" style="background:#4caf50">Choose Character</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// STEM Forest Runner — front screen enhanced with class selection and comic facts
+
+// Canvas + resize
+const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+let DPR = Math.max(1, window.devicePixelRatio || 1);
+function resize(){ const W = innerWidth, H = innerHeight; canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR); canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); world.groundY = Math.round(H * 0.78); player.baseY = (world.groundY - FOOT_OFFSET) - (player.h - LEG_HEIGHT); if(!player.jumping && !player.falling) player.y = player.baseY; }
+window.addEventListener('resize', resize);
+
+// visual constants
+const FOOT_OFFSET = 6; const LEG_HEIGHT = 22; const PLAYER_W = 92, PLAYER_H = 92;
+let GRAVITY = 2000; let JUMP_HEIGHT = 170; let JUMP_V0 = Math.sqrt(2 * GRAVITY * JUMP_HEIGHT); let JUMP_TOTAL_TIME = 2 * JUMP_V0 / GRAVITY;
+let baseSpeed = 260; let spawnInterval = Math.max(900, Math.floor((JUMP_TOTAL_TIME * 1000) * 1.6));
+
+// world & player
+const world = { groundY: Math.round(innerHeight * 0.78), clouds:[], mountains:[], treesFar:[], treesMid:[], treesNear:[] };
+const player = { x: Math.round(innerWidth * 0.16), y:0, baseY: world.groundY - PLAYER_H, w:PLAYER_W, h:PLAYER_H, runPhase:0, vy:0, jumping:false, falling:false, rotation:0, color:'#ff8c42', belly:'#fff3d9', landTimer:0 };
+player.y = player.baseY;
+
+// characters
+const characters = { fox:{color:'#ff8c42',belly:'#fff3d9',emoji:'🦊'}, bunny:{color:'#f5e6f9',belly:'#fff',emoji:'🐰'}, panda:{color:'#ffffff',belly:'#f0f4f8',emoji:'🐼'} };
+let selectedChar = 'fox';
+let selectedClass = '6'; // default class 6
+
+// QUESTION POOLS for classes 6 - 12 (15 each ~ 105 total). STEM-focused, increasing difficulty.
+const QUESTION_POOLS = {
+  '6': [
+    {q:'What process do plants use to make food using sunlight?', opts:['Photosynthesis','Digestion','Respiration'], a:'Photosynthesis'},
+    {q:'What force pulls objects toward Earth?', opts:['Magnetism','Gravity','Friction'], a:'Gravity'},
+    {q:'Which instrument measures temperature?', opts:['Thermometer','Scale','Clock'], a:'Thermometer'},
+    {q:'What is the boiling point of water at sea level (°C)?', opts:['100','90','80'], a:'100'},
+    {q:'Which simple machine is a ramp?', opts:['Lever','Inclined plane','Pulley'], a:'Inclined plane'},
+    {q:'Which planet is known as the Red Planet?', opts:['Mars','Venus','Jupiter'], a:'Mars'},
+    {q:'What is at the center of an atom?', opts:['Electron','Nucleus','Neutron'], a:'Nucleus'},
+    {q:'Which metal is commonly used for electrical wires?', opts:['Plastic','Copper','Wood'], a:'Copper'},
+    {q:'What do bees produce?', opts:['Milk','Honey','Silk'], a:'Honey'},
+    {q:'How many sides does a triangle have?', opts:['3','4','5'], a:'3'},
+    {q:'What unit is used to measure length in metric?', opts:['Meter','Liter','Gram'], a:'Meter'},
+    {q:'Which organ pumps blood in the body?', opts:['Lungs','Stomach','Heart'], a:'Heart'},
+    {q:'What is frozen water called?', opts:['Ice','Vapor','Steam'], a:'Ice'},
+    {q:'Which gas do plants use to make food?', opts:['Oxygen','Carbon dioxide','Hydrogen'], a:'Carbon dioxide'},
+    {q:'What do we call animals with backbones?', opts:['Invertebrates','Vertebrates','Mammals'], a:'Vertebrates'}
+  ],
+  '7': [
+    {q:'Which change is evaporation?', opts:['Liquid to gas','Gas to liquid','Solid to liquid'], a:'Liquid to gas'},
+    {q:'Which part of the cell contains genetic material?', opts:['Nucleus','Cell wall','Cytoplasm'], a:'Nucleus'},
+    {q:'What is 7 × 8?', opts:['54','56','48'], a:'56'},
+    {q:'Which tool is used to measure mass?', opts:['Thermometer','Balance','Ruler'], a:'Balance'},
+    {q:'Which energy source is renewable?', opts:['Coal','Solar','Oil'], a:'Solar'},
+    {q:'What do we call the speed of an object in a given direction?', opts:['Velocity','Distance','Force'], a:'Velocity'},
+    {q:'Which organelle makes proteins in a cell?', opts:['Ribosome','Mitochondria','Chloroplast'], a:'Ribosome'},
+    {q:'Which acid is found in citrus fruits?', opts:['Sulfuric','Citric','Hydrochloric'], a:'Citric'},
+    {q:'What is 1/2 + 1/3?', opts:['5/6','2/5','3/4'], a:'5/6'},
+    {q:'Which material is a good insulator?', opts:['Rubber','Copper','Aluminum'], a:'Rubber'},
+    {q:'What does "CPU" stand for in computers?', opts:['Central Processing Unit','Computer Power Unit','Central Print Unit'], a:'Central Processing Unit'},
+    {q:'Which planet has a ring system?', opts:['Saturn','Earth','Mercury'], a:'Saturn'},
+    {q:'What is the freezing point of water in °C?', opts:['0','-10','10'], a:'0'},
+    {q:'Which simple electric circuit component stores charge?', opts:['Resistor','Capacitor','Switch'], a:'Capacitor'},
+    {q:'Which branch studies living organisms?', opts:['Physics','Biology','Geology'], a:'Biology'}
+  ],
+  '8': [
+    {q:'What is the formula for speed?', opts:['distance × time','distance / time','time / distance'], a:'distance / time'},
+    {q:'Which gas is most abundant in Earth\'s atmosphere?', opts:['Oxygen','Nitrogen','Carbon dioxide'], a:'Nitrogen'},
+    {q:'What is 12²?', opts:['144','124','132'], a:'144'},
+    {q:'Which device converts electrical energy into mechanical motion?', opts:['Transformer','Motor','Battery'], a:'Motor'},
+    {q:'What is the process of rock changing under heat and pressure?', opts:['Erosion','Metamorphism','Sedimentation'], a:'Metamorphism'},
+    {q:'Which phenomenon shows light bending when entering water?', opts:['Reflection','Refraction','Diffraction'], a:'Refraction'},
+    {q:'Which measurement is used for electric current?', opts:['Volts','Amps','Ohms'], a:'Amps'},
+    {q:'Which part of a plant cell contains chlorophyll?', opts:['Nucleus','Chloroplast','Mitochondria'], a:'Chloroplast'},
+    {q:'What is the main function of roots?', opts:['Photosynthesis','Absorb water','Produce seeds'], a:'Absorb water'},
+    {q:'Which shape has 4 equal sides and angles?', opts:['Rectangle','Square','Parallelogram'], a:'Square'},
+    {q:'What does "HTML" stand for?', opts:['HyperText Markup Language','HighText Machine Language','Hyperlinking Text Markup'], a:'HyperText Markup Language'},
+    {q:'Which simple machine is a wheel and axle?', opts:['Pulley','Lever','Wheel and axle'], a:'Wheel and axle'},
+    {q:'Which metal reacts strongly with water?', opts:['Gold','Sodium','Copper'], a:'Sodium'},
+    {q:'What is 15% of 200?', opts:['30','25','35'], a:'30'},
+    {q:'Which energy form comes from motion?', opts:['Potential','Kinetic','Chemical'], a:'Kinetic'}
+  ],
+  '9': [
+    {q:'What is Newton\'s First Law about?', opts:['Energy conservation','Inertia','Action-Reaction'], a:'Inertia'},
+    {q:'Which element has atomic number 1?', opts:['Helium','Hydrogen','Oxygen'], a:'Hydrogen'},
+    {q:'What is the SI unit of force?', opts:['Newton','Joule','Watt'], a:'Newton'},
+    {q:'Which device measures electric current?', opts:['Voltmeter','Ammeter','Galvanometer'], a:'Ammeter'},
+    {q:'What type of mirror curves outward?', opts:['Concave','Convex','Plane'], a:'Convex'},
+    {q:'Which law states pressure and volume of a gas are inversely proportional (at constant T)?', opts:['Boyle\'s law','Ohm\'s law','Hooke\'s law'], a:"Boyle's law"},
+    {q:'Which biological molecule is mainly responsible for heredity?', opts:['Carbohydrate','DNA','Protein'], a:'DNA'},
+    {q:'What is the slope of the line y = 3x + 2?', opts:['3','2','1'], a:'3'},
+    {q:'What is oxidation in chemistry?', opts:['Loss of electrons','Gain of electrons','Gain of protons'], a:'Loss of electrons'},
+    {q:'What is the role of a resistor in a circuit?', opts:['Store energy','Limit current','Produce light'], a:'Limit current'},
+    {q:'Which planet is the largest in our solar system?', opts:['Earth','Jupiter','Saturn'], a:'Jupiter'},
+    {q:'What is the product of 7 and 9?', opts:['63','79','56'], a:'63'},
+    {q:'Which gas causes greenhouse effect if in excess?', opts:['Oxygen','Carbon dioxide','Argon'], a:'Carbon dioxide'},
+    {q:'What is the term for breeding plants to get desired traits?', opts:['Grafting','Selective breeding','Cloning'], a:'Selective breeding'},
+    {q:'Which tool is used for drawing accurate circles?', opts:['Ruler','Compass','Protractor'], a:'Compass'}
+  ],
+  '10': [
+    {q:'What is the formula for kinetic energy?', opts:['1/2 mv²','mgh','F × d'], a:'1/2 mv²'},
+    {q:'Which acid is present in our stomach?', opts:['Hydrochloric acid','Sulfuric acid','Nitric acid'], a:'Hydrochloric acid'},
+    {q:'Which process splits a nucleus into smaller parts?', opts:['Fusion','Fission','Evaporation'], a:'Fission'},
+    {q:'What is the pH of pure water at 25°C?', opts:['7','0','14'], a:'7'},
+    {q:'What is the resistance of a conductor measured in?', opts:['Ohms','Watts','Volts'], a:'Ohms'},
+    {q:'Which wave has the longest wavelength?', opts:['Gamma rays','Radio waves','X-rays'], a:'Radio waves'},
+    {q:'What does "DNA" stand for?', opts:['Deoxyribonucleic acid','Dinucleic acid','Deoxyribonitric acid'], a:'Deoxyribonucleic acid'},
+    {q:'Which device amplifies electrical signals?', opts:['Diode','Transistor','Capacitor'], a:'Transistor'},
+    {q:'What is the solution called when salt dissolves in water?', opts:['Mixture','Solution','Suspension'], a:'Solution'},
+    {q:'What is the area of a circle with radius r?', opts:['πr²','2πr','πd'], a:'πr²'},
+    {q:'Which law relates current, voltage and resistance?', opts:['Ohm\'s law','Hooke\'s law','Boyle\'s law'], a:"Ohm's law"},
+    {q:'Which scientist proposed the laws of motion?', opts:['Newton','Einstein','Galileo'], a:'Newton'},
+    {q:'Which property is measured in Hertz (Hz)?', opts:['Frequency','Force','Energy'], a:'Frequency'},
+    {q:'Which structure carries water up a plant?', opts:['Xylem','Phloem','Stomata'], a:'Xylem'},
+    {q:'What is an example of an exothermic reaction?', opts:['Combustion','Photosynthesis','Melting'], a:'Combustion'}
+  ],
+  '11': [
+    {q:'What is the derivative of x²?', opts:['2x','x','x²'], a:'2x'},
+    {q:'Which particle has a positive charge?', opts:['Electron','Proton','Neutron'], a:'Proton'},
+    {q:'What is the SI unit of pressure?', opts:['Pascal','Newton','Joule'], a:'Pascal'},
+    {q:'Which bond involves sharing electrons?', opts:['Ionic','Covalent','Metallic'], a:'Covalent'},
+    {q:'What is the principal quantum number used for?', opts:['Electron energy level','Mass of atom','Charge of ion'], a:'Electron energy level'},
+    {q:'What is Ohm\'s law formula?', opts:['V = IR','P = VI','E = mc²'], a:'V = IR'},
+    {q:'Which optical instrument uses lenses to form enlarged images?', opts:['Microscope','Ammeter','Generator'], a:'Microscope'},
+    {q:'What is the integral of 2x?', opts:['x² + C','2x + C','x + C'], a:'x² + C'},
+    {q:'Which element is often used in semiconductors?', opts:['Silicon','Iron','Gold'], a:'Silicon'},
+    {q:'Which concept describes speed in a direction?', opts:['Speed','Velocity','Distance'], a:'Velocity'},
+    {q:'Which phenomenon produces a spectrum when light passes through a prism?', opts:['Diffraction','Dispersion','Reflection'], a:'Dispersion'},
+    {q:'What does "CPU" primarily do in a computer?', opts:['Store files','Process instructions','Display images'], a:'Process instructions'},
+    {q:'Which process produces energy in the sun?', opts:['Fission','Fusion','Combustion'], a:'Fusion'},
+    {q:'Which mathematical set contains only whole numbers and their negatives?', opts:['Integers','Fractions','Real numbers'], a:'Integers'},
+    {q:'What is the formula for momentum?', opts:['p = mv','p = m/v','p = v/m'], a:'p = mv'}
+  ],
+  '12': [
+    {q:'What is the solution to the equation 2x + 3 = 11?', opts:['4','3','6'], a:'4'},
+    {q:'Which law relates energy and mass: E = mc² belongs to?', opts:['Newton','Einstein','Maxwell'], a:'Einstein'},
+    {q:'What is the molar mass of water (H₂O) approx.?', opts:['18 g/mol','20 g/mol','16 g/mol'], a:'18 g/mol'},
+    {q:'Which technique separates mixtures by boiling point differences?', opts:['Distillation','Filtration','Chromatography'], a:'Distillation'},
+    {q:'Which type of current is supplied by batteries?', opts:['Alternating current','Direct current','Pulsed current'], a:'Direct current'},
+    {q:'What is the derivative of sin(x)?', opts:['cos(x)','-sin(x)','tan(x)'], a:'cos(x)'},
+    {q:'Which particle has negligible mass and negative charge?', opts:['Proton','Electron','Neutron'], a:'Electron'},
+    {q:'Which matrix operation reflects a matrix across its main diagonal?', opts:['Transpose','Inverse','Determinant'], a:'Transpose'},
+    {q:'Which field studies algorithms and computation?', opts:['Biology','Computer science','Geology'], a:'Computer science'},
+    {q:'What is the period of a wave?', opts:['Time to complete one cycle','Wavelength','Frequency'], a:'Time to complete one cycle'},
+    {q:'Which method gives a quick estimate of large factorials?', opts:['Taylor series','Stirling\'s approximation','Newton\'s method'], a:"Stirling's approximation"},
+    {q:'Which semiconductor device controls current flow and can amplify?', opts:['Diode','Transistor','Resistor'], a:'Transistor'},
+    {q:'Which reaction absorbs heat from surroundings?', opts:['Exothermic','Endothermic','Combustion'], a:'Endothermic'},
+    {q:'Which theorem relates complex numbers to rotation: e^{iθ} = ?', opts:['cosθ + i sinθ','cosθ - i sinθ','tanθ + i'], a:'cosθ + i sinθ'},
+    {q:'Which constant is the charge of an electron approx. 1.6 × ?', opts:['10^-19','10^-6','10^-3'], a:'10^-19'}
+  ]
+};
+
+// state
+let obstacles = [], running=false, pausedForQuestion=false, gameEnded=false, score=0, spawnTimer=0, lastTS=0;
+
+// init scenery
+function initWorld(){ world.clouds=[]; for(let i=0;i<8;i++) world.clouds.push({x:Math.random()*innerWidth, y:20+Math.random()*120, s:0.7+Math.random()*1.1, speed:10+Math.random()*22}); world.mountains=[]; for(let i=0;i<6;i++) world.mountains.push({x:i*360, h:60+Math.random()*80}); world.treesFar=[]; for(let i=0;i<14;i++){ const w=44,h=80+Math.random()*60; world.treesFar.push({x:i*220+Math.random()*120,w,h,y:world.groundY - h}); } world.treesMid=[]; for(let i=0;i<12;i++){ const w=60,h=110+Math.random()*80; world.treesMid.push({x:i*260+Math.random()*160,w,h,y:world.groundY - h}); } world.treesNear=[]; for(let i=0;i<12;i++){ const w=80,h=120+Math.random()*80; world.treesNear.push({x:i*320+Math.random()*120,w,h,y:world.groundY - h}); } }
+initWorld();
+
+// helpers
+function drawRoundedRect(x,y,w,h,r,fill){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); if(fill){ ctx.fillStyle = fill; ctx.fill(); } }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+// drawing functions (kept polished)
+function drawBackground(dt, moving=true){ const W=innerWidth, H=innerHeight; for(const m of world.mountains){ if(moving) m.x -= baseSpeed*0.04*dt; if(m.x < -400) m.x = W + Math.random()*300; ctx.fillStyle='#9bb7c7'; ctx.beginPath(); ctx.moveTo(m.x, world.groundY); ctx.lineTo(m.x+180, world.groundY - m.h - 40); ctx.lineTo(m.x+360, world.groundY); ctx.closePath(); ctx.fill(); } for(const c of world.clouds){ if(moving) c.x -= c.speed*0.02*dt*60; if(c.x < -160) c.x = W + 180; ctx.globalAlpha = 0.95; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(c.x, c.y, 36*c.s, 20*c.s,0,0,Math.PI*2); ctx.ellipse(c.x+36*c.s, c.y+6*c.s, 28*c.s,18*c.s,0,0,Math.PI*2); ctx.ellipse(c.x-34*c.s, c.y+6*c.s, 26*c.s,16*c.s,0,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
+  for(const t of world.treesFar){ if(moving) t.x -= baseSpeed*0.06*dt; if(t.x < -200) t.x = W + Math.random()*220; const trunkH = t.h * 0.28; const trunkW = Math.max(6, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#6a4b2b'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#2f8b3d'; ctx.beginPath(); ctx.moveTo(t.x, trunkY); ctx.lineTo(t.x + t.w*0.5, trunkY - t.h*0.7); ctx.lineTo(t.x + t.w, trunkY); ctx.closePath(); ctx.fill(); ctx.fillStyle='#2a7b36'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.28, 10, 0, 0, Math.PI*2); ctx.fill(); }
+  for(const t of world.treesMid){ if(moving) t.x -= baseSpeed*0.12*dt; if(t.x < -260) t.x = W + Math.random()*260; const trunkH = t.h * 0.33; const trunkW = Math.max(8, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#5b3b20'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#3aa14a'; ctx.beginPath(); ctx.moveTo(t.x, trunkY); ctx.lineTo(t.x + t.w*0.5, trunkY - t.h*0.85); ctx.lineTo(t.x + t.w, trunkY); ctx.closePath(); ctx.fill(); ctx.fillStyle='#2f7f3b'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.32, 12, 0, 0, Math.PI*2); ctx.fill(); }
+  for(const t of world.treesNear){ if(moving) t.x -= baseSpeed*0.22*dt; if(t.x < -360) t.x = W + Math.random()*320; const trunkH = t.h * 0.38; const trunkW = Math.max(10, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#4d2f18'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#2aa24a'; ctx.beginPath(); ctx.ellipse(t.x + t.w*0.5, trunkY - 8, t.w*0.55, t.h*0.45, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='#238d38'; ctx.beginPath(); ctx.ellipse(t.x + t.w*0.36, trunkY + 6, t.w*0.38, t.h*0.35, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='#2b7c35'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.36, 13, 0, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = '#6fcf6f'; ctx.fillRect(0, world.groundY, innerWidth, innerHeight - world.groundY); ctx.fillStyle = '#5fb45f'; ctx.fillRect(0, world.groundY + 22, innerWidth, 24);
+}
+
+function drawPlayer(dt){ if(!player.jumping && !player.falling) player.y = player.baseY; const legSwing = Math.sin(player.runPhase) * 6; const legTopY = player.y + player.h - LEG_HEIGHT; let squashFactor = 1; if(player.landTimer > 0){ const d = player.landTimer; const dur = 0.18; squashFactor = 1 - 0.12 * (d / dur); }
+  ctx.save(); ctx.globalAlpha = player.falling ? 0.12 : 0.22; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(player.x + player.w*0.5 - 6, world.groundY + 6, 38, 12, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.save(); const cx = player.x + player.w*0.5, cy = player.y + player.h*0.5; ctx.translate(cx, cy); ctx.rotate(player.rotation); ctx.translate(-cx, -cy);
+  ctx.fillStyle = player.color; const bodyRx = 30 * (1 + 0.06 * (1 - squashFactor)); const bodyRy = 26 * squashFactor; ctx.beginPath(); ctx.ellipse(player.x + 36, player.y + 36 + (1 - squashFactor)*6, bodyRx, bodyRy, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.belly; ctx.beginPath(); ctx.ellipse(player.x + 36, player.y + 46 + (1 - squashFactor)*6, 16 * (1 + 0.04*(1 - squashFactor)), 18 * squashFactor, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.color; ctx.beginPath(); ctx.ellipse(player.x + 60, player.y + 14, 18, 18, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = player.color; ctx.beginPath(); ctx.moveTo(player.x + 50, player.y - 6); ctx.lineTo(player.x + 46, player.y + 8); ctx.lineTo(player.x + 56, player.y + 2); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(player.x + 68, player.y - 6); ctx.lineTo(player.x + 64, player.y + 8); ctx.lineTo(player.x + 74, player.y + 2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(player.x + 64, player.y + 12, 3, 3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.color; ctx.beginPath(); ctx.ellipse(player.x + 10, player.y + 28, 8, 20, -0.8, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = player.belly; ctx.beginPath(); ctx.ellipse(player.x + 8, player.y + 26, 4, 10, -0.8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#6b3b20'; const frontLegX = player.x + 22 + legSwing * 0.6; const backLegX = player.x + 44 - legSwing * 0.6; const legTop = legTopY + (player.jumping || player.falling ? -8 : 0); ctx.fillRect(frontLegX, legTop, 10, LEG_HEIGHT); ctx.fillRect(backLegX, legTop + (Math.sin(player.runPhase) > 0 ? 6 : 0), 10, LEG_HEIGHT);
+  ctx.restore(); }
+
+function drawObstacles(dt){ for(const ob of obstacles){ ctx.save(); ctx.globalAlpha = ob.alpha !== undefined ? ob.alpha : 1; if(ob.type === 'log'){ drawRoundedRect(ob.x, ob.y + 8, ob.w, ob.h - 8, 8, '#a05a2b'); ctx.fillStyle = 'rgba(0,0,0,0.08)'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.ellipse(ob.x + 12 + i*16, ob.y + ob.h/2 + 8, 8 - i*2, 6 - i, 0, 0, Math.PI*2); ctx.fill(); } } else if(ob.type === 'rock'){ ctx.fillStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(ob.x, ob.y + ob.h); ctx.lineTo(ob.x + ob.w*0.5, ob.y); ctx.lineTo(ob.x + ob.w, ob.y + ob.h); ctx.closePath(); ctx.fill(); } else if(ob.type === 'bush'){ ctx.fillStyle = '#2f9a4f'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.5, ob.y + ob.h*0.5, ob.w*0.55, ob.h*0.48, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#236c39'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.3, ob.y + ob.h*0.45, ob.w*0.33, ob.h*0.34, 0, 0, Math.PI*2); ctx.fill(); } else if(ob.type === 'bird'){ ctx.fillStyle = '#f7c04a'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w/2, ob.y + ob.h/2, ob.w/2.2, ob.h/2.2, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#f1a82f'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.55, ob.y + ob.h*0.5, ob.w*0.3, ob.h*0.2, -0.4, 0, Math.PI*2); ctx.fill(); } ctx.globalAlpha = 1; ctx.restore(); } }
+
+function spawnObstacleCandidate(){ const types = ['log','rock','bush','bird']; const t = types[(Math.random()*types.length)|0]; const size = (t === 'bird')? {w:64,h:38,yOff:-48} : {w:78,h:68,yOff:0}; const xNew = innerWidth + 40 + Math.random()*120; const speedNew = baseSpeed * (t === 'bird' ? 1.45 : 1.0); const tNew = (xNew - player.x) / speedNew; const existingArrivalTimes = obstacles.map(ob => { const v = baseSpeed * (ob.type === 'bird' ? 1.45 : 1.0); const tArr = (ob.x - player.x) / v; return tArr; }).filter(v=>v > 0);
+  const minGapSec = Math.max(1.6, JUMP_TOTAL_TIME + 1.1);
+  for(const tExisting of existingArrivalTimes){ if(Math.abs(tNew - tExisting) < minGapSec){ return false; } }
+  obstacles.push({x: xNew, y: world.groundY - size.h + size.yOff - 6, w: size.w, h: size.h, type: t, asked:false, alpha:1}); spawnInterval = Math.max(900, Math.floor((minGapSec + Math.random()*0.6) * 1000)); return true; }
+
+// main loop
+function loop(ts){ if(!lastTS) lastTS = ts; const dtMS = Math.min(60, ts - lastTS); const dt = dtMS / 1000; lastTS = ts; ctx.clearRect(0,0,canvas.width/DPR, canvas.height/DPR); const moving = running && !pausedForQuestion && !gameEnded; drawBackground(dt, moving);
+  if(moving){ for(const ob of obstacles){ const speedFactor = ob.type === 'bird' ? 1.45 : 1.0; ob.x -= baseSpeed * speedFactor * dt; if(ob.type === 'bird') ob.y += Math.sin((ts + ob.x) / 180) * 0.4; const fadeStart = innerWidth * 0.12; if(ob.x + ob.w < fadeStart){ ob.alpha = Math.max(0, (ob.alpha === undefined ? 1 : ob.alpha) - dt * 1.2); } } }
+  ctx.fillStyle = 'rgba(0,0,0,0.06)'; for(let i=0;i<6;i++) ctx.fillRect((i*70 + (ts*0.02 % 70)), world.groundY + 12, 18, 4);
+  drawObstacles(dt);
+  if(player.jumping || player.falling){ player.vy += GRAVITY * dt; player.y += player.vy * dt; player.rotation = Math.max(-0.45, Math.min(0.45, -player.vy / 2400)); if(player.y >= player.baseY){ player.y = player.baseY; player.jumping = false; player.vy = 0; player.rotation = 0; player.landTimer = 0.18; } } else { player.runPhase += dt * 14; if(player.landTimer > 0) player.landTimer = Math.max(0, player.landTimer - dt); }
+  drawPlayer(dt);
+  if(running && !pausedForQuestion && !gameEnded){ spawnTimer += dt * 1000; if(spawnTimer >= spawnInterval){ spawnTimer = 0; const ok = spawnObstacleCandidate(); if(!ok){ spawnTimer = spawnInterval * 0.35; } } }
+  if(running && !pausedForQuestion && !gameEnded){ for(const ob of obstacles){ if(!ob.asked && ob.x < player.x + 160 && ob.x > player.x - 40){ ob.asked = true; pauseAndAsk(ob); break; } } }
+  for(let i=obstacles.length-1;i>=0;i--){ const ob = obstacles[i]; if((ob.alpha !== undefined && ob.alpha <= 0) || ob.x + ob.w < -160) obstacles.splice(i,1); }
+  if(!gameEnded) requestAnimationFrame(loop);
+}
+
+// quiz UI (select from QUESTION_POOLS based on selectedClass)
+const quizEl = document.getElementById('quiz'); const qtitle = document.getElementById('qtitle'); const qtext = document.getElementById('qtext'); const qopts = document.getElementById('qopts'); let currentObstacle = null;
+function pauseAndAsk(ob){ pausedForQuestion = true; currentObstacle = ob; // select random from pool
+  const pool = QUESTION_POOLS[selectedClass] || QUESTION_POOLS['6']; const q = pool[(Math.random()*pool.length)|0]; qtitle.textContent = 'Question'; qtext.textContent = q.q; qopts.innerHTML=''; // shuffle options
+  const shuffled = q.opts.slice().sort(()=>Math.random()-0.5); shuffled.forEach(opt=>{ const b = document.createElement('button'); b.textContent = opt; b.style.background = '#4caf50'; b.style.color = '#fff'; b.style.border='none'; b.style.borderRadius='10px'; b.style.padding='12px 16px'; b.onclick = ()=> answer(opt === q.a); qopts.appendChild(b); }); quizEl.style.display='block'; }
+
+function answer(isCorrect){ quizEl.style.display='none'; pausedForQuestion=false; if(isCorrect){ playCorrect(); score += 1; document.getElementById('score').textContent = score; showTempMsg('Great job! 🎉'); player.jumping = true; player.vy = -JUMP_V0; if(currentObstacle) currentObstacle.passedToRemove = true; currentObstacle = null; } else { playWrong(); showTempMsg('Oops!'); player.falling = true; player.vy = 220; gameEnded = true; setTimeout(()=> showGameOver(), 900); } }
+
+function showTempMsg(txt, ms=900){ const el = document.createElement('div'); el.textContent = txt; el.style.position='absolute'; el.style.left='50%'; el.style.top='8%'; el.style.transform='translateX(-50%)'; el.style.zIndex=400; el.style.fontSize='26px'; el.style.fontWeight='900'; el.style.color='#ffdf6b'; el.style.textShadow='0 2px #000'; document.getElementById('root').appendChild(el); setTimeout(()=> el.remove(), ms); }
+
+function showGameOver(){ running = false; pausedForQuestion = false; gameEnded = true; quizEl.style.display='none'; document.getElementById('finalScore').textContent = score; const go = document.getElementById('gameOver'); go.classList.add('show'); go.style.display = 'block'; document.getElementById('retrySame').focus(); }
+function hideGameOver(){ const go = document.getElementById('gameOver'); go.classList.remove('show'); go.style.display = 'none'; }
+
+function retrySameHero(){ hideGameOver(); reset(); start(); }
+function goChooseCharacter(){ hideGameOver(); reset(); const fs = document.getElementById('frontScreen'); fs.style.display = 'flex'; const cards = document.querySelectorAll('.charCard'); cards.forEach(c=> c.classList.toggle('selected', c.dataset.char === selectedChar)); const sel = document.querySelector('.charCard.selected'); if(sel) sel.focus(); }
+
+// UI bindings for game over
+document.getElementById('retrySame').addEventListener('click', retrySameHero);
+document.getElementById('chooseChar').addEventListener('click', goChooseCharacter);
+
+// keyboard shortcuts
+window.addEventListener('keydown', e=>{ const goEl = document.getElementById('gameOver'); if(goEl && goEl.style.display === 'block'){ const k = e.key.toLowerCase(); if(k === 'r'){ retrySameHero(); } if(k === 'c'){ goChooseCharacter(); } }
+  if(pausedForQuestion && (e.key >= '1' && e.key <= '3')){ const idx = Number(e.key) - 1; const btns = qopts.querySelectorAll('button'); if(btns[idx]) btns[idx].click(); } });
+
+// front screen interactions
+const cards = document.querySelectorAll('.charCard'); cards.forEach(card => { card.addEventListener('click', ()=>{ cards.forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedChar = card.dataset.char; }); card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ card.click(); } }); });
+
+// class buttons
+const classBtns = document.querySelectorAll('.classBtn'); classBtns.forEach(btn=>{ btn.addEventListener('click', ()=>{ classBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedClass = btn.dataset.class; // small pulse feedback
+  btn.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:160}); }); });
+// default select class 6 visually
+document.querySelector('.classBtn[data-class="6"]').classList.add('active');
+
+// front screen controls
+document.getElementById('startGameBtn').addEventListener('click', ()=> start());
+document.getElementById('howBtn').addEventListener('click', ()=> alert('Answer the STEM question when it appears. Correct → jump & continue. Wrong → fall & Game Over. Use 1/2/3 keys as shortcuts.'));
+document.getElementById('surpriseBtn').addEventListener('click', ()=>{ const keys = Array.from(cards).map(c=>c.dataset.char); const pick = keys[Math.floor(Math.random()*keys.length)]; cards.forEach(c=>c.classList.toggle('selected', c.dataset.char === pick)); selectedChar = pick; const sel = document.querySelector('.charCard.selected'); if(sel) sel.focus(); });
+
+// facts rotation in comic box
+const facts = [
+  'Lightning can be five times hotter than the surface of the Sun!',
+  'A single teaspoon of soil can contain billions of microorganisms.',
+  'Octopuses have three hearts — biology is full of surprises!',
+  'The first computer programmer was Ada Lovelace in the 1800s.',
+  'Water expands when it freezes — that\'s why ice floats.'
+];
+let factIndex = 0; const factText = document.getElementById('factText'); setInterval(()=>{ factIndex = (factIndex + 1) % facts.length; factText.textContent = 'Did you know: ' + facts[factIndex]; }, 3200);
+
+// audio
+const AudioCtx = window.AudioContext || window.webkitAudioContext; let audioCtx = null; function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
+function playCorrect(){ try{ ensureAudio(); const t = audioCtx.currentTime; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(880,t); o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.02); o.start(); o.frequency.exponentialRampToValueAtTime(1320,t+0.12); g.gain.exponentialRampToValueAtTime(0.0001,t+0.46); setTimeout(()=>o.stop(),520); }catch(e){} }
+function playWrong(){ try{ ensureAudio(); const t = audioCtx.currentTime; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='square'; o.frequency.setValueAtTime(140,t); o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.22,t+0.02); o.start(); g.gain.exponentialRampToValueAtTime(0.0001,t+0.6); setTimeout(()=>o.stop(),700); }catch(e){} }
+
+// reset & start
+function reset(){ running=false; pausedForQuestion=false; gameEnded=false; score=0; document.getElementById('score').textContent='0'; obstacles=[]; spawnTimer=0; spawnInterval = Math.max(900, Math.floor((JUMP_TOTAL_TIME * 1000) * 1.6)); baseSpeed=260; player.falling=false; player.jumping=false; player.vy=0; player.rotation=0; player.y=player.baseY; document.getElementById('gameOver').style.display='none'; quizEl.style.display='none'; }
+
+function start(){ // apply selected character colors
+  const c = characters[selectedChar]; player.color = c.color; player.belly = c.belly; // hide front screen
+  document.getElementById('frontScreen').style.display = 'none'; reset(); initWorld(); running=true; gameEnded=false; lastTS=0; spawnObstacleCandidate(); spawnTimer = spawnInterval * 0.6; spawnObstacleCandidate(); resize(); requestAnimationFrame(loop);
+  document.addEventListener('click', function unlock(){ try{ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} document.removeEventListener('click', unlock); }); }
+
+// initial UI state
+document.querySelector('.charCard[data-char="fox"]').classList.add('selected'); selectedChar = 'fox'; resize();
+</script>
+</body>
+</html>

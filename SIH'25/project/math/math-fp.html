@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>E-Vidya : Mathematics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=EB+Garamond&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #F3F8DA;
+      font-family: 'Poppins', sans-serif;
+    }
+    .game-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+
+  <header class="text-center mb-10">
+    <h1 class="text-5xl font-bold text-green-700 title mb-2" style="font-family: 'Playfair Display', serif;">
+      MathQuest : Learn Mathematics The Fun Way
+    </h1>
+    <p class="text-green-800 italic" style="font-family: 'EB Garamond', serif;">
+        Test your wits and conquer math challenges to unlock a prize!
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    
+    <!-- Ludo Game Card -->
+    <a href="math-1.html" class="game-card bg-green-400 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-green-500">
+      <img src="math-1.png" alt="Ludo Logo" class="w-24 h-24 mb-4 rounded-none">
+      <h2 class="text-2xl font-semibold text-white mb-2">Dice of Destiny</h2>
+      <p class="text-white text-center">Every roll counts — answer, advance, and master your fate.</p>
+    </a>
+
+    <!-- Memory Game Card -->
+    <a href="math-2.html" class="game-card bg-green-400 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-green-500">
+      <img src="math-2.png" alt="Memory Logo" class="mb-4 w-20 h-35 rounded-none">
+      <h2 class="text-2xl font-semibold text-white mb-2">MindMatch</h2>
+      <p class="text-white text-center">Remember, solve, succeed — your memory adventure begins.</p>
+    </a>
+
+  </div>
+
+</body>
+</html>

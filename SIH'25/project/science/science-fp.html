@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PhysicsQuest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=EB+Garamond&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #F3F8DA;
+      font-family: 'Poppins', sans-serif;
+    }
+    .game-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+
+  <header class="text-center mb-10">
+    <h1 class="text-5xl font-bold text-green-700 title mb-2" style="font-family: 'Playfair Display', serif;">
+      LabMasters
+    </h1>
+    <p class="text-green-800 italic" style="font-family: 'EB Garamond', serif;">
+        Engage, experiment, and learn the principles of science!
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    
+    <!-- Class 6 Gravity Game Card -->
+    <a href="class-6.html" class="game-card bg-green-400 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-green-500">
+      <img src="class-6.png" alt="Gravity Grab" class="w-24 h-24 mb-4 rounded-full">
+      <h2 class="text-2xl font-semibold text-white mb-2">Gravity Grab</h2>
+      <p class="text-white text-center">
+        Catch, bounce and master gravity.
+      </p>
+    </a>
+
+    <!-- Class 9 Sound Game Card -->
+    <a href="class-9.html" class="game-card bg-green-400 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-green-500">
+      <img src="class-9.png" alt="Signal Sync" class="w-24 h-24 mb-4 rounded-full">
+      <h2 class="text-2xl font-semibold text-white mb-2">Signal Sync</h2>
+      <p class="text-white text-center">
+        Find the wave & surf the sound.
+      </p>
+    </a>
+
+  </div>
+
+</body>
+</html>
