@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Vidya Mathematics Curriculum | Classes 6-12</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* E-Vidya Color Theme Variables - Matching existing design */
+        :root {
+            --primary-green: #10B981;
+            --secondary-green: #059669;
+            --tertiary-green: #047857;
+            --dark-green: #065f46;
+            --light-green: #D1FAE5;
+            --extra-light-green: #F0FDF4;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+            --white: #ffffff;
+            --light-gray: #F9FAFB;
+            --border-light: #E5E7EB;
+            --error-red: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            background: #F3F8DA;
+            color: var(--text-dark);
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles - Matching main site */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .brand h2 {
+            color: var(--primary-green);
+            margin: 0;
+            font-family: 'Poppins', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 60vh;
+            background: linear-gradient(135deg, #F3F8DA 0%, #CBE2AC 50%, #85A563 100%);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 80px 0 60px;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            width: 100%;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', serif;
+            font-size: 3.5rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-tagline {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            margin: 20px auto;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, var(--secondary-green), var(--tertiary-green));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Curriculum Grid */
+        .curriculum-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 50px;
+        }
+
+        .curriculum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .class-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 520px;
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-green);
+        }
+
+        .class-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.2);
+            border-color: var(--primary-green);
+        }
+
+        .class-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .class-number {
+            background: var(--primary-green);
+            color: var(--white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .class-title {
+            flex: 1;
+        }
+
+        .class-title h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .class-title .game-name {
+            color: var(--primary-green);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .game-description {
+            background: var(--extra-light-green);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        .game-description p {
+            color: var(--text-light);
+            font-style: italic;
+            margin: 0;
+        }
+
+        .objectives-list {
+            margin: 20px 0;
+        }
+
+        .objectives-list h4 {
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .objectives-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            background: var(--light-gray);
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-green);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .play-button {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .btn-play {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-play:hover {
+            background: linear-gradient(135deg, var(--secondary-green), var(--tertiary-green));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-play.class-10 {
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            animation: pulse 2s infinite;
+        }
+
+        .btn-play.class-10:hover {
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5); }
+            100% { box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 0;
+            background: var(--light-gray);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-highlight {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--light-green);
+            transition: all 0.3s ease;
+        }
+
+        .feature-highlight:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+            border-color: var(--primary-green);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-highlight h3 {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .feature-highlight p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .curriculum-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .class-card {
+                min-height: auto;
+                padding: 25px;
+            }
+
+            .floating-icons {
+                display: none;
+            }
+        }
+    
+        /* Game Notice Banner */
+        .game-notice {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            animation: gentle-bounce 3s ease-in-out infinite;
+        }
+
+        .notice-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .notice-icon {
+            font-size: 2rem;
+            animation: rotate 4s linear infinite;
+        }
+
+        .notice-text {
+            flex: 1;
+        }
+
+        .notice-text strong {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .notice-text span {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .notice-text small {
+            color: var(--text-light);
+            font-style: italic;
+            display: block;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .notice-cta {
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .notice-cta:hover {
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+            transform: translateX(5px);
+        }
+
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .notice-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .notice-text {
+                text-align: center;
+            }
+        }
+        </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="brand">
+                    <h2>E-Vidya</h2>
+                </div>
+                <nav>
+                    <a href="math-fp.html" style="color: var(--text-dark); text-decoration: none; font-weight: 500;">← Back to Home</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Mathematics Curriculum</h1>
+                <p class="hero-tagline">Discover Your Mathematical Journey Through Classes 6-12</p>
+                <p style="color: var(--text-light); max-width: 600px; margin: 0 auto 20px;">
+                    From number adventures to advanced calculus, each class level features unique games 
+                    designed to make mathematics engaging, interactive, and fun.
+                </p>
+                <a href="#" class="download-btn" onclick="downloadCurriculum()">
+                    <span>📋</span>
+                    Download Complete Curriculum PDF
+                </a>
+
+                <!-- Game Availability Notice -->
+                <div class="game-notice">
+                    <div class="notice-content">
+                        <span class="notice-icon">🎲✨</span>
+                        <div class="notice-text">
+                            <strong>🎮 Ready to Play!</strong> 
+                            <span>Probability Ludo (Class 10) is now available! Test your strategic thinking skills.</span>
+                            <small>Other exciting games launching soon...</small>
+                        </div>
+                        <a href="#class-10-card" class="notice-cta">Play Now →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Curriculum Section -->
+    <section class="curriculum-section">
+        <div class="container">
+            <h2 class="section-title">Complete Learning Journey</h2>
+            <p class="section-subtitle">Each class level features a unique game-based approach to master specific mathematical concepts</p>
+            
+            <div class="curriculum-grid">
+                <!-- Class 6 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">6</div>
+                        <div class="class-title">
+                            <h3>Number Quest</h3>
+                            <span class="game-name">Island Adventure</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Players sail between islands solving factorization, LCM/GCD and prime puzzles to gather resources.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Prime numbers and factorization</li>
+                            <li>LCM and GCD calculations</li>
+                            <li>Multiples and number patterns</li>
+                            <li>Divisibility rules mastery</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="playGame('class6')">
+                            <span>🎮</span>
+                            Start Number Quest
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 7 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">7</div>
+                        <div class="class-title">
+                            <h3>Geometry Builder</h3>
+                            <span class="game-name">City Construction</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Construct city buildings from geometric shapes; solve perimeter/area/angle tasks to unlock materials.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Angles and their relationships</li>
+                            <li>Perimeter and area calculations</li>
+                            <li>Basic geometric theorems</li>
+                            <li>Pythagorean theorem introduction</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="comingSoon()">
+                            <span>🏗️</span>
+                            Start Geometry Builder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 8 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">8</div>
+                        <div class="class-title">
+                            <h3>Algebra Arena</h3>
+                            <span class="game-name">Mathematical Battles</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Duel AI opponents by solving linear/quadratic equations and systems; correct moves drain opponent's HP.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Linear equations mastery</li>
+                            <li>Quadratic factoring</li>
+                            <li>Systems of equations</li>
+                            <li>Substitution and elimination</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="comingSoon()">
+                            <span>⚔️</span>
+                            Enter Algebra Arena
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 9 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">9</div>
+                        <div class="class-title">
+                            <h3>Trigonometry Tower</h3>
+                            <span class="game-name">Angle Mastery</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Scale a tower by solving angle problems, sine/cosine/tangent puzzles, and right-triangle problems.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Trigonometric ratios</li>
+                            <li>Solving triangles</li>
+                            <li>Unit circle introduction</li>
+                            <li>Practical applications</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="comingSoon()">
+                            <span>🗼</span>
+                            Climb the Tower
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 10 -->
+                <div class="class-card" id="class-10-card">
+                    <div class="class-header">
+                        <div class="class-number">10</div>
+                        <div class="class-title">
+                            <h3>Probability Ludo</h3>
+                            <span class="game-name">Strategic Thinking</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>A light card game where expected value and probability skills determine the best play.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Basic probability theory</li>
+                            <li>Expected value calculations</li>
+                            <li>Combinations and permutations</li>
+                            <li>Statistical decision making</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play class-10" onclick="playGame('class10')">
+                            <span>🎲</span>
+                            Play Probability Ludo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 11 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">11</div>
+                        <div class="class-title">
+                            <h3>Calculus Ramp</h3>
+                            <span class="game-name">Motion Mastery</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Craft ramps/trajectories for characters using derivatives and integrals to meet motion constraints.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Limits and continuity</li>
+                            <li>Derivatives and slopes</li>
+                            <li>Basic integral calculations</li>
+                            <li>Optimization fundamentals</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="comingSoon()">
+                            <span>📈</span>
+                            Build Your Ramp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Class 12 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">12</div>
+                        <div class="class-title">
+                            <h3>Matrix Lab</h3>
+                            <span class="game-name">Transformation Science</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-description">
+                        <p>Solve transformations and systems using matrices to unlock lab equipment and progress in experiments.</p>
+                    </div>
+                    
+                    <div class="objectives-list">
+                        <h4>Learning Objectives:</h4>
+                        <ul>
+                            <li>Matrix operations</li>
+                            <li>Determinants and inverses</li>
+                            <li>Linear transformations</li>
+                            <li>Advanced system solving</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="play-button">
+                        <button class="btn-play" onclick="comingSoon()">
+                            <span>🔬</span>
+                            Enter Matrix Lab
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose E-Vidya Mathematics?</h2>
+            <div class="features-grid">
+                <div class="feature-highlight">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Game-Based Learning</h3>
+                    <p>Each concept is taught through engaging games that make mathematics fun and memorable, turning complex problems into exciting challenges.</p>
+                </div>
+                
+                <div class="feature-highlight">
+                    <div class="feature-icon">📊</div>
+                    <h3>Progressive Difficulty</h3>
+                    <p>Curriculum builds systematically from basic number concepts to advanced calculus, ensuring strong foundational understanding.</p>
+                </div>
+                
+                <div class="feature-highlight">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Achievement System</h3>
+                    <p>Students earn badges, certificates, and recognition for mastering mathematical concepts and completing challenging levels.</p>
+                </div>
+                
+                <div class="feature-highlight">
+                    <div class="feature-icon">📈</div>
+                    <h3>Real-World Applications</h3>
+                    <p>Every game connects mathematical concepts to practical scenarios, helping students understand the relevance of their learning.</p>
+                </div>
+                
+                <div class="feature-highlight">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Personalized Learning</h3>
+                    <p>Adaptive algorithms adjust difficulty based on student performance, ensuring optimal challenge and continuous progress.</p>
+                </div>
+                
+                <div class="feature-highlight">
+                    <div class="feature-icon">👥</div>
+                    <h3>Collaborative Features</h3>
+                    <p>Students can compete with peers, collaborate on problems, and participate in mathematical tournaments and challenges.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function playGame(gameClass) {
+            if (gameClass === 'class10') {
+                // Redirect to the index.html game for Class 6
+                window.location.href = '../4-mathematics/class-10/index.html';
+            } else {
+                comingSoon();
+            }
+        }
+
+        function comingSoon() {
+            alert('🚀 Coming Soon!\n\nThis game is currently under development. Stay tuned for an amazing mathematical adventure!');
+        }
+
+    function downloadCurriculum() {
+        const pdfFilePath = "evidya-mathematics-curriculum.pdf";
+        const downloadFileName = "E-Vidya_Mathematics.pdf"; 
+        const link = document.createElement('a');
+        link.href = pdfFilePath;
+        link.download = downloadFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effect to class cards
+            const classCards = document.querySelectorAll('.class-card');
+            classCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Animate elements on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Initially hide elements
+            classCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease ' + (index * 0.1) + 's';
+                observer.observe(card);
+            });
+        });
+
+        // Handle smooth scrolling to Class 10 card
+        document.addEventListener('click', function(e) {
+            if (e.target.getAttribute('href') === '#class-10-card') {
+                e.preventDefault();
+                const target = document.getElementById('class-10-card');
+                if (target) {
+                    target.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    // Add a brief highlight effect
+                    target.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5)';
+                    setTimeout(() => {
+                        target.style.boxShadow = '';
+                    }, 2000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

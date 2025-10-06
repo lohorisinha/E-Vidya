@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Forest Academy | Classes 6-12 | Choose Your Hero & Level</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Engineering Forest Theme Variables - Matching index.html */
+        :root {
+            --bg1: #e8ffe8;
+            --bg2: #d7f8d7;
+            --accent: #ff8a00;
+            --panel: #fff9e6;
+            --ui: #2b5f3a;
+            --forest-green: #2b5f3a;
+            --light-forest: #4a7c5d;
+            --engineering-orange: #ff8a00;
+            --bright-orange: #ff9500;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+            --white: #ffffff;
+            --light-gray: #F9FAFB;
+            --border-light: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Aptos Display', 'Inter', 'Poppins', Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(180deg, var(--bg1), var(--bg2));
+            color: var(--text-dark);
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles - Forest Engineering Theme */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .brand h2 {
+            color: var(--forest-green);
+            margin: 0;
+            font-family: 'Poppins', serif;
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand .tagline {
+            font-size: 12px;
+            color: var(--engineering-orange);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: -5px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .language-selector {
+            position: relative;
+        }
+
+        .language-btn {
+            background: var(--forest-green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn:hover {
+            background: var(--light-forest);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .language-dropdown.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: var(--bg1);
+        }
+
+        .play-now-btn {
+            background: var(--engineering-orange);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(255, 138, 0, 0.3);
+        }
+
+        .play-now-btn:hover {
+            background: var(--bright-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 138, 0, 0.4);
+        }
+
+        /* Hero Section - Forest Adventure Theme */
+        .hero-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--light-forest) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="trees" width="20" height="20" patternUnits="userSpaceOnUse"><text x="10" y="15" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="12">🌲</text></pattern></defs><rect width="100" height="100" fill="url(%23trees)"/></svg>');
+            opacity: 0.2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            font-family: 'Poppins', serif;
+            line-height: 1.2;
+        }
+
+        .hero-tagline {
+            font-size: 24px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .hero-characters {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .character-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .character-card:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .character-card .character-face {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .character-card .character-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--engineering-orange);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 138, 0, 0.4);
+        }
+
+        .download-btn:hover {
+            background: var(--bright-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 138, 0, 0.5);
+        }
+
+        /* Engineering Info Section */
+        .info-section {
+            padding: 60px 0;
+            background: var(--white);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .info-card {
+            background: var(--panel);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid var(--engineering-orange);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .info-card h3 {
+            color: var(--forest-green);
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Curriculum Section */
+        .curriculum-section {
+            padding: 80px 0;
+            background: var(--light-gray);
+        }
+
+        .section-title {
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--forest-green);
+            font-family: 'Poppins', serif;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-light);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .curriculum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .class-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-light);
+        }
+
+        .class-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .class-header {
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--light-forest) 100%);
+            color: white;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .class-number {
+            font-size: 36px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .class-title h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .game-name {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .class-content {
+            padding: 25px;
+        }
+
+        .class-description {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--bg1);
+            border-radius: 8px;
+        }
+
+        .topic-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--engineering-orange);
+            flex-shrink: 0;
+        }
+
+        .topic-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--forest-green);
+        }
+
+        .game-mechanics {
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.5;
+            border-left: 4px solid var(--engineering-orange);
+        }
+
+        /* Engineering Facts Section */
+        .facts-section {
+            padding: 60px 0;
+            background: var(--forest-green);
+            color: white;
+        }
+
+        .facts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .fact-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .fact-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .fact-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .fact-text {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.8;
+        }
+
+        /* Language Content Classes */
+        .content-english { display: block; }
+        .content-hindi { display: none; }
+        .content-odia { display: none; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-tagline {
+                font-size: 18px;
+            }
+
+            .hero-characters {
+                gap: 20px;
+            }
+
+            .character-card {
+                min-width: 100px;
+                padding: 15px;
+            }
+
+            .curriculum-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-controls {
+                gap: 10px;
+            }
+
+            .play-now-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="brand">
+                    <h2 class="brand-title">
+                        <span class="content-english">Engineering Forest Academy 🌲</span>
+                        <span class="content-hindi">इंजीनियरिंग वन अकादमी 🌲</span>
+                        <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଫରେଷ୍ଟ ଏକାଡେମୀ 🌲</span>
+                    </h2>
+                    <div class="tagline">
+                        <span class="content-english">Choose Your Hero & Engineering Level</span>
+                        <span class="content-hindi">अपना हीरो और इंजीनियरिंग स्तर चुनें</span>
+                        <span class="content-odia">ତୁମର ହିରୋ ଏବଂ ଇଞ୍ଜିନିୟରିଂ ସ୍ତର ବାଛ</span>
+                    </div>
+                </div>
+                <div class="nav-controls">
+                    <div class="language-selector">
+                        <button class="language-btn" onclick="toggleLanguageDropdown()">
+                            <span id="currentLang">🇬🇧 English</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" onclick="setLanguage('english')">🇬🇧 English</div>
+                            <div class="language-option" onclick="setLanguage('hindi')">🇮🇳 हिन्दी</div>
+                            <div class="language-option" onclick="setLanguage('odia')">🇮🇳 ଓଡ଼ିଆ</div>
+                        </div>
+                    </div>
+                    <a href="index.html" class="play-now-btn">
+                        <span class="content-english">▶ Play Now</span>
+                        <span class="content-hindi">▶ अभी खेलें</span>
+                        <span class="content-odia">▶ ବର୍ତ୍ତମାନ ଖେଳ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="content-english">Engineering Forest Runner 🌲</span>
+                    <span class="content-hindi">इंजीनियरिंग वन रनर 🌲</span>
+                    <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଫରେଷ୍ଟ ରନର 🌲</span>
+                </h1>
+                <p class="hero-tagline">
+                    <span class="content-english">Pick a hero and your engineering level — then tackle engineering questions!</span>
+                    <span class="content-hindi">एक हीरो और अपना इंजीनियरिंग स्तर चुनें — फिर इंजीनियरिंग प्रश्नों से निपटें!</span>
+                    <span class="content-odia">ଏକ ହିରୋ ଏବଂ ତୁମର ଇଞ୍ଜିନିୟରିଂ ସ୍ତର ବାଛ — ତାପରେ ଇଞ୍ଜିନିୟରିଂ ପ୍ରଶ୍ନର ମୁକାବିଲା କର!</span>
+                </p>
+                <p style="max-width: 600px; margin: 0 auto 30px; opacity: 0.9;">
+                    <span class="content-english">Navigate through forest adventures with your chosen character while learning engineering concepts through engaging gameplay and challenging questions.</span>
+                    <span class="content-hindi">आकर्षक गेमप्ले और चुनौतीपूर्ण प्रश्नों के माध्यम से इंजीनियरिंग अवधारणाओं को सीखते हुए अपने चुने हुए चरित्र के साथ वन रोमांच के माध्यम से नेविगेट करें।</span>
+                    <span class="content-odia">ଆକର୍ଷଣୀୟ ଗେମପ୍ଲେ ଏବଂ ଚ୍ୟାଲେଞ୍ଜିଂ ପ୍ରଶ୍ନ ମାଧ୍ୟମରେ ଇଞ୍ଜିନିୟରିଂ ସଂକଳ୍ପ ଶିଖିବାବେଳେ ତୁମର ବଛାଯାଇଥିବା ଚରିତ୍ର ସହିତ ଜଙ୍ଗଲ ସାହସିକତା ମାଧ୍ୟମରେ ନାଭିଗେଟ୍ କର।</span>
+                </p>
+
+                <div class="hero-characters">
+                    <div class="character-card">
+                        <span class="character-face">🦊</span>
+                        <span class="character-name">
+                            <span class="content-english">Foxy</span>
+                            <span class="content-hindi">फॉक्सी</span>
+                            <span class="content-odia">ଫକ୍ସି</span>
+                        </span>
+                    </div>
+                    <div class="character-card">
+                        <span class="character-face">🐰</span>
+                        <span class="character-name">
+                            <span class="content-english">Bunny</span>
+                            <span class="content-hindi">बनी</span>
+                            <span class="content-odia">ବନି</span>
+                        </span>
+                    </div>
+                    <div class="character-card">
+                        <span class="character-face">🐼</span>
+                        <span class="character-name">
+                            <span class="content-english">Panda</span>
+                            <span class="content-hindi">पांडा</span>
+                            <span class="content-odia">ପାଣ୍ଡା</span>
+                        </span>
+                    </div>
+                </div>
+
+                <a href="#" class="download-btn" onclick="downloadCurriculum()">
+                    <span>📋</span>
+                    <span class="content-english">Download Complete Engineering Curriculum PDF</span>
+                    <span class="content-hindi">संपूर्ण इंजीनियरिंग पाठ्यक्रम पीडीएफ डाउनलोड करें</span>
+                    <span class="content-odia">ସମ୍ପୂର୍ଣ୍ଣ ଇଞ୍ଜିନିୟରିଂ ପାଠ୍ୟକ୍ରମ PDF ଡାଉନଲୋଡ୍ କରନ୍ତୁ</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engineering Info Section -->
+    <section class="info-section">
+        <div class="container">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>
+                        <span class="content-english">What is Engineering?</span>
+                        <span class="content-hindi">इंजीनियरिंग क्या है?</span>
+                        <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ କ'ଣ?</span>
+                    </h3>
+                    <p>
+                        <span class="content-english">Learn by playing — answer questions to help your hero jump obstacles! Engineering is the application of science and mathematics to solve real-world problems and create innovative solutions.</span>
+                        <span class="content-hindi">खेल-खेल में सीखें — अपने नायक को बाधाओं को पार करने में मदद करने के लिए प्रश्नों का उत्तर दें! इंजीनियरिंग वास्तविक दुनिया की समस्याओं को हल करने और नवाचार समाधान बनाने के लिए विज्ञान और गणित का अनुप्रयोग है।</span>
+                        <span class="content-odia">ଖେଳି ଖେଳି ଶିଖ — ତୁମର ହିରୋକୁ ବାଧାବିଘ୍ନ ଅତିକ୍ରମ କରିବାରେ ସାହାଯ୍ୟ କରିବା ପାଇଁ ପ୍ରଶ୍ନର ଉତ୍ତର ଦିଅ! ଇଞ୍ଜିନିୟରିଂ ହେଉଛି ବାସ୍ତବ ଦୁନିଆର ସମସ୍ୟାର ସମାଧାନ ଏବଂ ନବାଚାରୀ ସମାଧାନ ତିଆରି କରିବା ପାଇଁ ବିଜ୍ଞାନ ଏବଂ ଗଣିତର ପ୍ରୟୋଗ।</span>
+                    </p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>
+                        <span class="content-english">Engineering Facts</span>
+                        <span class="content-hindi">इंजीनियरिंग तथ्य</span>
+                        <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ତଥ୍ୟ</span>
+                    </h3>
+                    <p>
+                        <span class="content-english">Did you know: The Burj Khalifa can sway up to 6 feet in strong winds! Engineers design structures to flex rather than break under extreme conditions.</span>
+                        <span class="content-hindi">क्या आप जानते हैं: बुर्ज खलीफा तेज हवाओं में 6 फीट तक झुक सकता है! इंजीनियर संरचनाओं को चरम परिस्थितियों में टूटने के बजाय लचीला होने के लिए डिजाइन करते हैं।</span>
+                        <span class="content-odia">ଆପଣ ଜାଣନ୍ତି କି: ବୁର୍ଜ ଖଲିଫା ପ୍ରବଳ ପବନରେ 6 ଫୁଟ ପର୍ଯ୍ୟନ୍ତ ଦୋଳନ କରିପାରେ! ଇଞ୍ଜିନିୟରମାନେ ଚରମ ଅବସ୍ଥାରେ ଭାଙ୍ଗିବା ପରିବର୍ତ୍ତେ ନମନୀୟ ହେବା ପାଇଁ ଗଠନ ଡିଜାଇନ୍ କରନ୍ତି।</span>
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <h3>
+                        <span class="content-english">Quick Tip</span>
+                        <span class="content-hindi">त्वरित सुझाव</span>
+                        <span class="content-odia">ତୀବ୍ର ସୁଝାବ</span>
+                    </h3>
+                    <p>
+                        <span class="content-english">Press 1 / 2 / 3 for quick answers — perfect for fast learners! Questions will match the chosen level (Engineering topics).</span>
+                        <span class="content-hindi">त्वरित उत्तर के लिए 1 / 2 / 3 दबाएं — तेज शिक्षार्थियों के लिए बिल्कुल सही! प्रश्न चुने गए स्तर (इंजीनियरिंग विषयों) से मेल खाएंगे।</span>
+                        <span class="content-odia">ଶୀଘ୍ର ଉତ୍ତର ପାଇଁ 1 / 2 / 3 ଦବାନ୍ତୁ — ଦ୍ରୁତ ଶିକ୍ଷାର୍ଥୀଙ୍କ ପାଇଁ ଉପଯୁକ୍ତ! ପ୍ରଶ୍ନଗୁଡ଼ିକ ବଛାଯାଇଥିବା ସ୍ତର (ଇଞ୍ଜିନିୟରିଂ ବିଷୟ) ସହିତ ମେଳ ଖାଇବ।</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Curriculum Section -->
+    <section class="curriculum-section" id="curriculum">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="content-english">Complete Engineering Learning Journey</span>
+                <span class="content-hindi">संपूर्ण इंजीनियरिंग शिक्षा यात्रा</span>
+                <span class="content-odia">ସମ୍ପୂର୍ଣ୍ଣ ଇଞ୍ଜିନିୟରିଂ ଶିକ୍ଷା ଯାତ୍ରା</span>
+            </h2>
+            <p class="section-subtitle">
+                <span class="content-english">Each class level features a unique forest-themed adventure designed to master specific engineering concepts while building problem-solving skills</span>
+                <span class="content-hindi">प्रत्येक कक्षा स्तर में समस्या-समाधान कौशल विकसित करते हुए विशिष्ट इंजीनियरिंग अवधारणाओं में महारत हासिल करने के लिए डिज़ाइन किया गया एक अनूठा वन-थीम साहसिक कार्य है</span>
+                <span class="content-odia">ପ୍ରତ୍ୟେକ ଶ୍ରେଣୀ ସ୍ତରରେ ସମସ୍ୟା ସମାଧାନ କୌଶଳ ବିକାଶ କରିବା ସମୟରେ ନିର୍ଦ୍ଦିଷ୍ଟ ଇଞ୍ଜିନିୟରିଂ ସଂକଳ୍ପରେ ଦକ୍ଷତା ହାସଲ କରିବା ପାଇଁ ଡିଜାଇନ୍ ହୋଇଥିବା ଏକ ଅନନ୍ୟ ଜଙ୍ଗଲ-ଥିମ୍ ସାହସିକତା ରହିଛି</span>
+            </p>
+
+            <div class="curriculum-grid">
+                <!-- Class 6 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">6</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Explorer 🌲</span>
+                                <span class="content-hindi">इंजीनियरिंग एक्सप्लोरर 🌲</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଏକ୍ସପ୍ଲୋରର 🌲</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Forest Adventure</span>
+                                <span class="content-hindi">वन साहसिक</span>
+                                <span class="content-odia">ଜଙ୍ଗଲ ସାହସିକତା</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Begin your engineering journey by exploring basic concepts through forest-themed challenges and adventures.</span>
+                            <span class="content-hindi">वन-थीम चुनौतियों और साहसिक कार्यों के माध्यम से बुनियादी अवधारणाओं की खोज करके अपनी इंजीनियरिंग यात्रा शुरू करें।</span>
+                            <span class="content-odia">ଜଙ୍ଗଲ-ଥିମ୍ ଚ୍ୟାଲେଞ୍ଜ ଏବଂ ସାହସିକତା ମାଧ୍ୟମରେ ମୌଳିକ ସଂକଳ୍ପ ଅନୁସନ୍ଧାନ କରି ତୁମର ଇଞ୍ଜିନିୟରିଂ ଯାତ୍ରା ଆରମ୍ଭ କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Design Thinking Process</span>
+                                    <span class="content-hindi">डिज़ाइन थिंकिंग प्रक्रिया</span>
+                                    <span class="content-odia">ଡିଜାଇନ୍ ଥିଙ୍କିଂ ପ୍ରକ୍ରିୟା</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Simple Machines & Tools</span>
+                                    <span class="content-hindi">सरल मशीनें और उपकरण</span>
+                                    <span class="content-odia">ସରଳ ମେସିନ୍ ଏବଂ ଉପକରଣ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Basic Structures & Balance</span>
+                                    <span class="content-hindi">बुनियादी संरचनाएं और संतुलन</span>
+                                    <span class="content-odia">ମୌଳିକ ଗଠନ ଏବଂ ସନ୍ତୁଲନ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Materials & Properties</span>
+                                    <span class="content-hindi">सामग्री और गुण</span>
+                                    <span class="content-odia">ସାମଗ୍ରୀ ଏବଂ ଗୁଣଧର୍ମ</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Navigate through forest paths solving engineering puzzles with your chosen hero. Build bridges over streams, construct shelters, and use simple machines to overcome obstacles while learning fundamental engineering principles.</span>
+                            <span class="content-hindi">अपने चुने हुए नायक के साथ इंजीनियरिंग पहेलियों को हल करते हुए वन पथों के माध्यम से नेविगेट करें। धाराओं पर पुल बनाएं, आश्रय का निर्माण करें, और मौलिक इंजीनियरिंग सिद्धांतों को सीखते हुए बाधाओं को दूर करने के लिए सरल मशीनों का उपयोग करें।</span>
+                            <span class="content-odia">ତୁମର ବଛାଯାଇଥିବା ହିରୋ ସହିତ ଇଞ୍ଜିନିୟରିଂ ପଜଲ ସମାଧାନ କରି ଜଙ୍ଗଲ ପଥରେ ନାଭିଗେଟ୍ କର। ନଦୀ ଉପରେ ସେତୁ ନିର୍ମାଣ କର, ଆଶ୍ରୟସ୍ଥଳ ଗଠନ କର, ଏବଂ ମୌଳିକ ଇଞ୍ଜିନିୟରିଂ ସିଦ୍ଧାନ୍ତ ଶିଖିବା ସମୟରେ ବାଧାବିଘ୍ନ ଅତିକ୍ରମ କରିବା ପାଇଁ ସରଳ ମେସିନ୍ ବ୍ୟବହାର କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 7 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">7</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Builder 🏗️</span>
+                                <span class="content-hindi">इंजीनियरिंग बिल्डर 🏗️</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ବିଲ୍ଡର 🏗️</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Construction Quest</span>
+                                <span class="content-hindi">निर्माण खोज</span>
+                                <span class="content-odia">ନିର୍ମାଣ ଅନୁସନ୍ଧାନ</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Advance your skills by designing and building structures in challenging forest environments.</span>
+                            <span class="content-hindi">चुनौतीपूर्ण वन वातावरण में संरचनाओं को डिजाइन और निर्माण करके अपने कौशल को आगे बढ़ाएं।</span>
+                            <span class="content-odia">ଚ୍ୟାଲେଞ୍ଜିଂ ଜଙ୍ଗଲ ପରିବେଶରେ ସଂରଚନା ଡିଜାଇନ୍ ଏବଂ ନିର୍ମାଣ କରି ତୁମର ଦକ୍ଷତା ବୃଦ୍ଧି କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Structural Engineering Basics</span>
+                                    <span class="content-hindi">संरचनात्मक इंजीनियरिंग मूल बातें</span>
+                                    <span class="content-odia">ସଂରଚନାଗତ ଇଞ୍ଜିନିୟରିଂ ମୂଳ ତତ୍ତ୍ୱ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Mechanical Systems</span>
+                                    <span class="content-hindi">यांत्रिक प्रणालियां</span>
+                                    <span class="content-odia">ଯାନ୍ତ୍ରିକ ପ୍ରଣାଳୀ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Basic Electronics</span>
+                                    <span class="content-hindi">बुनियादी इलेक्ट्रॉनिक्स</span>
+                                    <span class="content-odia">ମୌଳିକ ଇଲେକ୍ଟ୍ରୋନିକ୍ସ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Engineering Drawing</span>
+                                    <span class="content-hindi">इंजीनियरिंग ड्राइंग</span>
+                                    <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଚିତ୍ରାଙ୍କନ</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Lead construction projects across different forest terrains. Design and build bridges, towers, and mechanical devices. Work with team members to complete complex engineering challenges requiring planning and technical skills.</span>
+                            <span class="content-hindi">विभिन्न वन भूभाग में निर्माण परियोजनाओं का नेतृत्व करें। पुल, मीनारें और यांत्रिक उपकरण डिजाइन और निर्माण करें। योजना और तकनीकी कौशल की आवश्यकता वाली जटिल इंजीनियरिंग चुनौतियों को पूरा करने के लिए टीम सदस्यों के साथ काम करें।</span>
+                            <span class="content-odia">ବିଭିନ୍ନ ଜଙ୍ଗଲ ଅଞ୍ଚଳରେ ନିର୍ମାଣ ପ୍ରକଳ୍ପର ନେତୃତ୍ୱ ନିଅ। ସେତୁ, ଟାୱାର ଏବଂ ଯାନ୍ତ୍ରିକ ଉପକରଣ ଡିଜାଇନ୍ ଏବଂ ନିର୍ମାଣ କର। ଯୋଜନା ଏବଂ ଯାନ୍ତ୍ରିକ ଦକ୍ଷତା ଆବଶ୍ୟକ କରୁଥିବା ଜଟିଳ ଇଞ୍ଜିନିୟରିଂ ଚ୍ୟାଲେଞ୍ଜ ସମ୍ପୂର୍ଣ୍ଣ କରିବା ପାଇଁ ଦଳ ସଦସ୍ୟମାନଙ୍କ ସହିତ କାମ କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 8 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">8</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Innovator ⚙️</span>
+                                <span class="content-hindi">इंजीनियरिंग इनोवेटर ⚙️</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଉଦ୍ଭାବକ ⚙️</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Innovation Laboratory</span>
+                                <span class="content-hindi">नवाचार प्रयोगशाला</span>
+                                <span class="content-odia">ଉଦ୍ଭାବନ ଗବେଷଣାଗାର</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Create innovative solutions combining mechanical, electrical, and software engineering in forest settings.</span>
+                            <span class="content-hindi">वन सेटिंग्स में यांत्रिक, विद्युत और सॉफ्टवेयर इंजीनियरिंग को मिलाकर नवाचार समाधान बनाएं।</span>
+                            <span class="content-odia">ଜଙ୍ଗଲ ସେଟିଂରେ ଯାନ୍ତ୍ରିକ, ବ୍ୟାଟିକ ଏବଂ ସଫ୍ଟୱେୟାର ଇଞ୍ଜିନିୟରିଂ ମିଶାଇ ଉଦ୍ଭାବନୀ ସମାଧାନ ସୃଷ୍ଟି କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Automation & Control Systems</span>
+                                    <span class="content-hindi">स्वचालन और नियंत्रण प्रणालियां</span>
+                                    <span class="content-odia">ସ୍ବୟଂକ୍ରିୟତା ଏବଂ ନିୟନ୍ତ୍ରଣ ପ୍ରଣାଳୀ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Basic Robotics</span>
+                                    <span class="content-hindi">बुनियादी रोबोटिक्स</span>
+                                    <span class="content-odia">ମୌଳିକ ରୋବୋଟିକ୍ସ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Energy Systems</span>
+                                    <span class="content-hindi">ऊर्जा प्रणालियां</span>
+                                    <span class="content-odia">ଶକ୍ତି ପ୍ରଣାଳୀ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Manufacturing Processes</span>
+                                    <span class="content-hindi">विनिर्माण प्रक्रियाएं</span>
+                                    <span class="content-odia">ଉତ୍ପାଦନ ପ୍ରକ୍ରିୟା</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Run your own innovation lab in the forest where you combine mechanical, electrical, and software solutions. Design robots, create renewable energy systems for forest communities, and develop manufacturing processes.</span>
+                            <span class="content-hindi">वन में अपनी खुद की नवाचार प्रयोगशाला चलाएं जहां आप यांत्रिक, विद्युत और सॉफ्टवेयर समाधान को मिलाते हैं। रोबोट डिजाइन करें, वन समुदायों के लिए नवीकरणीय ऊर्जा प्रणालियां बनाएं, और विनिर्माण प्रक्रियाएं विकसित करें।</span>
+                            <span class="content-odia">ଜଙ୍ଗଲରେ ତୁମର ନିଜସ୍ୱ ଉଦ୍ଭାବନ ଗବେଷଣାଗାର ଚଲାଅ ଯେଉଁଠାରେ ତୁମେ ଯାନ୍ତ୍ରିକ, ବୈଦ୍ୟୁତିକ ଏବଂ ସଫ୍ଟୱେୟାର ସମାଧାନ ମିଶାଅ। ରୋବଟ୍ ଡିଜାଇନ୍ କର, ଜଙ୍ଗଲ ସମ୍ପ୍ରଦାୟ ପାଇଁ ନବୀକରଣଯୋଗ୍ୟ ଶକ୍ତି ପ୍ରଣାଳୀ ତିଆରି କର, ଏବଂ ଉତ୍ପାଦନ ପ୍ରକ୍ରିୟା ବିକଶିତ କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 9 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">9</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Researcher 🔬</span>
+                                <span class="content-hindi">इंजीनियरिंग शोधकर्ता 🔬</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଅନୁସନ୍ଧାନକାରୀ 🔬</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Research Expedition</span>
+                                <span class="content-hindi">अनुसंधान अभियान</span>
+                                <span class="content-odia">ଅନୁସନ୍ଧାନ ଅଭିଯାନ</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Conduct engineering research and solve complex real-world problems through forest expeditions.</span>
+                            <span class="content-hindi">वन अभियानों के माध्यम से इंजीनियरिंग अनुसंधान करें और जटिल वास्तविक दुनिया की समस्याओं को हल करें।</span>
+                            <span class="content-odia">ଜଙ୍ଗଲ ଅଭିଯାନ ମାଧ୍ୟମରେ ଇଞ୍ଜିନିୟରିଂ ଅନୁସନ୍ଧାନ କର ଏବଂ ଜଟିଳ ବାସ୍ତବ ଦୁନିଆର ସମସ୍ୟାର ସମାଧାନ କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Advanced Materials</span>
+                                    <span class="content-hindi">उन्नत सामग्री</span>
+                                    <span class="content-odia">ଉନ୍ନତ ସାମଗ୍ରୀ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Thermodynamics</span>
+                                    <span class="content-hindi">ऊष्मागतिकी</span>
+                                    <span class="content-odia">ଥର୍ମୋଡାଇନାମିକ୍ସ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Fluid Mechanics</span>
+                                    <span class="content-hindi">तरल यांत्रिकी</span>
+                                    <span class="content-odia">ତରଳ ଯାନ୍ତ୍ରିକ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Research Methods</span>
+                                    <span class="content-hindi">अनुसंधान विधियां</span>
+                                    <span class="content-odia">ଅନୁସନ୍ଧାନ ପଦ୍ଧତି</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Lead research expeditions through challenging forest environments to solve engineering problems. Conduct experiments, analyze data, and develop breakthrough technologies for forest conservation and utilization.</span>
+                            <span class="content-hindi">इंजीनियरिंग समस्याओं को हल करने के लिए चुनौतीपूर्ण वन वातावरण के माध्यम से अनुसंधान अभियानों का नेतृत्व करें। प्रयोग करें, डेटा का विश्लेषण करें, और वन संरक्षण और उपयोग के लिए सफलता तकनीकों को विकसित करें।</span>
+                            <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ସମସ୍ୟାର ସମାଧାନ ପାଇଁ ଚ୍ୟାଲେଞ୍ଜିଂ ଜଙ୍ଗଲ ପରିବେଶ ମାଧ୍ୟମରେ ଅନୁସନ୍ଧାନ ଅଭିଯାନର ନେତୃତ୍ୱ ନିଅ। ପରୀକ୍ଷାନିରୀକ୍ଷା କର, ତଥ୍ୟ ବିଶ୍ଳେଷଣ କର, ଏବଂ ଜଙ୍ଗଲ ସଂରକ୍ଷଣ ଏବଂ ବ୍ୟବହାର ପାଇଁ ସଫଳତା ପ୍ରଯୁକ୍ତିବିଦ୍ୟା ବିକଶିତ କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 10 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">10</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Specialist 🎯</span>
+                                <span class="content-hindi">इंजीनियरिंग विशेषज्ञ 🎯</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ବିଶେଷଜ୍ଞ 🎯</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Professional Arena</span>
+                                <span class="content-hindi">पेशेवर क्षेत्र</span>
+                                <span class="content-odia">ବୃତ୍ତିଗତ କ୍ଷେତ୍ର</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Specialize in specific engineering fields and compete in professional challenges within forest environments.</span>
+                            <span class="content-hindi">विशिष्ट इंजीनियरिंग क्षेत्रों में विशेषज्ञता प्राप्त करें और वन वातावरण में पेशेवर चुनौतियों में प्रतिस्पर्धा करें।</span>
+                            <span class="content-odia">ନିର୍ଦ୍ଦିଷ୍ଟ ଇଞ୍ଜିନିୟରିଂ କ୍ଷେତ୍ରରେ ବିଶେଷଜ୍ଞତା ହାସଲ କର ଏବଂ ଜଙ୍ଗଲ ପରିବେଶରେ ବୃତ୍ତିଗତ ଚ୍ୟାଲେଞ୍ଜରେ ପ୍ରତିଯୋଗିତା କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Civil Engineering Projects</span>
+                                    <span class="content-hindi">सिविल इंजीनियरिंग परियोजनाएं</span>
+                                    <span class="content-odia">ସିଭିଲ୍ ଇଞ୍ଜିନିୟରିଂ ପ୍ରକଳ୍ପ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Mechanical Engineering</span>
+                                    <span class="content-hindi">मैकेनिकल इंजीनियरिंग</span>
+                                    <span class="content-odia">ମେକାନିକାଲ୍ ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Electrical Engineering</span>
+                                    <span class="content-hindi">विद्युत इंजीनियरिंग</span>
+                                    <span class="content-odia">ବିଦ୍ୟୁତ ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Computer Engineering</span>
+                                    <span class="content-hindi">कंप्यूटर इंजीनियरिंग</span>
+                                    <span class="content-odia">କମ୍ପ୍ୟୁଟର ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Choose your engineering specialization and compete in professional challenges. Work on real-world forest infrastructure projects, manage engineering teams, and present solutions to industry panels.</span>
+                            <span class="content-hindi">अपना इंजीनियरिंग विशेषज्ञता चुनें और पेशेवर चुनौतियों में प्रतिस्पर्धा करें। वास्तविक दुनिया की वन अवसंरचना परियोजनाओं पर काम करें, इंजीनियरिंग टीमों का प्रबंधन करें, और उद्योग पैनलों को समाधान प्रस्तुत करें।</span>
+                            <span class="content-odia">ତୁମର ଇଞ୍ଜିନିୟରିଂ ବିଶେଷଜ୍ଞତା ବାଛ ଏବଂ ବୃତ୍ତିଗତ ଚ୍ୟାଲେଞ୍ଜରେ ପ୍ରତିଯୋଗିତା କର। ବାସ୍ତବ ଦୁନିଆର ଜଙ୍ଗଲ ଭିତ୍ତିଭୂମି ପ୍ରକଳ୍ପରେ କାମ କର, ଇଞ୍ଜିନିୟରିଂ ଦଳ ପରିଚାଳନା କର, ଏବଂ ଇଣ୍ଡଷ୍ଟ୍ରି ପ୍ୟାନେଲ୍ କୁ ସମାଧାନ ଉପସ୍ଥାପନ କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 11 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">11</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Professional 👷‍♂️</span>
+                                <span class="content-hindi">इंजीनियरिंग पेशेवर 👷‍♂️</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ବୃତ୍ତିଗତ 👷‍♂️</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Industry Simulation</span>
+                                <span class="content-hindi">उद्योग सिमुलेशन</span>
+                                <span class="content-odia">ଉଦ୍ୟୋଗ ସିମୁଲେସନ</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Experience real engineering careers through industry simulations and forest-based professional practice.</span>
+                            <span class="content-hindi">उद्योग सिमुलेशन और वन-आधारित पेशेवर अभ्यास के माध्यम से वास्तविक इंजीनियरिंग करियर का अनुभव करें।</span>
+                            <span class="content-odia">ଉଦ୍ୟୋଗ ସିମୁଲେସନ ଏବଂ ଜଙ୍ଗଲ-ଆଧାରିତ ବୃତ୍ତିଗତ ଅଭ୍ୟାସ ମାଧ୍ୟମରେ ପ୍ରକୃତ ଇଞ୍ଜିନିୟରିଂ କ୍ୟାରିୟରର ଅନୁଭବ କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Engineering Ethics</span>
+                                    <span class="content-hindi">इंजीनियरिंग नैतिकता</span>
+                                    <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ନୀତିଶାସ୍ତ୍ର</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Project Engineering</span>
+                                    <span class="content-hindi">परियोजना इंजीनियरिंग</span>
+                                    <span class="content-odia">ପ୍ରକଳ୍ପ ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Advanced Design</span>
+                                    <span class="content-hindi">उन्नत डिज़ाइन</span>
+                                    <span class="content-odia">ଉନ୍ନତ ଡିଜାଇନ୍</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Leadership Skills</span>
+                                    <span class="content-hindi">नेतृत्व कौशल</span>
+                                    <span class="content-odia">ନେତୃତ୍ୱ ଦକ୍ଷତା</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Take on professional engineering roles in virtual forest companies. Lead major conservation and development projects, manage budgets and teams, and navigate real-world engineering challenges.</span>
+                            <span class="content-hindi">वर्चुअल वन कंपनियों में पेशेवर इंजीनियरिंग भूमिकाएं निभाएं। प्रमुख संरक्षण और विकास परियोजनाओं का नेतृत्व करें, बजट और टीमों का प्रबंधन करें, और वास्तविक दुनिया की इंजीनियरिंग चुनौतियों से निपटें।</span>
+                            <span class="content-odia">ଭର୍ଚୁଆଲ ଜଙ୍ଗଲ କମ୍ପାନୀରେ ବୃତ୍ତିଗତ ଇଞ୍ଜିନିୟରିଂ ଭୂମିକା ନିଅ। ପ୍ରମୁଖ ସଂରକ୍ଷଣ ଏବଂ ବିକାଶ ପ୍ରକଳ୍ପର ନେତୃତ୍ୱ ନିଅ, ବଜେଟ ଏବଂ ଦଳ ପରିଚାଳନା କର, ଏବଂ ବାସ୍ତବ ଦୁନିଆର ଇଞ୍ଜିନିୟରିଂ ଚ୍ୟାଲେଞ୍ଜ ନାଭିଗେଟ୍ କର।</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class 12 -->
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-number">12</div>
+                        <div class="class-title">
+                            <h3>
+                                <span class="content-english">Engineering Visionary 🚀</span>
+                                <span class="content-hindi">इंजीनियरिंग दूरदर्शी 🚀</span>
+                                <span class="content-odia">ଇଞ୍ଜିନିୟରିଂ ଦୂରଦର୍ଶୀ 🚀</span>
+                            </h3>
+                            <span class="game-name">
+                                <span class="content-english">Future Innovation</span>
+                                <span class="content-hindi">भविष्य की नवाचार</span>
+                                <span class="content-odia">ଭବିଷ୍ୟତ ଉଦ୍ଭାବନ</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="class-content">
+                        <p class="class-description">
+                            <span class="content-english">Pioneer next-generation engineering solutions for forest sustainability and prepare for advanced engineering careers.</span>
+                            <span class="content-hindi">वन स्थिरता के लिए अगली पीढ़ी के इंजीनियरिंग समाधानों का बीड़ा उठाएं और उन्नत इंजीनियरिंग करियर के लिए तैयारी करें।</span>
+                            <span class="content-odia">ଜଙ୍ଗଲ ସ୍ଥିରତା ପାଇଁ ପରବର୍ତ୍ତୀ ପି generation ଼ିର ଇଞ୍ଜିନିୟରିଂ ସମାଧାନର ଅଗ୍ରଗାମୀ ହୁଅ ଏବଂ ଉନ୍ନତ ଇଞ୍ଜିନିୟରିଂ କ୍ୟାରିୟର ପାଇଁ ପ୍ରସ୍ତୁତି କର।</span>
+                        </p>
+                        
+                        <div class="topics-grid">
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Emerging Technologies</span>
+                                    <span class="content-hindi">उभरती प्रौद्योगिकियां</span>
+                                    <span class="content-odia">ଉଦୀୟମାନ ପ୍ରଯୁକ୍ତିବିଦ୍ୟା</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Sustainable Engineering</span>
+                                    <span class="content-hindi">टिकाऊ इंजीनियरिंग</span>
+                                    <span class="content-odia">ସ୍ଥାୟୀ ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Global Engineering</span>
+                                    <span class="content-hindi">वैश्विक इंजीनियरिंग</span>
+                                    <span class="content-odia">ବିଶ୍ୱବ୍ୟାପୀ ଇଞ୍ଜିନିୟରିଂ</span>
+                                </span>
+                            </div>
+                            <div class="topic-item">
+                                <div class="topic-icon"></div>
+                                <span class="topic-name">
+                                    <span class="content-english">Innovation Leadership</span>
+                                    <span class="content-hindi">नवाचार नेतृत्व</span>
+                                    <span class="content-odia">ଉଦ୍ଭାବନ ନେତୃତ୍ୱ</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="game-mechanics">
+                            <span class="content-english">Lead cutting-edge engineering projects addressing global forest challenges. Develop technologies for conservation, sustainable development, and climate change mitigation while preparing for advanced engineering education.</span>
+                            <span class="content-hindi">वैश्विक वन चुनौतियों से निपटने वाली अत्याधुनिक इंजीनियरिंग परियोजनाओं का नेतृत्व करें। उन्नत इंजीनियरिंग शिक्षा की तैयारी करते हुए संरक्षण, टिकाऊ विकास, और जलवायु परिवर्तन शमन के लिए तकनीकों का विकास करें।</span>
+                            <span class="content-odia">ବିଶ୍ୱବ୍ୟାପୀ ଜଙ୍ଗଲ ଚ୍ୟାଲେଞ୍ଜର ସମାଧାନ କରୁଥିବା ଅତ୍ୟାଧୁନିକ ଇଞ୍ଜିନିୟରିଂ ପ୍ରକଳ୍ପର ନେତୃତ୍ୱ ନିଅ। ଉନ୍ନତ ଇଞ୍ଜିନିୟରିଂ ଶିକ୍ଷା ପାଇଁ ପ୍ରସ୍ତୁତି କରିବା ସମୟରେ ସଂରକ୍ଷଣ, ସ୍ଥାୟୀ ବିକାଶ, ଏବଂ ଜଳବାୟୁ ପରିବର୍ତ୍ତନ ଶମନ ପାଇଁ ପ୍ରଯୁକ୍ତିବିଦ୍ୟା ବିକଶିତ କର।</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engineering Facts Section -->
+    <section class="facts-section" id="facts">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">
+                <span class="content-english">Amazing Engineering Facts</span>
+                <span class="content-hindi">अद्भुत इंजीनियरिंग तथ्य</span>
+                <span class="content-odia">ଚମତ୍କାର ଇଞ୍ଜିନିୟରିଂ ତଥ୍ୟ</span>
+            </h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">
+                <span class="content-english">Discover fascinating engineering achievements that shape our world</span>
+                <span class="content-hindi">हमारी दुनिया को आकार देने वाली आकर्षक इंजीनियरिंग उपलब्धियों की खोज करें</span>
+                <span class="content-odia">ଆମ ଦୁନିଆକୁ ଆକୃତି ଦେଉଥିବା ଆକର୍ଷଣୀୟ ଇଞ୍ଜିନିୟରିଂ ସଫଳତା ଆବିଷ୍କାର କର</span>
+            </p>
+
+            <div class="facts-grid">
+                <div class="fact-card">
+                    <span class="fact-icon">🏗️</span>
+                    <p class="fact-text">
+                        <span class="content-english">The Burj Khalifa can sway up to 6 feet in strong winds, designed to flex rather than break!</span>
+                        <span class="content-hindi">बुर्ज खलीफा तेज हवाओं में 6 फीट तक झुक सकता है, टूटने के बजाय लचीला होने के लिए डिज़ाइन किया गया है!</span>
+                        <span class="content-odia">ବୁର୍ଜ ଖଲିଫା ପ୍ରବଳ ପବନରେ 6 ଫୁଟ ପର୍ଯ୍ୟନ୍ତ ଦୋଳନ କରିପାରେ, ଭାଙ୍ଗିବା ପରିବର୍ତ୍ତେ ନମନୀୟ ହେବା ପାଇଁ ଡିଜାଇନ୍ ହୋଇଛି!</span>
+                    </p>
+                </div>
+
+                <div class="fact-card">
+                    <span class="fact-icon">🌉</span>
+                    <p class="fact-text">
+                        <span class="content-english">The Golden Gate Bridge's cables contain enough wire to circle the Earth more than 3 times!</span>
+                        <span class="content-hindi">गोल्डन गेट ब्रिज की केबलों में पृथ्वी को 3 बार से अधिक घेरने के लिए पर्याप्त तार है!</span>
+                        <span class="content-odia">ଗୋଲଡେନ୍ ଗେଟ୍ ସେତୁର କେବୁଲରେ ପୃଥିବୀକୁ 3 ଥରରୁ ଅଧିକ ଘେରିବା ପାଇଁ ପର୍ଯ୍ୟାପ୍ତ ତାର ଅଛି!</span>
+                    </p>
+                </div>
+
+                <div class="fact-card">
+                    <span class="fact-icon">🚀</span>
+                    <p class="fact-text">
+                        <span class="content-english">The Saturn V rocket that took humans to the moon generated 7.6 million pounds of thrust!</span>
+                        <span class="content-hindi">शनि V रॉकेट जो मनुष्यों को चांद पर ले गया, उसने 7.6 मिलियन पाउंड थ्रस्ट उत्पन्न किया!</span>
+                        <span class="content-odia">ସାଟର୍ନ V ରକେଟ୍ ଯାହା ମଣିଷକୁ ଚନ୍ଦ୍ରକୁ ନେଇଗଲା, ଏହା 7.6 ମିଲିୟନ୍ ପାଉଣ୍ଡ ଥ୍ରଷ୍ଟ ସୃଷ୍ଟି କରିଥିଲା!</span>
+                    </p>
+                </div>
+
+                <div class="fact-card">
+                    <span class="fact-icon">🔬</span>
+                    <p class="fact-text">
+                        <span class="content-english">Modern computer chips contain transistors smaller than 100 atoms wide!</span>
+                        <span class="content-hindi">आधुनिक कंप्यूटर चिप्स में 100 परमाणुओं से छोटे ट्रांजिस्टर होते हैं!</span>
+                        <span class="content-odia">ଆଧୁନିକ କମ୍ପ୍ୟୁଟର ଚିପ୍ସରେ 100 ପରମାଣୁଠାରୁ ଛୋଟ ଟ୍ରାନଜିଷ୍ଟର ଅଛି!</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                <span class="content-english">&copy; 2024 Engineering Forest Academy. Empowering the next generation of engineers through forest adventures and interactive learning.</span>
+                <span class="content-hindi">&copy; 2024 इंजीनियरिंग वन अकादमी। वन साहसिक और इंटरैक्टिव लर्निंग के माध्यम से इंजीनियरों की अगली पीढ़ी को सशक्त बनाना।</span>
+                <span class="content-odia">&copy; 2024 ଇଞ୍ଜିନିୟରିଂ ଫରେଷ୍ଟ ଏକାଡେମୀ। ଜଙ୍ଗଲ ସାହସିକତା ଏବଂ ଇଣ୍ଟରାକ୍ଟିଭ ଶିକ୍ଷଣ ମାଧ୍ୟମରେ ଇଞ୍ଜିନିୟରଙ୍କ ପରବର୍ତ୍ତୀ ପିଢ଼ିକୁ ସଶକ୍ତ କରିବା।</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let currentLanguage = 'english';
+
+        function downloadCurriculum() {
+            // Create a temporary link to download the PDF with custom name
+            const link = document.createElement('a');
+            link.href = 'evidya-engineering-curriculum.pdf';
+            link.download = 'E-Vidya_Engineering.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function setLanguage(language) {
+            currentLanguage = language;
+            
+            // Hide all language content
+            document.querySelectorAll('.content-english, .content-hindi, .content-odia').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected language content
+            document.querySelectorAll(`.content-${language}`).forEach(el => {
+                el.style.display = 'inline';
+            });
+            
+            // Update language button text
+            const langBtn = document.getElementById('currentLang');
+            switch(language) {
+                case 'english':
+                    langBtn.textContent = '🇬🇧 English';
+                    break;
+                case 'hindi':
+                    langBtn.textContent = '🇮🇳 हिन्दी';
+                    break;
+                case 'odia':
+                    langBtn.textContent = '🇮🇳 ଓଡ଼ିଆ';
+                    break;
+            }
+            
+            // Close dropdown
+            document.getElementById('languageDropdown').classList.remove('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('languageDropdown');
+            const languageBtn = document.querySelector('.language-btn');
+            
+            if (!languageBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Add smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add scroll effect to header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // Character selection animation
+        document.querySelectorAll('.character-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all cards
+                document.querySelectorAll('.character-card').forEach(c => c.classList.remove('active'));
+                // Add active class to clicked card
+                this.classList.add('active');
+            });
+        });
+
+        // Initialize with English as default
+        setLanguage('english');
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Vidya Physics - Interactive Learning Journey</title>
+    <link rel="stylesheet" href="phy-fp.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>E-Vidya Physics</h1>
+                </div>
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="en">English</button>
+                    <button class="lang-btn" data-lang="hi">हिंदी</button>
+                    <button class="lang-btn" data-lang="or">ଓଡ଼ିଆ</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-translate="hero_title">
+                    Discover Your Physics Journey Through Classes 6-12
+                </h1>
+                <p class="hero-subtitle" data-translate="hero_subtitle">
+                    From force fields to quantum mechanics, each class level features unique games designed to make physics engaging, interactive, and fun.
+                </p>
+                <button class="btn btn--primary download-btn" data-translate="download_btn">
+                    📋 Download Complete Curriculum PDF
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Approach Section -->
+    <section class="game-approach">
+        <div class="container">
+            <p class="approach-text" data-translate="game_approach">
+                Each class level features a unique game-based approach to master specific physics concepts
+            </p>
+        </div>
+    </section>
+
+    <!-- Physics Games Section -->
+    <section class="physics-games">
+        <div class="container">
+            <div class="games-grid">
+                <!-- Class cards will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="features-title" data-translate="features_title">Why Choose E-Vidya Physics?</h2>
+            <div class="features-grid">
+                <!-- Feature cards will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Modal -->
+    <div class="modal hidden" id="comingSoonModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="coming_soon">Coming Soon!</h3>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p data-translate="coming_soon_message">This physics adventure is currently under development. Stay tuned for an exciting learning experience!</p>
+                <div class="modal-icon">🚀</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary modal-close" data-translate="got_it">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Game Modal -->
+    <div class="modal hidden" id="availableGameModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="ready_to_play">Ready to Play!</h3>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><span data-translate="projectile_available_text">🎯 Projectile Arena is now available! Launch projectiles to hit moving targets by adjusting angle, velocity, and gravity.</span></p>
+                <div class="game-objectives">
+                    <h4 data-translate="learning_objectives">Learning Objectives:</h4>
+                    <ul>
+                        <li data-translate="objective_1">Projectile motion mastery</li>
+                        <li data-translate="objective_2">Kinematics equations application</li>
+                        <li data-translate="objective_3">Trajectory analysis skills</li>
+                        <li data-translate="objective_4">Vector concept understanding</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--secondary modal-close" data-translate="maybe_later">Maybe Later</button>
+                <button class="btn btn--primary play-game-btn" data-translate="start_playing">Start Playing</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="phy-fp.js"></script>
+</body>
+</html>

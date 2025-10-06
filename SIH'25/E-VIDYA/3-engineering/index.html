@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Engineering Forest Runner — Choose Your Hero & Level</title>
+<style>
+@font-face { font-family: "Aptos Display"; src: local("Aptos Display"); font-weight: normal; font-style: normal; }
+:root{--bg1:#e8ffe8;--bg2:#d7f8d7;--accent:#ff8a00;--panel:#fff9e6;--ui:#2b5f3a}
+html,body{height:100%;margin:0;font-family: 'Aptos Display', Arial, sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));}
+#root{position:relative;width:100vw;height:100vh;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:14px;top:12px;z-index:60;background:rgba(0,0,0,0.33);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
+#hint{position:absolute;right:12px;top:12px;z-index:60;background:rgba(0,0,0,0.22);color:#fff;padding:8px 12px;border-radius:8px}
+.modal{position:absolute;left:50%;top:18%;transform:translateX(-50%);z-index:200;width:min(720px,92%);background:var(--panel);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.2);padding:18px;text-align:center;display:none}
+.options{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:8px}
+.options button{width:100%;max-width:420px;padding:12px 16px;border-radius:12px;border:none;font-size:18px;cursor:pointer}
+.btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;border:none;font-weight:800;cursor:pointer}
+#gameOver{display:none;position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:220;background:rgba(0,0,0,0.78);color:#fff;padding:18px;border-radius:12px;font-size:22px;text-align:center;min-width:320px}
+#gameOver.show{display:block;animation:pop .22s ease-out}
+@keyframes pop{0%{transform:translate(-50%,-46%) scale(.96);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+/* Front screen styles */
+#frontScreen{position:absolute;inset:0;background:linear-gradient(180deg,#bfe94cad 0%, #e6ffe6 100%);display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:28px;z-index:250}
+.leftCol{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.title{font-size:44px;color:var(--ui);text-shadow:0 4px 0 rgba(255,255,255,0.6);margin-bottom:4px}
+.subtitle{color:#2b4f3a;margin-bottom:6px;font-weight:700}
+.charRow{display:flex;gap:18px;align-items:center;justify-content:flex-start;margin-bottom:14px}
+.charCard{width:140px;height:160px;border-radius:14px;background:linear-gradient(180deg,#fff,#f7fff5);box-shadow:0 8px 18px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:4px solid transparent;transition:transform .22s, box-shadow .22s, border-color .22s}
+.charCard:hover{transform:translateY(-6px);box-shadow:0 14px 24px rgba(0,0,0,0.16)}
+.charCard.selected{border-color:var(--accent);transform:translateY(-8px);}
+.charFace{width:84px;height:84px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:46px}
+.charName{margin-top:8px;font-weight:800;color:#274a31}
+.controls{margin-top:12px;display:flex;gap:12px;align-items:center}
+.small{font-size:14px;padding:8px 12px}
+.hintText{font-size:14px;color:#2b4f3a;margin-top:6px}
+
+/* class selector */
+.classRow{display:flex;gap:8px;align-items:center;margin-left:8px}
+.classBtn{padding:8px 10px;border-radius:8px;border:2px solid rgba(0,0,0,0.06);background:#fff;cursor:pointer;font-weight:800}
+.classBtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* comic boxes on right */
+.rightCol{width:360px;display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.comic{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,0.12);max-width:320px}
+.comic h3{margin:0 0 6px 0;color:#1f5b35}
+.comic p{margin:0;color:#264c3a;font-weight:700}
+.fact{font-size:14px}
+.smallNote{font-size:13px;color:#2b4f3a;margin-top:6px}
+
+@media (max-width:900px){ #frontScreen{flex-direction:column;align-items:center;justify-content:center;padding:20px} .rightCol{width:100%;align-items:center} .leftCol{align-items:center} }
+
+    /* Language Selector Styles */
+    .language-selector {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 300;
+        display: flex;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .lang-btn {
+        padding: 6px 12px;
+        border: 2px solid #ccc;
+        background: white;
+        color: #333;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .lang-btn:hover {
+        background: #f0f8ff;
+        border-color: #007acc;
+    }
+
+    .lang-btn.active {
+        background: var(--accent, #ff8a00);
+        color: white;
+        border-color: var(--accent, #ff8a00);
+    }
+
+    @media (max-width: 768px) {
+        .language-selector {
+            top: 10px;
+            right: 10px;
+            padding: 6px;
+        }
+        .lang-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="English" onclick="changeLanguage('English')">English</button>
+        <button class="lang-btn" data-lang="Hindi" onclick="changeLanguage('Hindi')">हिंदी</button>
+        <button class="lang-btn" data-lang="Odia" onclick="changeLanguage('Odia')">ଓଡ଼ିଆ</button>
+    </div>
+    
+<div id="root">
+  <div id="frontScreen" aria-label="Choose your character and level screen">
+    <div class="leftCol">
+      <div style="text-align:left">
+        <div class="title"><span data-translate="Engineering Forest Runner 🌲">Engineering Forest Runner 🌲</span></div>
+        <div class="subtitle"><span data-translate="Pick a hero and your engineering level — then tackle engineering questions!">Pick a hero and your engineering level — then tackle engineering questions!</span></div>
+      </div>
+
+      <div class="charRow" role="list" aria-label="Character choices">
+        <div class="charCard" role="listitem" data-char="fox" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff0e6,#ffecd8)">🦊</div>
+          <div class="charName"><span data-translate="Foxy">Foxy</span></div>
+        </div>
+
+        <div class="charCard" role="listitem" data-char="bunny" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff,#f1fff1)">🐰</div>
+          <div class="charName"><span data-translate="Bunny">Bunny</span></div>
+        </div>
+
+        <div class="charCard" role="listitem" data-char="panda" tabindex="0">
+          <div class="charFace" style="background:linear-gradient(180deg,#fff,#f7f7f9)">🐼</div>
+          <div class="charName"><span data-translate="Panda">Panda</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="controls">
+          <button id="startGameBtn" class="btn"><span data-translate="Start Adventure">Start Adventure</span></button>
+          <button id="howBtn" class="btn small" style="background:#4caf50"><span data-translate="How to Play">How to Play</span></button>
+          <button id="surpriseBtn" class="btn small" style="background:#3aa1ff"><span data-translate="Surprise Me">Surprise Me</span></button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:flex-start">
+          <div style="font-weight:900;color:#274a31;margin-bottom:6px"><span data-translate="Select Level">Select Level</span></div>
+          <div class="classRow" role="list" aria-label="Level selection">
+            <button class="classBtn" data-class="6">6</button>
+            <button class="classBtn" data-class="7">7</button>
+            <button class="classBtn" data-class="8">8</button>
+            <button class="classBtn" data-class="9">9</button>
+            <button class="classBtn" data-class="10">10</button>
+            <button class="classBtn" data-class="11">11</button>
+            <button class="classBtn" data-class="12">12</button>
+          </div>
+          <div class="smallNote"><span data-translate="Questions will match the chosen level (Engineering topics).">Questions will match the chosen level (Engineering topics).</span></div>
+        </div>
+      </div>
+
+      <div class="hintText"><span data-translate="Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.">Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.</span></div>
+    </div>
+
+    <div class="rightCol">
+      <div class="comic" id="stemBox">
+        <h3><span data-translate="What is Engineering?">What is <span data-translate="Engineering">Engineering</span>?</span></h3>
+        <p><strong>S</strong>cience • <strong>T</strong>echnology • <strong>E</strong>ngineering • <strong>M</strong>athematics</p>
+        <div class="smallNote"><span data-translate="Learn by playing — answer questions to help your hero jump obstacles!">Learn by playing — answer questions to help your hero jump obstacles!</span></div>
+      </div>
+
+      <div class="comic" id="factBox">
+        <h3><span data-translate="Engineering Facts">Engineering Facts</span></h3>
+        <p class="fact" id="factText"><span data-translate="Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!">Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!</span></p>
+      </div>
+
+      <div class="comic" id="tipBox">
+        <h3><span data-translate="Quick Tip">Quick Tip</span></h3>
+        <p class="fact"><span data-translate="Press 1 / 2 / 3 for quick answers — perfect for fast learners!">Press 1 / 2 / 3 for quick answers — perfect for fast learners!</span></p>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" aria-label="Game canvas"></canvas>
+
+  <div class="hud" id="hud">Score: <strong id="score">0</strong></div>
+  <div id="hint"><span data-translate="Tap answer buttons ✅">Tap answer buttons ✅</span></div>
+
+  <div id="quiz" class="modal" role="dialog" aria-modal="true" aria-labelledby="qtitle">
+    <h2 id="qtitle"><span data-translate="Question">Question</span></h2>
+    <div id="qtext" style="font-size:18px;margin-bottom:12px"></div>
+    <div class="options" id="qopts"></div>
+    <div style="margin-top:12px;color:#333;font-size:14px"><span data-translate="Correct → jump & continue • Wrong → fall & Game Over">Correct → jump & continue • Wrong → fall & Game Over</span></div>
+  </div>
+
+  <div id="gameOver" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+    <div id="gameOverTitle" style="font-size:26px;font-weight:900;margin-bottom:8px"><span data-translate="Game Over 😢">Game Over 😢</span></div>
+    <div style="font-size:16px;margin-bottom:10px">Your score: <strong id="finalScore">0</strong></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:8px">
+      <button id="retrySame" class="btn"><span data-translate="Try Again (same hero)">Try Again (same hero)</span></button>
+      <button id="chooseChar" class="btn small" style="background:#4caf50"><span data-translate="Choose Character">Choose Character</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Engineering Forest Runner — front screen enhanced with level selection and engineering facts
+
+// Canvas + resize
+const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+let DPR = Math.max(1, window.devicePixelRatio || 1);
+function resize(){ const W = innerWidth, H = innerHeight; canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR); canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); world.groundY = Math.round(H * 0.78); player.baseY = (world.groundY - FOOT_OFFSET) - (player.h - LEG_HEIGHT); if(!player.jumping && !player.falling) player.y = player.baseY; }
+window.addEventListener('resize', resize);
+
+// visual constants
+const FOOT_OFFSET = 6; const LEG_HEIGHT = 22; const PLAYER_W = 92, PLAYER_H = 92;
+let GRAVITY = 2000; let JUMP_HEIGHT = 170; let JUMP_V0 = Math.sqrt(2 * GRAVITY * JUMP_HEIGHT); let JUMP_TOTAL_TIME = 2 * JUMP_V0 / GRAVITY;
+let baseSpeed = 260; let spawnInterval = Math.max(900, Math.floor((JUMP_TOTAL_TIME * 1000) * 1.6));
+
+// world & player
+const world = { groundY: Math.round(innerHeight * 0.78), clouds:[], mountains:[], treesFar:[], treesMid:[], treesNear:[] };
+const player = { x: Math.round(innerWidth * 0.16), y:0, baseY: world.groundY - PLAYER_H, w:PLAYER_W, h:PLAYER_H, runPhase:0, vy:0, jumping:false, falling:false, rotation:0, color:'#ff8c42', belly:'#fff3d9', landTimer:0 };
+player.y = player.baseY;
+
+// characters
+const characters = { fox:{color:'#ff8c42',belly:'#fff3d9',emoji:'🦊'}, bunny:{color:'#f5e6f9',belly:'#fff',emoji:'🐰'}, panda:{color:'#ffffff',belly:'#f0f4f8',emoji:'🐼'} };
+let selectedChar = 'fox';
+let selectedClass = '6'; // default level 6
+
+// ENGINEERING QUESTION POOLS for levels 6 - 12 (50+ each ~ 370 total). Engineering-focused, increasing difficulty.
+const QUESTION_POOLS = {
+  '6': [
+    {q:'What is the SI unit of force?', opts:['Newton', 'Joule', 'Watt'], a:'Newton'},
+    {q:'Which material property resists deformation?', opts:['Hardness', 'Ductility', 'Conductivity'], a:'Hardness'},
+    {q:'What does CAD stand for in engineering?', opts:['Computer Aided Design', 'Computer Advanced Drawing', 'Calculated Area Design'], a:'Computer Aided Design'},
+    {q:'Which is a renewable energy source?', opts:['Coal', 'Solar', 'Natural Gas'], a:'Solar'},
+    {q:'What is the basic unit of electric current?', opts:['Volt', 'Ampere', 'Ohm'], a:'Ampere'},
+    {q:'Which material is strongest in tension?', opts:['Steel', 'Concrete', 'Wood'], a:'Steel'},
+    {q:'What is the process of joining metals by heating called?', opts:['Welding', 'Drilling', 'Grinding'], a:'Welding'},
+    {q:'Which instrument measures pressure?', opts:['Thermometer', 'Manometer', 'Ammeter'], a:'Manometer'},
+    {q:'What is the efficiency formula?', opts:['Output/Input × 100%', 'Input/Output × 100%', 'Input + Output'], a:'Output/Input × 100%'},
+    {q:'Which law states F = ma?', opts:["Newton\\'s First Law", "Newton\\'s Second Law", "Newton\\'s Third Law"], a:"Newton\\'s Second Law"},
+    {q:'What is the main component of steel?', opts:['Iron', 'Aluminum', 'Copper'], a:'Iron'},
+    {q:'Which material property allows stretching without breaking?', opts:['Brittleness', 'Ductility', 'Hardness'], a:'Ductility'},
+    {q:'What is the strongest natural material?', opts:['Steel', 'Diamond', 'Graphite'], a:'Diamond'},
+    {q:'Which metal is best for electrical conductivity?', opts:['Copper', 'Iron', 'Aluminum'], a:'Copper'},
+    {q:'What does "tensile strength" measure?', opts:['Resistance to pulling forces', 'Resistance to compression', 'Resistance to bending'], a:'Resistance to pulling forces'},
+    {q:'Which material is used in semiconductor devices?', opts:['Silicon', 'Copper', 'Iron'], a:'Silicon'},
+    {q:'What is vulcanization used for?', opts:['Rubber processing', 'Metal hardening', 'Plastic molding'], a:'Rubber processing'},
+    {q:'Which composite material contains glass fibers?', opts:['Fiberglass', 'Carbon fiber', 'Kevlar'], a:'Fiberglass'},
+    {q:'What is the main alloying element in stainless steel?', opts:['Chromium', 'Nickel', 'Manganese'], a:'Chromium'},
+    {q:'Which material property indicates resistance to wear?', opts:['Hardness', 'Ductility', 'Malleability'], a:'Hardness'},
+    {q:'What is the formula for mechanical advantage?', opts:['Load/Effort', 'Effort/Load', 'Load × Effort'], a:'Load/Effort'},
+    {q:'Which simple machine is an inclined plane wrapped around a cylinder?', opts:['Screw', 'Wedge', 'Lever'], a:'Screw'},
+    {q:'What type of stress does compression create?', opts:['Pushing stress', 'Pulling stress', 'Twisting stress'], a:'Pushing stress'},
+    {q:'Which class of lever has fulcrum in the middle?', opts:['First class', 'Second class', 'Third class'], a:'First class'},
+    {q:'What is the SI unit of work?', opts:['Joule', 'Watt', 'Newton'], a:'Joule'},
+    {q:'Which force opposes motion between surfaces?', opts:['Friction', 'Tension', 'Compression'], a:'Friction'},
+    {q:'What is the relationship between torque and angular acceleration?', opts:['T = Iα', 'T = Iω', 'T = Iv'], a:'T = Iα'},
+    {q:'Which quantity has both magnitude and direction?', opts:['Vector', 'Scalar', 'Constant'], a:'Vector'},
+    {q:'What is the center of mass?', opts:['Balance point', 'Heaviest point', 'Geometric center'], a:'Balance point'},
+    {q:'Which principle states action equals reaction?', opts:["Newton\\'s Third Law", "Newton\\'s First Law", "Newton\\'s Second Law"], a:"Newton\\'s Third Law"},
+    {q:'What is the SI unit of temperature?', opts:['Kelvin', 'Celsius', 'Fahrenheit'], a:'Kelvin'},
+    {q:'Which law states energy cannot be created or destroyed?', opts:['First Law of Thermodynamics', 'Second Law', 'Third Law'], a:'First Law of Thermodynamics'},
+    {q:'What happens to gas volume when temperature increases at constant pressure?', opts:['Increases', 'Decreases', 'Remains constant'], a:'Increases'},
+    {q:'Which process occurs at constant temperature?', opts:['Isothermal', 'Adiabatic', 'Isobaric'], a:'Isothermal'},
+    {q:'What is specific heat?', opts:['Heat per unit mass per degree', 'Total heat content', 'Heat transfer rate'], a:'Heat per unit mass per degree'},
+    {q:'Which material is the best thermal conductor?', opts:['Silver', 'Copper', 'Iron'], a:'Silver'},
+    {q:'What is the freezing point of water in Kelvin?', opts:['273 K', '0 K', '373 K'], a:'273 K'},
+    {q:'Which heat transfer method requires no medium?', opts:['Radiation', 'Conduction', 'Convection'], a:'Radiation'},
+    {q:'What is thermal expansion?', opts:['Size increase with temperature', 'Size decrease with temperature', 'No size change'], a:'Size increase with temperature'},
+    {q:'Which gas law relates pressure and volume at constant temperature?', opts:["Boyle\\'s Law", "Charles\\'s Law", "Gay-Lussac\\'s Law"], a:"Boyle\\'s Law"},
+    {q:'What is the unit of electrical resistance?', opts:['Ohm', 'Volt', 'Ampere'], a:'Ohm'},
+    {q:'Which law relates voltage, current, and resistance?', opts:["Ohm\\'s Law", "Kirchhoff\\'s Law", "Faraday\\'s Law"], a:"Ohm\\'s Law"},
+    {q:'What is the SI unit of power?', opts:['Watt', 'Joule', 'Newton'], a:'Watt'},
+    {q:'In a series circuit, what remains constant?', opts:['Current', 'Voltage', 'Resistance'], a:'Current'},
+    {q:'What device stores electrical energy?', opts:['Capacitor', 'Resistor', 'Inductor'], a:'Capacitor'},
+    {q:'Which material is an electrical insulator?', opts:['Rubber', 'Copper', 'Silver'], a:'Rubber'},
+    {q:'What is the frequency of standard AC power in most countries?', opts:['50 Hz', '60 Hz', '100 Hz'], a:'50 Hz'},
+    {q:'Which component opposes changes in current?', opts:['Inductor', 'Capacitor', 'Resistor'], a:'Inductor'},
+    {q:'What is electrical ground?', opts:['Zero voltage reference', 'Positive terminal', 'Current source'], a:'Zero voltage reference'},
+    {q:'Which device converts AC to DC?', opts:['Rectifier', 'Inverter', 'Transformer'], a:'Rectifier'},
+    {q:'What does PPE stand for?', opts:['Personal Protective Equipment', 'Professional Project Engineering', 'Primary Power Equipment'], a:'Personal Protective Equipment'},
+    {q:'Which color indicates safety in engineering drawings?', opts:['Green', 'Red', 'Yellow'], a:'Green'},
+    {q:'What is the primary purpose of a safety factor?', opts:['Account for uncertainties', 'Reduce cost', 'Increase speed'], a:'Account for uncertainties'},
+    {q:'Which organization sets safety standards for electrical equipment?', opts:['IEC', 'NASA', 'WHO'], a:'IEC'},
+    {q:'What should be done before starting any engineering work?', opts:['Risk assessment', 'Cost calculation', 'Material ordering'], a:'Risk assessment'}
+  ],
+  '7': [
+    {q:'What is the primary function of a bearing?', opts:['Support rotating shafts', 'Transmit power', 'Generate motion'], a:'Support rotating shafts'},
+    {q:'Which type of gear provides 90-degree direction change?', opts:['Bevel gear', 'Spur gear', 'Helical gear'], a:'Bevel gear'},
+    {q:'What is the purpose of a clutch?', opts:['Engage/disengage power transmission', 'Increase speed', 'Reduce vibration'], a:'Engage/disengage power transmission'},
+    {q:'Which bearing type can handle both radial and thrust loads?', opts:['Ball bearing', 'Roller bearing', 'Plain bearing'], a:'Ball bearing'},
+    {q:'What is backlash in gears?', opts:['Play between gear teeth', 'Gear tooth breakage', 'Gear wear'], a:'Play between gear teeth'},
+    {q:'Which coupling allows slight misalignment?', opts:['Flexible coupling', 'Rigid coupling', 'Fixed coupling'], a:'Flexible coupling'},
+    {q:'What is the function of a flywheel?', opts:['Store kinetic energy', 'Reduce speed', 'Generate power'], a:'Store kinetic energy'},
+    {q:'Which fastener is removable?', opts:['Bolt', 'Rivet', 'Weld'], a:'Bolt'},
+    {q:'What is the purpose of lubrication?', opts:['Reduce friction', 'Increase load', 'Generate heat'], a:'Reduce friction'},
+    {q:'Which spring type provides constant force?', opts:['Constant force spring', 'Compression spring', 'Extension spring'], a:'Constant force spring'},
+    {q:'What is the Carnot cycle?', opts:['Ideal thermodynamic cycle', 'Real engine cycle', 'Cooling cycle'], a:'Ideal thermodynamic cycle'},
+    {q:'Which process has no heat transfer?', opts:['Adiabatic', 'Isothermal', 'Isobaric'], a:'Adiabatic'},
+    {q:'What is entropy?', opts:['Measure of disorder', 'Total energy', 'Heat capacity'], a:'Measure of disorder'},
+    {q:'Which heat engine has highest theoretical efficiency?', opts:['Carnot engine', 'Otto engine', 'Diesel engine'], a:'Carnot engine'},
+    {q:'What is the critical point of a substance?', opts:['No distinction between liquid and gas', 'Freezing point', 'Boiling point'], a:'No distinction between liquid and gas'},
+    {q:'Which law governs heat conduction?', opts:["Fourier\\'s Law", "Newton\\'s Law", "Stefan\\'s Law"], a:"Fourier\\'s Law"},
+    {q:'What is thermal conductivity?', opts:['Heat transfer rate per unit area per unit temperature gradient', 'Total heat transfer', 'Temperature difference'], a:'Heat transfer rate per unit area per unit temperature gradient'},
+    {q:'Which dimensionless number characterizes forced convection?', opts:['Reynolds number', 'Prandtl number', 'Nusselt number'], a:'Reynolds number'},
+    {q:'What is a heat exchanger?', opts:['Device to transfer heat between fluids', 'Heat generator', 'Temperature sensor'], a:'Device to transfer heat between fluids'},
+    {q:'Which refrigeration cycle is most common?', opts:['Vapor compression', 'Absorption', 'Thermoelectric'], a:'Vapor compression'},
+    {q:'What is viscosity?', opts:['Resistance to flow', 'Fluid density', 'Fluid pressure'], a:'Resistance to flow'},
+    {q:'Which equation describes fluid flow continuity?', opts:['A₁V₁ = A₂V₂', 'P₁ + ρgh₁ = P₂ + ρgh₂', 'F = ma'], a:'A₁V₁ = A₂V₂'},
+    {q:'What is Reynolds number?', opts:['Ratio of inertial to viscous forces', 'Flow velocity', 'Pressure drop'], a:'Ratio of inertial to viscous forces'},
+    {q:'Which flow has Re < 2300 in pipes?', opts:['Laminar', 'Turbulent', 'Transitional'], a:'Laminar'},
+    {q:'What does Bernoulli\'s equation describe?', opts:['Energy conservation in fluid flow', 'Momentum conservation', 'Mass conservation'], a:'Energy conservation in fluid flow'},
+    {q:'Which pump type is centrifugal?', opts:['Dynamic pump', 'Positive displacement', 'Manual pump'], a:'Dynamic pump'},
+    {q:'What is cavitation in pumps?', opts:['Formation of vapor bubbles', 'Impeller damage', 'Flow blockage'], a:'Formation of vapor bubbles'},
+    {q:'Which parameter affects pump performance most?', opts:['Impeller diameter', 'Motor power', 'Pipe length'], a:'Impeller diameter'},
+    {q:'What is head loss in pipes?', opts:['Energy loss due to friction', 'Pressure increase', 'Temperature drop'], a:'Energy loss due to friction'},
+    {q:'Which valve provides best flow control?', opts:['Globe valve', 'Gate valve', 'Check valve'], a:'Globe valve'},
+    {q:'What is turning operation on lathe?', opts:['Reducing diameter', 'Increasing diameter', 'Surface finishing'], a:'Reducing diameter'},
+    {q:'Which cutting tool material is hardest?', opts:['Diamond', 'Carbide', 'HSS'], a:'Diamond'},
+    {q:'What is the purpose of cutting fluid?', opts:['Cool and lubricate', 'Increase speed', 'Improve surface'], a:'Cool and lubricate'},
+    {q:'Which machining process removes least material?', opts:['Grinding', 'Turning', 'Milling'], a:'Grinding'},
+    {q:'What is work hardening?', opts:['Increase in hardness due to plastic deformation', 'Heat treatment', 'Chemical hardening'], a:'Increase in hardness due to plastic deformation'},
+    {q:'Which casting process gives best surface finish?', opts:['Investment casting', 'Sand casting', 'Die casting'], a:'Investment casting'},
+    {q:'What is forging?', opts:['Shaping metal by hammering', 'Melting and casting', 'Chemical treatment'], a:'Shaping metal by hammering'},
+    {q:'Which welding uses consumable electrode?', opts:['SMAW', 'TIG', 'Plasma'], a:'SMAW'},
+    {q:'What is annealing?', opts:['Heat treatment to soften metal', 'Surface hardening', 'Metal joining'], a:'Heat treatment to soften metal'},
+    {q:'Which process can produce hollow parts?', opts:['Extrusion', 'Rolling', 'Forging'], a:'Extrusion'},
+    {q:'What is stress?', opts:['Force per unit area', 'Total deformation', 'Material hardness'], a:'Force per unit area'},
+    {q:'What is strain?', opts:['Deformation per unit length', 'Total force', 'Material strength'], a:'Deformation per unit length'},
+    {q:'What is Young\'s modulus?', opts:['Stress/strain in elastic region', 'Ultimate strength', 'Yield strength'], a:'Stress/strain in elastic region'},
+    {q:'Which loading causes maximum bending stress?', opts:['Point load at center', 'Distributed load', 'End moments'], a:'Point load at center'},
+    {q:'What is Poisson\'s ratio?', opts:['Lateral strain/longitudinal strain', 'Stress/strain', 'Force/area'], a:'Lateral strain/longitudinal strain'},
+    {q:'Which beam section has highest bending strength?', opts:['I-beam', 'Circular', 'Rectangular'], a:'I-beam'},
+    {q:'What is torsional stress?', opts:['Stress due to twisting', 'Stress due to bending', 'Stress due to compression'], a:'Stress due to twisting'},
+    {q:'Which material property indicates ductility?', opts:['Percentage elongation', 'Ultimate strength', 'Hardness'], a:'Percentage elongation'},
+    {q:'What is factor of safety?', opts:['Ultimate stress/working stress', 'Working stress/ultimate stress', 'Stress/strain'], a:'Ultimate stress/working stress'},
+    {q:'Which failure theory is used for ductile materials?', opts:['von Mises theory', 'Maximum principal stress', 'Coulomb-Mohr'], a:'von Mises theory'},
+    {q:'What is natural frequency?', opts:['Frequency of free vibration', 'Applied frequency', 'Damped frequency'], a:'Frequency of free vibration'},
+    {q:'What causes resonance?', opts:['Applied frequency equals natural frequency', 'High damping', 'Low stiffness'], a:'Applied frequency equals natural frequency'},
+    {q:'Which parameter reduces vibration amplitude?', opts:['Damping', 'Stiffness', 'Mass'], a:'Damping'},
+    {q:'What is critical damping?', opts:['Minimum damping for no oscillation', 'Maximum damping', 'Zero damping'], a:'Minimum damping for no oscillation'},
+    {q:'Which method is used for vibration isolation?', opts:['Spring mounting', 'Rigid mounting', 'Direct connection'], a:'Spring mounting'}
+  ],
+  '8': [
+    {q:'What is Kirchhoff\'s current law?', opts:['Sum of currents entering a node equals sum leaving', 'V = IR', 'P = VI'], a:'Sum of currents entering a node equals sum leaving'},
+    {q:'What is Kirchhoff\'s voltage law?', opts:['Sum of voltage drops in a loop equals zero', 'V = IR', 'Sum of currents equals zero'], a:'Sum of voltage drops in a loop equals zero'},
+    {q:'Which theorem simplifies complex circuits to equivalent voltage source?', opts:["Thevenin\\'s theorem", "Norton\\'s theorem", "Superposition theorem"], a:"Thevenin\\'s theorem"},
+    {q:'What is impedance in AC circuits?', opts:['Total opposition to AC current', 'DC resistance only', 'Reactive component only'], a:'Total opposition to AC current'},
+    {q:'Which component causes current to lead voltage?', opts:['Capacitor', 'Inductor', 'Resistor'], a:'Capacitor'},
+    {q:'What is resonance in RLC circuit?', opts:['XL = XC', 'R = 0', 'L = C'], a:'XL = XC'},
+    {q:'What is power factor?', opts:['cos φ', 'sin φ', 'tan φ'], a:'cos φ'},
+    {q:'Which power is useful in AC circuits?', opts:['Real power', 'Reactive power', 'Apparent power'], a:'Real power'},
+    {q:'What causes phase shift in AC circuits?', opts:['Reactive components', 'Resistive components', 'Voltage source'], a:'Reactive components'},
+    {q:'Which analysis method uses node voltages?', opts:['Nodal analysis', 'Mesh analysis', 'Loop analysis'], a:'Nodal analysis'},
+    {q:'What is doping in semiconductors?', opts:['Adding impurities to control conductivity', 'Heating the material', 'Cooling the material'], a:'Adding impurities to control conductivity'},
+    {q:'Which type of semiconductor has excess electrons?', opts:['N-type', 'P-type', 'Intrinsic'], a:'N-type'},
+    {q:'What is the depletion region in a PN junction?', opts:['Region with no free carriers', 'High current region', 'Breakdown region'], a:'Region with no free carriers'},
+    {q:'Which diode allows current in one direction only?', opts:['PN junction diode', 'Zener diode', 'Tunnel diode'], a:'PN junction diode'},
+    {q:'What is the function of a Zener diode?', opts:['Voltage regulation', 'Current amplification', 'Frequency generation'], a:'Voltage regulation'},
+    {q:'Which device has three terminals?', opts:['Transistor', 'Diode', 'Resistor'], a:'Transistor'},
+    {q:'What is beta (β) in a BJT?', opts:['Current gain', 'Voltage gain', 'Power gain'], a:'Current gain'},
+    {q:'Which transistor type is voltage controlled?', opts:['FET', 'BJT', 'SCR'], a:'FET'},
+    {q:'What is the main advantage of MOSFET?', opts:['High input impedance', 'Low cost', 'High speed'], a:'High input impedance'},
+    {q:'Which device is used for power switching?', opts:['IGBT', 'Op-amp', 'Diode'], a:'IGBT'},
+    {q:'What is the standard frequency for power systems in India?', opts:['50 Hz', '60 Hz', '25 Hz'], a:'50 Hz'},
+    {q:'Which device steps up or down AC voltage?', opts:['Transformer', 'Rectifier', 'Inverter'], a:'Transformer'},
+    {q:'What is the principle of transformer operation?', opts:['Electromagnetic induction', 'Ohmic heating', 'Photoelectric effect'], a:'Electromagnetic induction'},
+    {q:'Which loss occurs in transformer core?', opts:['Hysteresis and eddy current losses', 'Copper losses', 'Leakage losses'], a:'Hysteresis and eddy current losses'},
+    {q:'What is the purpose of load dispatch center?', opts:['Control power generation and distribution', 'Manufacture equipment', 'Install transmission lines'], a:'Control power generation and distribution'},
+    {q:'Which protection device operates fastest?', opts:['Electronic relay', 'Fuse', 'Circuit breaker'], a:'Electronic relay'},
+    {q:'What is power factor correction?', opts:['Reducing reactive power demand', 'Increasing voltage', 'Reducing losses'], a:'Reducing reactive power demand'},
+    {q:'Which conductor is commonly used for transmission lines?', opts:['ACSR', 'Copper', 'Silver'], a:'ACSR'},
+    {q:'What is corona effect?', opts:['Ionization of air around conductors', 'Short circuit', 'Ground fault'], a:'Ionization of air around conductors'},
+    {q:'Which system provides better efficiency for power transmission?', opts:['3-phase', '2-phase', '1-phase'], a:'3-phase'},
+    {q:'Which law explains motor action?', opts:["Fleming\\'s left hand rule", "Fleming\\'s right hand rule", "Lenz\\'s law"], a:"Fleming\\'s left hand rule"},
+    {q:'What is back EMF in a motor?', opts:['EMF generated due to rotation', 'Supply voltage', 'Starting current'], a:'EMF generated due to rotation'},
+    {q:'Which motor has highest starting torque?', opts:['DC series motor', 'DC shunt motor', 'Induction motor'], a:'DC series motor'},
+    {q:'What is slip in induction motor?', opts:['Difference between synchronous and rotor speed', 'Motor efficiency', 'Power factor'], a:'Difference between synchronous and rotor speed'},
+    {q:'Which motor is self-starting?', opts:['Induction motor', 'Synchronous motor', 'Stepper motor'], a:'Induction motor'},
+    {q:'What is the synchronous speed formula?', opts:['120f/P', 'P/120f', '120P/f'], a:'120f/P'},
+    {q:'Which motor maintains constant speed?', opts:['Synchronous motor', 'Induction motor', 'DC series motor'], a:'Synchronous motor'},
+    {q:'What is the function of commutator in DC motor?', opts:['Convert AC to DC mechanically', 'Increase speed', 'Reduce losses'], a:'Convert AC to DC mechanically'},
+    {q:'Which loss varies with load in motors?', opts:['Copper losses', 'Core losses', 'Mechanical losses'], a:'Copper losses'},
+    {q:'What is regenerative braking?', opts:['Converting kinetic energy back to electrical', 'Using friction brakes', 'Reversing motor direction'], a:'Converting kinetic energy back to electrical'},
+    {q:'What is a transfer function?', opts:['Output/Input in Laplace domain', 'Input/Output ratio', 'System gain'], a:'Output/Input in Laplace domain'},
+    {q:'Which controller eliminates steady-state error?', opts:['PI controller', 'P controller', 'D controller'], a:'PI controller'},
+    {q:'What is the purpose of feedback in control systems?', opts:['Improve stability and reduce error', 'Increase gain', 'Reduce cost'], a:'Improve stability and reduce error'},
+    {q:'Which plot is used for frequency domain analysis?', opts:['Bode plot', 'Root locus', 'Nyquist plot'], a:'Bode plot'},
+    {q:'What indicates system stability in Bode plot?', opts:['Phase margin > 0', 'Gain margin < 0', 'High frequency response'], a:'Phase margin > 0'},
+    {q:'Which controller provides fastest response?', opts:['PD controller', 'PI controller', 'P controller'], a:'PD controller'},
+    {q:'What is steady-state error?', opts:['Error after system settles', 'Peak error', 'Initial error'], a:'Error after system settles'},
+    {q:'Which system has better disturbance rejection?', opts:['Closed-loop', 'Open-loop', 'Manual control'], a:'Closed-loop'},
+    {q:'What is overshoot in step response?', opts:['Maximum deviation above final value', 'Settling time', 'Rise time'], a:'Maximum deviation above final value'},
+    {q:'Which method is used for controller tuning?', opts:['Ziegler-Nichols', 'Laplace transform', 'Fourier analysis'], a:'Ziegler-Nichols'},
+    {q:'How many states does a binary digit have?', opts:['2', '8', '16'], a:'2'},
+    {q:'Which gate gives output 1 when all inputs are 1?', opts:['AND gate', 'OR gate', 'NAND gate'], a:'AND gate'},
+    {q:'What is the complement of AND function?', opts:['NAND', 'OR', 'XOR'], a:'NAND'},
+    {q:'Which number system uses base 16?', opts:['Hexadecimal', 'Octal', 'Binary'], a:'Hexadecimal'},
+    {q:'What is a flip-flop?', opts:['Memory element', 'Logic gate', 'Amplifier'], a:'Memory element'},
+    {q:'Which device converts analog to digital?', opts:['ADC', 'DAC', 'Multiplexer'], a:'ADC'},
+    {q:'What is the resolution of an 8-bit ADC?', opts:['1/256 of full scale', '1/128 of full scale', '1/512 of full scale'], a:'1/256 of full scale'},
+    {q:'Which memory is volatile?', opts:['RAM', 'ROM', 'EPROM'], a:'RAM'},
+    {q:'What is the function of a multiplexer?', opts:['Select one input from many', 'Store data', 'Amplify signals'], a:'Select one input from many'},
+    {q:'Which coding is used to prevent errors in data transmission?', opts:['Hamming code', 'ASCII code', 'BCD code'], a:'Hamming code'}
+  ],
+  '9': [
+    {q:'What is the modulus of elasticity of steel approximately?', opts:['200 GPa', '100 GPa', '300 GPa'], a:'200 GPa'},
+    {q:'Which type of beam is fixed at one end and free at the other?', opts:['Cantilever', 'Simply supported', 'Continuous'], a:'Cantilever'},
+    {q:'What is the safe bearing capacity of black cotton soil?', opts:['50-100 kN/m²', '200-300 kN/m²', '400-500 kN/m²'], a:'50-100 kN/m²'},
+    {q:'Which cement is used for mass concrete construction?', opts:['Portland Pozzolana Cement', 'Ordinary Portland Cement', 'High Alumina Cement'], a:'Portland Pozzolana Cement'},
+    {q:'What is the minimum grade of concrete for RCC work?', opts:['M20', 'M15', 'M10'], a:'M20'},
+    {q:'Which steel is used for prestressed concrete?', opts:['High tensile steel', 'Mild steel', 'Cast iron'], a:'High tensile steel'},
+    {q:'What is the water-cement ratio for normal concrete?', opts:['0.4 to 0.6', '0.2 to 0.3', '0.7 to 0.9'], a:'0.4 to 0.6'},
+    {q:'Which test determines workability of concrete?', opts:['Slump test', 'Compression test', 'Tensile test'], a:'Slump test'},
+    {q:'What is the standard cube size for concrete testing?', opts:['150 mm', '100 mm', '200 mm'], a:'150 mm'},
+    {q:'Which reinforcement is used for temperature stresses?', opts:['Temperature reinforcement', 'Main reinforcement', 'Shear reinforcement'], a:'Temperature reinforcement'},
+    {q:'What is the liquid limit of soil?', opts:['Water content at which soil behaves as liquid', 'Maximum water absorption', 'Minimum water content'], a:'Water content at which soil behaves as liquid'},
+    {q:'Which index indicates plasticity of soil?', opts:['Plasticity index', 'Liquidity index', 'Activity index'], a:'Plasticity index'},
+    {q:'What is standard penetration test used for?', opts:['Determine bearing capacity', 'Measure compaction', 'Find water table'], a:'Determine bearing capacity'},
+    {q:'Which soil has highest bearing capacity?', opts:['Rock', 'Sand', 'Clay'], a:'Rock'},
+    {q:'What is optimum moisture content?', opts:['Water content for maximum dry density', 'Field moisture content', 'Saturated moisture content'], a:'Water content for maximum dry density'},
+    {q:'Which test is used for soil classification?', opts:['Atterberg limits test', 'CBR test', 'Permeability test'], a:'Atterberg limits test'},
+    {q:'What is coefficient of permeability?', opts:['Rate of flow through soil', 'Soil density', 'Soil strength'], a:'Rate of flow through soil'},
+    {q:'Which foundation is used for high loads?', opts:['Pile foundation', 'Strip foundation', 'Isolated footing'], a:'Pile foundation'},
+    {q:'What is settlement of foundation?', opts:['Downward movement under load', 'Upward movement', 'Lateral movement'], a:'Downward movement under load'},
+    {q:'Which type of pile transfers load by friction?', opts:['Friction pile', 'End bearing pile', 'Combined pile'], a:'Friction pile'},
+    {q:'What is the unit of discharge?', opts:['m³/s', 'm²/s', 'm/s'], a:'m³/s'},
+    {q:'Which formula is used for uniform flow in channels?', opts:["Manning\\'s formula", "Darcy\\'s formula", "Hazen-Williams formula"], a:"Manning\\'s formula"},
+    {q:'What is hydraulic radius?', opts:['Area/wetted perimeter', 'Velocity/area', 'Discharge/velocity'], a:'Area/wetted perimeter'},
+    {q:'Which type of flow has Froude number > 1?', opts:['Supercritical', 'Subcritical', 'Critical'], a:'Supercritical'},
+    {q:'What is specific energy in open channel?', opts:['Energy per unit weight', 'Total energy', 'Kinetic energy'], a:'Energy per unit weight'},
+    {q:'Which weir gives accurate measurement?', opts:['Triangular weir', 'Rectangular weir', 'Trapezoidal weir'], a:'Triangular weir'},
+    {q:'What is the purpose of a spillway?', opts:['Discharge excess water from reservoir', 'Store water', 'Generate power'], a:'Discharge excess water from reservoir'},
+    {q:'Which pump is used for high head applications?', opts:['Centrifugal pump', 'Reciprocating pump', 'Axial flow pump'], a:'Centrifugal pump'},
+    {q:'What is water hammer?', opts:['Pressure surge due to sudden valve closure', 'Pipe vibration', 'Flow separation'], a:'Pressure surge due to sudden valve closure'},
+    {q:'Which method is used for flood routing?', opts:['Muskingum method', 'Unit hydrograph', 'Rational method'], a:'Muskingum method'},
+    {q:'What is the standard width of single lane road?', opts:['3.75 m', '3.0 m', '4.5 m'], a:'3.75 m'},
+    {q:'Which test determines strength of aggregates?', opts:['Los Angeles abrasion test', 'Impact test', 'Crushing test'], a:'Los Angeles abrasion test'},
+    {q:'What is the purpose of prime coat?', opts:['Bind base course with bituminous layer', 'Waterproofing', 'Temperature control'], a:'Bind base course with bituminous layer'},
+    {q:'Which pavement type distributes load over wide area?', opts:['Flexible pavement', 'Rigid pavement', 'Composite pavement'], a:'Rigid pavement'},
+    {q:'What is camber in roads?', opts:['Transverse slope', 'Longitudinal slope', 'Side slope'], a:'Transverse slope'},
+    {q:'Which curve is used for smooth direction change?', opts:['Transition curve', 'Circular curve', 'Compound curve'], a:'Transition curve'},
+    {q:'What is stopping sight distance?', opts:['Distance to stop vehicle safely', 'Overtaking distance', 'Following distance'], a:'Distance to stop vehicle safely'},
+    {q:'Which material is used for flexible pavement surface?', opts:['Bituminous concrete', 'Cement concrete', 'Stone'], a:'Bituminous concrete'},
+    {q:'What is the standard gauge of Indian Railways?', opts:['1676 mm', '1435 mm', '1000 mm'], a:'1676 mm'},
+    {q:'Which sleeper is most commonly used?', opts:['Concrete sleeper', 'Steel sleeper', 'Wooden sleeper'], a:'Concrete sleeper'},
+    {q:'What is BOD?', opts:['Biochemical Oxygen Demand', 'Biological Oxygen Demand', 'Basic Oxygen Demand'], a:'Biochemical Oxygen Demand'},
+    {q:'Which process removes suspended solids from water?', opts:['Sedimentation', 'Chlorination', 'Aeration'], a:'Sedimentation'},
+    {q:'What is the purpose of coagulation in water treatment?', opts:['Aggregate fine particles', 'Kill bacteria', 'Remove taste'], a:'Aggregate fine particles'},
+    {q:'Which chemical is commonly used for disinfection?', opts:['Chlorine', 'Alum', 'Lime'], a:'Chlorine'},
+    {q:'What is the minimum residual chlorine in distribution system?', opts:['0.2 mg/L', '0.5 mg/L', '1.0 mg/L'], a:'0.2 mg/L'},
+    {q:'Which treatment removes hardness from water?', opts:['Lime-soda process', 'Chlorination', 'Filtration'], a:'Lime-soda process'},
+    {q:'What is the purpose of sewage treatment?', opts:['Remove pollutants', 'Increase flow', 'Store sewage'], a:'Remove pollutants'},
+    {q:'Which process is used in secondary treatment?', opts:['Activated sludge process', 'Screening', 'Grit removal'], a:'Activated sludge process'},
+    {q:'What is the standard per capita water supply?', opts:['135 lpcd', '100 lpcd', '200 lpcd'], a:'135 lpcd'},
+    {q:'Which gas is produced in anaerobic digestion?', opts:['Methane', 'Oxygen', 'Nitrogen'], a:'Methane'}
+  ],
+  '10': [
+    {q:'What is the time complexity of binary search?', opts:['O(log n)', 'O(n)', 'O(n²)'], a:'O(log n)'},
+    {q:'Which data structure uses LIFO principle?', opts:['Stack', 'Queue', 'Array'], a:'Stack'},
+    {q:'What is polymorphism in OOP?', opts:['Same interface, different implementations', 'Multiple inheritance', 'Data hiding'], a:'Same interface, different implementations'},
+    {q:'Which algorithm is fastest for sorting?', opts:['Quick sort (average case)', 'Bubble sort', 'Selection sort'], a:'Quick sort (average case)'},
+    {q:'What is a hash table?', opts:['Data structure for fast lookups', 'Sorting algorithm', 'Tree structure'], a:'Data structure for fast lookups'},
+    {q:'Which paradigm focuses on functions?', opts:['Functional programming', 'Object-oriented programming', 'Procedural programming'], a:'Functional programming'},
+    {q:'What is Big O notation used for?', opts:['Describe algorithm complexity', 'Debug code', 'Optimize memory'], a:'Describe algorithm complexity'},
+    {q:'Which pattern ensures only one instance?', opts:['Singleton pattern', 'Factory pattern', 'Observer pattern'], a:'Singleton pattern'},
+    {q:'What is recursion?', opts:['Function calling itself', 'Loop structure', 'Error handling'], a:'Function calling itself'},
+    {q:'Which data structure is used for BFS?', opts:['Queue', 'Stack', 'Heap'], a:'Queue'},
+    {q:'What does ACID stand for in databases?', opts:['Atomicity, Consistency, Isolation, Durability', 'Access, Control, Integrity, Data', 'Application, Code, Interface, Design'], a:'Atomicity, Consistency, Isolation, Durability'},
+    {q:'Which normal form eliminates transitive dependencies?', opts:['Third Normal Form', 'First Normal Form', 'Second Normal Form'], a:'Third Normal Form'},
+    {q:'What is a primary key?', opts:['Unique identifier for table rows', 'Foreign reference', 'Index field'], a:'Unique identifier for table rows'},
+    {q:'Which SQL command retrieves data?', opts:['SELECT', 'INSERT', 'UPDATE'], a:'SELECT'},
+    {q:'What is database normalization?', opts:['Organizing data to reduce redundancy', 'Creating backups', 'Indexing tables'], a:'Organizing data to reduce redundancy'},
+    {q:'Which join returns only matching records?', opts:['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN'], a:'INNER JOIN'},
+    {q:'What is a stored procedure?', opts:['Precompiled SQL code', 'Data backup', 'Table structure'], a:'Precompiled SQL code'},
+    {q:'Which constraint ensures data integrity?', opts:['CHECK constraint', 'PRIMARY constraint', 'UNIQUE constraint'], a:'CHECK constraint'},
+    {q:'What is OLTP?', opts:['Online Transaction Processing', 'Object Linking Technology Platform', 'Open Library Transfer Protocol'], a:'Online Transaction Processing'},
+    {q:'Which technique improves query performance?', opts:['Indexing', 'Normalization', 'Clustering'], a:'Indexing'},
+    {q:'What is the Waterfall model?', opts:['Sequential software development model', 'Agile methodology', 'Testing framework'], a:'Sequential software development model'},
+    {q:'Which phase comes first in SDLC?', opts:['Requirements analysis', 'Design', 'Implementation'], a:'Requirements analysis'},
+    {q:'What is version control?', opts:['Managing code changes', 'Bug tracking', 'Performance monitoring'], a:'Managing code changes'},
+    {q:'Which testing approach uses black box method?', opts:['Functional testing', 'Unit testing', 'Integration testing'], a:'Functional testing'},
+    {q:'What is continuous integration?', opts:['Frequent code integration and testing', 'Manual testing', 'Code documentation'], a:'Frequent code integration and testing'},
+    {q:'Which document specifies system requirements?', opts:['SRS', 'UML', 'API'], a:'SRS'},
+    {q:'What is refactoring?', opts:['Improving code structure without changing functionality', 'Adding new features', 'Bug fixing'], a:'Improving code structure without changing functionality'},
+    {q:'Which methodology uses sprints?', opts:['Scrum', 'Waterfall', 'Spiral'], a:'Scrum'},
+    {q:'What is unit testing?', opts:['Testing individual components', 'System testing', 'User testing'], a:'Testing individual components'},
+    {q:'Which pattern separates concerns?', opts:['MVC pattern', 'Singleton pattern', 'Factory pattern'], a:'MVC pattern'},
+    {q:'Which layer handles routing in OSI model?', opts:['Network layer', 'Transport layer', 'Data link layer'], a:'Network layer'},
+    {q:'What is the default port for HTTP?', opts:['80', '443', '21'], a:'80'},
+    {q:'Which protocol is connectionless?', opts:['UDP', 'TCP', 'HTTP'], a:'UDP'},
+    {q:'What does DNS resolve?', opts:['Domain names to IP addresses', 'IP addresses to MAC addresses', 'Ports to services'], a:'Domain names to IP addresses'},
+    {q:'Which device operates at network layer?', opts:['Router', 'Switch', 'Hub'], a:'Router'},
+    {q:'What is subnet mask used for?', opts:['Identify network and host portions', 'Encrypt data', 'Compress packets'], a:'Identify network and host portions'},
+    {q:'Which protocol ensures reliable delivery?', opts:['TCP', 'UDP', 'ICMP'], a:'TCP'},
+    {q:'What is DHCP used for?', opts:['Automatic IP address assignment', 'Domain name resolution', 'File transfer'], a:'Automatic IP address assignment'},
+    {q:'Which attack floods network with requests?', opts:['DDoS attack', 'Man-in-the-middle attack', 'SQL injection'], a:'DDoS attack'},
+    {q:'What is NAT?', opts:['Network Address Translation', 'Network Access Terminal', 'Network Authentication Token'], a:'Network Address Translation'},
+    {q:'What is a process?', opts:['Program in execution', 'Compiled code', 'System file'], a:'Program in execution'},
+    {q:'Which scheduling algorithm gives shortest waiting time?', opts:['SJF', 'FCFS', 'Round Robin'], a:'SJF'},
+    {q:'What is deadlock?', opts:['Circular wait for resources', 'System crash', 'Memory overflow'], a:'Circular wait for resources'},
+    {q:'Which memory management technique uses frames?', opts:['Paging', 'Segmentation', 'Partitioning'], a:'Paging'},
+    {q:'What is thrashing?', opts:['Excessive page swapping', 'CPU overload', 'Memory leak'], a:'Excessive page swapping'},
+    {q:'Which algorithm is used for page replacement?', opts:['LRU', 'FIFO', 'Priority'], a:'LRU'},
+    {q:'What is semaphore?', opts:['Synchronization primitive', 'Memory location', 'File system'], a:'Synchronization primitive'},
+    {q:'Which structure stores process information?', opts:['Process Control Block', 'Memory Management Unit', 'File Allocation Table'], a:'Process Control Block'},
+    {q:'What is virtual memory?', opts:['Extension of physical memory', 'Cache memory', 'Register memory'], a:'Extension of physical memory'},
+    {q:'Which state comes after process creation?', opts:['Ready state', 'Running state', 'Blocked state'], a:'Ready state'}
+  ],
+  '11': [
+    {q:'What is graphene?', opts:['Single layer of carbon atoms', 'Carbon fiber composite', 'Diamond structure'], a:'Single layer of carbon atoms'},
+    {q:'Which material has shape memory properties?', opts:['Nitinol', 'Steel', 'Aluminum'], a:'Nitinol'},
+    {q:'What are metamaterials?', opts:['Artificially structured materials', 'Natural composites', 'Traditional alloys'], a:'Artificially structured materials'},
+    {q:'Which nanomaterial is strongest?', opts:['Carbon nanotube', 'Graphene', 'Fullerene'], a:'Carbon nanotube'},
+    {q:'What is piezoelectricity?', opts:['Electric charge from mechanical stress', 'Magnetic field generation', 'Thermal expansion'], a:'Electric charge from mechanical stress'},
+    {q:'Which process creates nanoparticles?', opts:['Ball milling', 'Casting', 'Forging'], a:'Ball milling'},
+    {q:'What is superplasticity?', opts:['Extreme ductility at high temperature', 'High strength', 'Low density'], a:'Extreme ductility at high temperature'},
+    {q:'Which material is used in aerospace for high temperature?', opts:['Inconel', 'Aluminum', 'Copper'], a:'Inconel'},
+    {q:'What is biocompatibility?', opts:['Material compatibility with living tissue', 'Environmental friendliness', 'Chemical stability'], a:'Material compatibility with living tissue'},
+    {q:'Which coating reduces friction?', opts:['DLC coating', 'Paint coating', 'Rust coating'], a:'DLC coating'},
+    {q:'What is photovoltaic effect?', opts:['Light to electricity conversion', 'Heat to electricity', 'Wind to electricity'], a:'Light to electricity conversion'},
+    {q:'Which material is used in solar cell?', opts:['Silicon', 'Copper', 'Iron'], a:'Silicon'},
+    {q:'What is maximum power point tracking?', opts:['Optimizing solar panel output', 'Wind turbine control', 'Battery management'], a:'Optimizing solar panel output'},
+    {q:'Which energy storage has highest density?', opts:['Lithium-ion battery', 'Lead-acid battery', 'Capacitor'], a:'Lithium-ion battery'},
+    {q:'What is Betz limit?', opts:['Maximum wind energy extraction (59.3%)', 'Solar efficiency limit', 'Hydro efficiency'], a:'Maximum wind energy extraction (59.3%)'},
+    {q:'Which fuel cell type operates at low temperature?', opts:['PEM fuel cell', 'SOFC', 'MCFC'], a:'PEM fuel cell'},
+    {q:'What is grid parity?', opts:['Renewable energy cost equals conventional', 'Grid stability', 'Power balance'], a:'Renewable energy cost equals conventional'},
+    {q:'Which technology stores energy using compressed air?', opts:['CAES', 'Pumped hydro', 'Flywheel'], a:'CAES'},
+    {q:'What is concentrated solar power?', opts:['Using mirrors to focus sunlight', 'High efficiency PV', 'Solar tracking'], a:'Using mirrors to focus sunlight'},
+    {q:'Which component converts DC to AC in renewable systems?', opts:['Inverter', 'Rectifier', 'Transformer'], a:'Inverter'},
+    {q:'What is a servo motor?', opts:['Motor with position feedback control', 'High speed motor', 'Low power motor'], a:'Motor with position feedback control'},
+    {q:'Which sensor detects object proximity?', opts:['Ultrasonic sensor', 'Temperature sensor', 'Light sensor'], a:'Ultrasonic sensor'},
+    {q:'What is PLC?', opts:['Programmable Logic Controller', 'Power Line Communication', 'Process Logic Computer'], a:'Programmable Logic Controller'},
+    {q:'Which protocol is used in industrial automation?', opts:['Modbus', 'HTTP', 'FTP'], a:'Modbus'},
+    {q:'What is machine vision?', opts:['Computer vision for industrial inspection', 'Human vision simulation', 'Robot navigation'], a:'Computer vision for industrial inspection'},
+    {q:'Which actuator provides linear motion?', opts:['Linear actuator', 'Rotary actuator', 'Servo motor'], a:'Linear actuator'},
+    {q:'What is SCADA?', opts:['Supervisory Control and Data Acquisition', 'System Control and Data Analysis', 'Secure Communication and Device Access'], a:'Supervisory Control and Data Acquisition'},
+    {q:'Which robot configuration has highest flexibility?', opts:['6-DOF articulated robot', '3-DOF robot', 'SCARA robot'], a:'6-DOF articulated robot'},
+    {q:'What is end effector?', opts:['Robot tool or gripper', 'Robot base', 'Robot controller'], a:'Robot tool or gripper'},
+    {q:'Which method is used for robot path planning?', opts:['A* algorithm', 'PID control', 'Fuzzy logic'], a:'A* algorithm'},
+    {q:'What is tissue engineering?', opts:['Growing tissues in laboratory', 'Surgical techniques', 'Medical imaging'], a:'Growing tissues in laboratory'},
+    {q:'Which material is used for artificial joints?', opts:['Titanium alloy', 'Steel', 'Aluminum'], a:'Titanium alloy'},
+    {q:'What is biomechanics?', opts:['Mechanics applied to biological systems', 'Medical electronics', 'Biochemical processes'], a:'Mechanics applied to biological systems'},
+    {q:'Which imaging technique uses magnetic fields?', opts:['MRI', 'X-ray', 'Ultrasound'], a:'MRI'},
+    {q:'What is gene therapy?', opts:['Treating diseases using genes', 'Genetic testing', 'DNA sequencing'], a:'Treating diseases using genes'},
+    {q:'Which device assists heart pumping?', opts:['Ventricular assist device', 'Pacemaker', 'Defibrillator'], a:'Ventricular assist device'},
+    {q:'What is bioprinting?', opts:['3D printing of biological materials', 'Medical documentation', 'Genetic mapping'], a:'3D printing of biological materials'},
+    {q:'Which sensor measures brain activity?', opts:['EEG', 'ECG', 'EMG'], a:'EEG'},
+    {q:'What is drug delivery system?', opts:['Controlled release of medication', 'Drug manufacturing', 'Medical prescription'], a:'Controlled release of medication'},
+    {q:'Which technique repairs damaged cartilage?', opts:['Cartilage regeneration', 'Joint replacement', 'Physical therapy'], a:'Cartilage regeneration'},
+    {q:'What is the size range of nanoparticles?', opts:['1-100 nm', '100-1000 nm', '0.1-1 nm'], a:'1-100 nm'},
+    {q:'Which microscope can see individual atoms?', opts:['Scanning tunneling microscope', 'Optical microscope', 'Electron microscope'], a:'Scanning tunneling microscope'},
+    {q:'What is quantum dot?', opts:['Semiconductor nanocrystal', 'Quantum computer component', 'Optical device'], a:'Semiconductor nanocrystal'},
+    {q:'Which technique creates nanostructures?', opts:['Lithography', 'Casting', 'Machining'], a:'Lithography'},
+    {q:'What is surface-to-volume ratio at nanoscale?', opts:['Very high', 'Very low', 'Same as bulk'], a:'Very high'},
+    {q:'Which application uses silver nanoparticles?', opts:['Antimicrobial coatings', 'Electronics', 'Optics'], a:'Antimicrobial coatings'},
+    {q:'What is molecular self-assembly?', opts:['Molecules organizing into structures', 'Chemical reaction', 'Phase transition'], a:'Molecules organizing into structures'},
+    {q:'Which carbon structure is spherical?', opts:['Fullerene', 'Nanotube', 'Graphene'], a:'Fullerene'},
+    {q:'What is targeted drug delivery?', opts:['Delivering drugs to specific cells', 'Oral medication', 'Injection method'], a:'Delivering drugs to specific cells'},
+    {q:'Which phenomenon affects nanoparticle behavior?', opts:['Quantum effects', 'Gravity', 'Magnetism'], a:'Quantum effects'}
+  ],
+  '12': [
+    {q:'What is deep learning?', opts:['Neural networks with multiple hidden layers', 'Surface-level analysis', 'Traditional programming'], a:'Neural networks with multiple hidden layers'},
+    {q:'Which algorithm is used for unsupervised learning?', opts:['K-means clustering', 'Linear regression', 'Decision tree'], a:'K-means clustering'},
+    {q:'What is overfitting in machine learning?', opts:['Model performs well on training but poor on test data', 'Model performs poorly on all data', 'Perfect model performance'], a:'Model performs well on training but poor on test data'},
+    {q:'Which neural network is best for image recognition?', opts:['Convolutional Neural Network', 'Recurrent Neural Network', 'Perceptron'], a:'Convolutional Neural Network'},
+    {q:'What is reinforcement learning?', opts:['Learning through rewards and penalties', 'Supervised learning', 'Data clustering'], a:'Learning through rewards and penalties'},
+    {q:'Which technique prevents overfitting?', opts:['Regularization', 'Feature scaling', 'Data augmentation'], a:'Regularization'},
+    {q:'What is transfer learning?', opts:['Using pre-trained model for new task', 'Transferring data', 'Model deployment'], a:'Using pre-trained model for new task'},
+    {q:'Which metric evaluates classification model?', opts:['F1-score', 'Mean squared error', 'R-squared'], a:'F1-score'},
+    {q:'What is gradient descent?', opts:['Optimization algorithm', 'Neural network layer', 'Loss function'], a:'Optimization algorithm'},
+    {q:'Which technique handles sequential data?', opts:['LSTM', 'CNN', 'SVM'], a:'LSTM'},
+    {q:'What is quantum superposition?', opts:['Particle exists in multiple states simultaneously', 'Classical mechanics principle', 'Wave interference'], a:'Particle exists in multiple states simultaneously'},
+    {q:'Which property enables quantum computing?', opts:['Quantum entanglement', 'Classical bits', 'Electronic circuits'], a:'Quantum entanglement'},
+    {q:'What is a qubit?', opts:['Quantum bit', 'Classical bit', 'Binary digit'], a:'Quantum bit'},
+    {q:'Which algorithm provides quantum advantage?', opts:["Shor\\'s algorithm", 'Bubble sort', 'Linear search'], a:"Shor\\'s algorithm"},
+    {q:'What is quantum decoherence?', opts:['Loss of quantum properties', 'Quantum enhancement', 'Energy conservation'], a:'Loss of quantum properties'},
+    {q:'Which company leads quantum computing research?', opts:['IBM', 'Microsoft', 'Google'], a:'IBM'},
+    {q:'What temperature do quantum computers operate at?', opts:['Near absolute zero', 'Room temperature', 'High temperature'], a:'Near absolute zero'},
+    {q:'Which application benefits from quantum computing?', opts:['Cryptography', 'Word processing', 'Web browsing'], a:'Cryptography'},
+    {q:'What is quantum tunneling?', opts:['Particles pass through energy barriers', 'Classical motion', 'Heat transfer'], a:'Particles pass through energy barriers'},
+    {q:'Which principle limits quantum measurement?', opts:['Heisenberg uncertainty principle', "Newton\\'s laws", "Ohm\\'s law"], a:'Heisenberg uncertainty principle'},
+    {q:'What is specific impulse in rockets?', opts:['Efficiency measure of propulsion', 'Total thrust', 'Fuel consumption'], a:'Efficiency measure of propulsion'},
+    {q:'Which orbit requires least energy to reach?', opts:['Low Earth Orbit', 'Geostationary orbit', 'Escape trajectory'], a:'Low Earth Orbit'},
+    {q:'What is delta-v?', opts:['Change in velocity', 'Distance traveled', 'Time duration'], a:'Change in velocity'},
+    {q:'Which fuel combination has highest performance?', opts:['Liquid hydrogen and oxygen', 'Kerosene and oxygen', 'Solid propellant'], a:'Liquid hydrogen and oxygen'},
+    {q:'What is Hohmann transfer orbit?', opts:['Energy-efficient orbital transfer', 'Circular orbit', 'Escape trajectory'], a:'Energy-efficient orbital transfer'},
+    {q:'Which force dominates in space?', opts:['Gravitational force', 'Air resistance', 'Friction'], a:'Gravitational force'},
+    {q:'What is apogee?', opts:['Farthest point from Earth in orbit', 'Closest point to Earth', 'Launch point'], a:'Farthest point from Earth in orbit'},
+    {q:'Which material protects from space radiation?', opts:['Lead or polyethylene', 'Aluminum', 'Steel'], a:'Lead or polyethylene'},
+    {q:'What is attitude control in spacecraft?', opts:['Controlling orientation', 'Speed control', 'Fuel management'], a:'Controlling orientation'},
+    {q:'Which propulsion is used for deep space missions?', opts:['Ion propulsion', 'Chemical rockets', 'Solid boosters'], a:'Ion propulsion'},
+    {q:'What is additive manufacturing?', opts:['Building objects layer by layer', 'Removing material', 'Assembly process'], a:'Building objects layer by layer'},
+    {q:'Which 3D printing technique uses laser?', opts:['Selective laser sintering', 'Fused deposition modeling', 'Stereolithography'], a:'Selective laser sintering'},
+    {q:'What is Industry 4.0?', opts:['Fourth industrial revolution with IoT', 'Third industrial revolution', 'Automation era'], a:'Fourth industrial revolution with IoT'},
+    {q:'Which technology enables smart factories?', opts:['Internet of Things', 'Traditional automation', 'Manual control'], a:'Internet of Things'},
+    {q:'What is digital twin?', opts:['Virtual replica of physical system', 'Backup system', 'Simulation software'], a:'Virtual replica of physical system'},
+    {q:'Which material is used in metal 3D printing?', opts:['Titanium powder', 'Plastic filament', 'Ceramic'], a:'Titanium powder'},
+    {q:'What is predictive maintenance?', opts:['Maintenance based on data analysis', 'Fixed schedule maintenance', 'Reactive maintenance'], a:'Maintenance based on data analysis'},
+    {q:'Which technique creates parts without tooling?', opts:['3D printing', 'Machining', 'Injection molding'], a:'3D printing'},
+    {q:'What is mass customization?', opts:['Producing customized products at scale', 'Mass production', 'Handmade products'], a:'Producing customized products at scale'},
+    {q:'Which sensor technology enables condition monitoring?', opts:['Vibration sensors', 'Temperature only', 'Visual inspection'], a:'Vibration sensors'},
+    {q:'What is fusion energy?', opts:['Energy from combining light nuclei', 'Nuclear fission', 'Chemical combustion'], a:'Energy from combining light nuclei'},
+    {q:'Which temperature is needed for fusion?', opts:['100 million°C', '1000°C', '10,000°C'], a:'100 million°C'},
+    {q:'What is hyperloop transport?', opts:['High-speed travel in vacuum tubes', 'Traditional railway', 'Road transport'], a:'High-speed travel in vacuum tubes'},
+    {q:'Which concept enables wireless power transmission?', opts:['Electromagnetic induction', 'Mechanical coupling', 'Chemical batteries'], a:'Electromagnetic induction'},
+    {q:'What is brain-computer interface?', opts:['Direct communication between brain and computer', 'Virtual reality', 'Artificial intelligence'], a:'Direct communication between brain and computer'},
+    {q:'Which technology could revolutionize transportation?', opts:['Autonomous vehicles', 'Manual driving', 'Public transport only'], a:'Autonomous vehicles'},
+    {q:'What is synthetic biology?', opts:['Engineering biological systems', 'Natural biology study', 'Medical diagnosis'], a:'Engineering biological systems'},
+    {q:'Which energy storage could replace batteries?', opts:['Supercapacitors', 'Mechanical storage', 'Chemical fuel'], a:'Supercapacitors'},
+    {q:'What is molecular manufacturing?', opts:['Building products atom by atom', 'Traditional manufacturing', 'Assembly line production'], a:'Building products atom by atom'},
+    {q:'Which material could enable space elevator?', opts:['Carbon nanotubes', 'Steel cables', 'Titanium wire'], a:'Carbon nanotubes'}
+  ]
+};
+
+// state
+let obstacles = [], running=false, pausedForQuestion=false, gameEnded=false, score=0, spawnTimer=0, lastTS=0;
+
+// init scenery
+function initWorld(){ world.clouds=[]; for(let i=0;i<8;i++) world.clouds.push({x:Math.random()*innerWidth, y:20+Math.random()*120, s:0.7+Math.random()*1.1, speed:10+Math.random()*22}); world.mountains=[]; for(let i=0;i<6;i++) world.mountains.push({x:i*360, h:60+Math.random()*80}); world.treesFar=[]; for(let i=0;i<14;i++){ const w=44,h=80+Math.random()*60; world.treesFar.push({x:i*220+Math.random()*120,w,h,y:world.groundY - h}); } world.treesMid=[]; for(let i=0;i<12;i++){ const w=60,h=110+Math.random()*80; world.treesMid.push({x:i*260+Math.random()*160,w,h,y:world.groundY - h}); } world.treesNear=[]; for(let i=0;i<12;i++){ const w=80,h=120+Math.random()*80; world.treesNear.push({x:i*320+Math.random()*120,w,h,y:world.groundY - h}); } }
+initWorld();
+
+// helpers
+function drawRoundedRect(x,y,w,h,r,fill){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); if(fill){ ctx.fillStyle = fill; ctx.fill(); } }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+// drawing functions (kept polished)
+function drawBackground(dt, moving=true){ const W=innerWidth, H=innerHeight; for(const m of world.mountains){ if(moving) m.x -= baseSpeed*0.04*dt; if(m.x < -400) m.x = W + Math.random()*300; ctx.fillStyle='#9bb7c7'; ctx.beginPath(); ctx.moveTo(m.x, world.groundY); ctx.lineTo(m.x+180, world.groundY - m.h - 40); ctx.lineTo(m.x+360, world.groundY); ctx.closePath(); ctx.fill(); } for(const c of world.clouds){ if(moving) c.x -= c.speed*0.02*dt*60; if(c.x < -160) c.x = W + 180; ctx.globalAlpha = 0.95; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(c.x, c.y, 36*c.s, 20*c.s,0,0,Math.PI*2); ctx.ellipse(c.x+36*c.s, c.y+6*c.s, 28*c.s,18*c.s,0,0,Math.PI*2); ctx.ellipse(c.x-34*c.s, c.y+6*c.s, 26*c.s,16*c.s,0,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
+  for(const t of world.treesFar){ if(moving) t.x -= baseSpeed*0.06*dt; if(t.x < -200) t.x = W + Math.random()*220; const trunkH = t.h * 0.28; const trunkW = Math.max(6, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#6a4b2b'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#2f8b3d'; ctx.beginPath(); ctx.moveTo(t.x, trunkY); ctx.lineTo(t.x + t.w*0.5, trunkY - t.h*0.7); ctx.lineTo(t.x + t.w, trunkY); ctx.closePath(); ctx.fill(); ctx.fillStyle='#2a7b36'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.28, 10, 0, 0, Math.PI*2); ctx.fill(); }
+  for(const t of world.treesMid){ if(moving) t.x -= baseSpeed*0.12*dt; if(t.x < -260) t.x = W + Math.random()*260; const trunkH = t.h * 0.33; const trunkW = Math.max(8, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#5b3b20'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#3aa14a'; ctx.beginPath(); ctx.moveTo(t.x, trunkY); ctx.lineTo(t.x + t.w*0.5, trunkY - t.h*0.85); ctx.lineTo(t.x + t.w, trunkY); ctx.closePath(); ctx.fill(); ctx.fillStyle='#2f7f3b'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.32, 12, 0, 0, Math.PI*2); ctx.fill(); }
+  for(const t of world.treesNear){ if(moving) t.x -= baseSpeed*0.22*dt; if(t.x < -360) t.x = W + Math.random()*320; const trunkH = t.h * 0.38; const trunkW = Math.max(10, t.w*0.18); const trunkX = t.x + t.w*0.5 - trunkW/2; const trunkY = world.groundY - trunkH; ctx.fillStyle='#4d2f18'; ctx.fillRect(trunkX, trunkY, trunkW, trunkH + 6); ctx.fillStyle='#2aa24a'; ctx.beginPath(); ctx.ellipse(t.x + t.w*0.5, trunkY - 8, t.w*0.55, t.h*0.45, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='#238d38'; ctx.beginPath(); ctx.ellipse(t.x + t.w*0.36, trunkY + 6, t.w*0.38, t.h*0.35, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='#2b7c35'; ctx.beginPath(); ctx.ellipse(trunkX + trunkW/2, world.groundY, t.w*0.36, 13, 0, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = '#6fcf6f'; ctx.fillRect(0, world.groundY, innerWidth, innerHeight - world.groundY); ctx.fillStyle = '#5fb45f'; ctx.fillRect(0, world.groundY + 22, innerWidth, 24);
+}
+
+function drawPlayer(dt){ if(!player.jumping && !player.falling) player.y = player.baseY; const legSwing = Math.sin(player.runPhase) * 6; const legTopY = player.y + player.h - LEG_HEIGHT; let squashFactor = 1; if(player.landTimer > 0){ const d = player.landTimer; const dur = 0.18; squashFactor = 1 - 0.12 * (d / dur); }
+  ctx.save(); ctx.globalAlpha = player.falling ? 0.12 : 0.22; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(player.x + player.w*0.5 - 6, world.groundY + 6, 38, 12, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.save(); const cx = player.x + player.w*0.5, cy = player.y + player.h*0.5; ctx.translate(cx, cy); ctx.rotate(player.rotation); ctx.translate(-cx, -cy);
+  ctx.fillStyle = player.color; const bodyRx = 30 * (1 + 0.06 * (1 - squashFactor)); const bodyRy = 26 * squashFactor; ctx.beginPath(); ctx.ellipse(player.x + 36, player.y + 36 + (1 - squashFactor)*6, bodyRx, bodyRy, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.belly; ctx.beginPath(); ctx.ellipse(player.x + 36, player.y + 46 + (1 - squashFactor)*6, 16 * (1 + 0.04*(1 - squashFactor)), 18 * squashFactor, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.color; ctx.beginPath(); ctx.ellipse(player.x + 60, player.y + 14, 18, 18, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = player.color; ctx.beginPath(); ctx.moveTo(player.x + 50, player.y - 6); ctx.lineTo(player.x + 46, player.y + 8); ctx.lineTo(player.x + 56, player.y + 2); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(player.x + 68, player.y - 6); ctx.lineTo(player.x + 64, player.y + 8); ctx.lineTo(player.x + 74, player.y + 2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(player.x + 64, player.y + 12, 3, 3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = player.color; ctx.beginPath(); ctx.ellipse(player.x + 10, player.y + 28, 8, 20, -0.8, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = player.belly; ctx.beginPath(); ctx.ellipse(player.x + 8, player.y + 26, 4, 10, -0.8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#6b3b20'; const frontLegX = player.x + 22 + legSwing * 0.6; const backLegX = player.x + 44 - legSwing * 0.6; const legTop = legTopY + (player.jumping || player.falling ? -8 : 0); ctx.fillRect(frontLegX, legTop, 10, LEG_HEIGHT); ctx.fillRect(backLegX, legTop + (Math.sin(player.runPhase) > 0 ? 6 : 0), 10, LEG_HEIGHT);
+  ctx.restore(); }
+
+function drawObstacles(dt){ for(const ob of obstacles){ ctx.save(); ctx.globalAlpha = ob.alpha !== undefined ? ob.alpha : 1; if(ob.type === 'log'){ drawRoundedRect(ob.x, ob.y + 8, ob.w, ob.h - 8, 8, '#a05a2b'); ctx.fillStyle = 'rgba(0,0,0,0.08)'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.ellipse(ob.x + 12 + i*16, ob.y + ob.h/2 + 8, 8 - i*2, 6 - i, 0, 0, Math.PI*2); ctx.fill(); } } else if(ob.type === 'rock'){ ctx.fillStyle = '#9aa0a6'; ctx.beginPath(); ctx.moveTo(ob.x, ob.y + ob.h); ctx.lineTo(ob.x + ob.w*0.5, ob.y); ctx.lineTo(ob.x + ob.w, ob.y + ob.h); ctx.closePath(); ctx.fill(); } else if(ob.type === 'bush'){ ctx.fillStyle = '#2f9a4f'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.5, ob.y + ob.h*0.5, ob.w*0.55, ob.h*0.48, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#236c39'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.3, ob.y + ob.h*0.45, ob.w*0.33, ob.h*0.34, 0, 0, Math.PI*2); ctx.fill(); } else if(ob.type === 'bird'){ ctx.fillStyle = '#f7c04a'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w/2, ob.y + ob.h/2, ob.w/2.2, ob.h/2.2, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#f1a82f'; ctx.beginPath(); ctx.ellipse(ob.x + ob.w*0.55, ob.y + ob.h*0.5, ob.w*0.3, ob.h*0.2, -0.4, 0, Math.PI*2); ctx.fill(); } ctx.globalAlpha = 1; ctx.restore(); } }
+
+function spawnObstacleCandidate(){ const types = ['log','rock','bush','bird']; const t = types[(Math.random()*types.length)|0]; const size = (t === 'bird')? {w:64,h:38,yOff:-48} : {w:78,h:68,yOff:0}; const xNew = innerWidth + 40 + Math.random()*120; const speedNew = baseSpeed * (t === 'bird' ? 1.45 : 1.0); const tNew = (xNew - player.x) / speedNew; const existingArrivalTimes = obstacles.map(ob => { const v = baseSpeed * (ob.type === 'bird' ? 1.45 : 1.0); const tArr = (ob.x - player.x) / v; return tArr; }).filter(v=>v > 0);
+  const minGapSec = Math.max(1.6, JUMP_TOTAL_TIME + 1.1);
+  for(const tExisting of existingArrivalTimes){ if(Math.abs(tNew - tExisting) < minGapSec){ return false; } }
+  obstacles.push({x: xNew, y: world.groundY - size.h + size.yOff - 6, w: size.w, h: size.h, type: t, asked:false, alpha:1}); spawnInterval = Math.max(900, Math.floor((minGapSec + Math.random()*0.6) * 1000)); return true; }
+
+// main loop
+function loop(ts){ if(!lastTS) lastTS = ts; const dtMS = Math.min(60, ts - lastTS); const dt = dtMS / 1000; lastTS = ts; ctx.clearRect(0,0,canvas.width/DPR, canvas.height/DPR); const moving = running && !pausedForQuestion && !gameEnded; drawBackground(dt, moving);
+  if(moving){ for(const ob of obstacles){ const speedFactor = ob.type === 'bird' ? 1.45 : 1.0; ob.x -= baseSpeed * speedFactor * dt; if(ob.type === 'bird') ob.y += Math.sin((ts + ob.x) / 180) * 0.4; const fadeStart = innerWidth * 0.12; if(ob.x + ob.w < fadeStart){ ob.alpha = Math.max(0, (ob.alpha === undefined ? 1 : ob.alpha) - dt * 1.2); } } }
+  ctx.fillStyle = 'rgba(0,0,0,0.06)'; for(let i=0;i<6;i++) ctx.fillRect((i*70 + (ts*0.02 % 70)), world.groundY + 12, 18, 4);
+  drawObstacles(dt);
+  if(player.jumping || player.falling){ player.vy += GRAVITY * dt; player.y += player.vy * dt; player.rotation = Math.max(-0.45, Math.min(0.45, -player.vy / 2400)); if(player.y >= player.baseY){ player.y = player.baseY; player.jumping = false; player.vy = 0; player.rotation = 0; player.landTimer = 0.18; } } else { player.runPhase += dt * 14; if(player.landTimer > 0) player.landTimer = Math.max(0, player.landTimer - dt); }
+  drawPlayer(dt);
+  if(running && !pausedForQuestion && !gameEnded){ spawnTimer += dt * 1000; if(spawnTimer >= spawnInterval){ spawnTimer = 0; const ok = spawnObstacleCandidate(); if(!ok){ spawnTimer = spawnInterval * 0.35; } } }
+  if(running && !pausedForQuestion && !gameEnded){ for(const ob of obstacles){ if(!ob.asked && ob.x < player.x + 160 && ob.x > player.x - 40){ ob.asked = true; pauseAndAsk(ob); break; } } }
+  for(let i=obstacles.length-1;i>=0;i--){ const ob = obstacles[i]; if((ob.alpha !== undefined && ob.alpha <= 0) || ob.x + ob.w < -160) obstacles.splice(i,1); }
+  if(!gameEnded) requestAnimationFrame(loop);
+}
+
+// quiz UI (select from QUESTION_POOLS based on selectedClass)
+const quizEl = document.getElementById('quiz'); const qtitle = document.getElementById('qtitle'); const qtext = document.getElementById('qtext'); const qopts = document.getElementById('qopts'); let currentObstacle = null;
+function pauseAndAsk(ob){ pausedForQuestion = true; currentObstacle = ob; // select random from pool
+  const pool = QUESTION_POOLS[selectedClass] || QUESTION_POOLS['6']; const q = pool[(Math.random()*pool.length)|0]; qtitle.textContent = 'Engineering Question'; qtext.textContent = q.q; qopts.innerHTML=''; // shuffle options
+  const shuffled = q.opts.slice().sort(()=>Math.random()-0.5); shuffled.forEach(opt=>{ const b = document.createElement('button'); b.textContent = opt; b.style.background = '#4caf50'; b.style.color = '#fff'; b.style.border='none'; b.style.borderRadius='10px'; b.style.padding='12px 16px'; b.onclick = ()=> answer(opt === q.a); qopts.appendChild(b); }); quizEl.style.display='block'; }
+
+// Add attempt tracking variables
+let currentAttempts = 0;
+const maxAttempts = 3;
+let currentQuestion = null;
+
+function answer(isCorrect){ 
+  if(isCorrect){ 
+    // Correct answer - reset attempts and continue
+    quizEl.style.display='none'; 
+    pausedForQuestion=false; 
+    currentAttempts = 0;
+    playCorrect(); 
+    score += 1; 
+    document.getElementById('score').textContent = score; 
+    showTempMsg('Great job! 🎉'); 
+    player.jumping = true; 
+    player.vy = -JUMP_V0; 
+    if(currentObstacle) currentObstacle.passedToRemove = true; 
+    currentObstacle = null; 
+  } else { 
+    // Wrong answer - increment attempts
+    currentAttempts++;
+    playWrong();
+
+    if(currentAttempts >= maxAttempts) {
+      // Out of attempts - game over
+      quizEl.style.display='none';
+      pausedForQuestion=false;
+      currentAttempts = 0;
+      showTempMsg('Game Over! No more attempts.'); 
+      player.falling = true; 
+      player.vy = 220; 
+      gameEnded = true; 
+      setTimeout(()=> showGameOver(), 900);
+    } else {
+      // Still have attempts left - show message and keep quiz open
+      const attemptsLeft = maxAttempts - currentAttempts;
+      showTempMsg(`Wrong! ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} left.`, 1500);
+      // Don't hide the quiz, let user try again
+    }
+  } 
+}
+
+function showTempMsg(txt, ms=900){ const el = document.createElement('div'); el.textContent = txt; el.style.position='absolute'; el.style.left='50%'; el.style.top='8%'; el.style.transform='translateX(-50%)'; el.style.zIndex=400; el.style.fontSize='26px'; el.style.fontWeight='900'; el.style.color='#ffdf6b'; el.style.textShadow='0 2px #000'; document.getElementById('root').appendChild(el); setTimeout(()=> el.remove(), ms); }
+
+function showGameOver(){ running = false; pausedForQuestion = false; gameEnded = true; quizEl.style.display='none'; document.getElementById('finalScore').textContent = score; const go = document.getElementById('gameOver'); go.classList.add('show'); go.style.display = 'block'; document.getElementById('retrySame').focus(); }
+function hideGameOver(){ const go = document.getElementById('gameOver'); go.classList.remove('show'); go.style.display = 'none'; }
+
+function retrySameHero(){ hideGameOver(); reset(); start(); }
+function goChooseCharacter(){ hideGameOver(); reset(); const fs = document.getElementById('frontScreen'); fs.style.display = 'flex'; const cards = document.querySelectorAll('.charCard'); cards.forEach(c=> c.classList.toggle('selected', c.dataset.char === selectedChar)); const sel = document.querySelector('.charCard.selected'); if(sel) sel.focus(); }
+
+// UI bindings for game over
+document.getElementById('retrySame').addEventListener('click', retrySameHero);
+document.getElementById('chooseChar').addEventListener('click', goChooseCharacter);
+
+// keyboard shortcuts
+window.addEventListener('keydown', e=>{ const goEl = document.getElementById('gameOver'); if(goEl && goEl.style.display === 'block'){ const k = e.key.toLowerCase(); if(k === 'r'){ retrySameHero(); } if(k === 'c'){ goChooseCharacter(); } }
+  if(pausedForQuestion && (e.key >= '1' && e.key <= '3')){ const idx = Number(e.key) - 1; const btns = qopts.querySelectorAll('button'); if(btns[idx]) btns[idx].click(); } });
+
+// front screen interactions
+const cards = document.querySelectorAll('.charCard'); cards.forEach(card => { card.addEventListener('click', ()=>{ cards.forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedChar = card.dataset.char; }); card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ card.click(); } }); });
+
+// level buttons
+const classBtns = document.querySelectorAll('.classBtn'); classBtns.forEach(btn=>{ btn.addEventListener('click', ()=>{ classBtns.forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedClass = btn.dataset.class; // small pulse feedback
+  btn.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:160}); }); });
+// default select level 6 visually
+document.querySelector('.classBtn[data-class="6"]').classList.add('active');
+
+// front screen controls
+document.getElementById('startGameBtn').addEventListener('click', ()=> start());
+document.getElementById('howBtn').addEventListener('click', ()=> alert('Answer the engineering question when it appears. Correct → jump & continue. Wrong → fall & Game Over. Use 1/2/3 keys as shortcuts.'));
+document.getElementById('surpriseBtn').addEventListener('click', ()=>{ const keys = Array.from(cards).map(c=>c.dataset.char); const pick = keys[Math.floor(Math.random()*keys.length)]; cards.forEach(c=>c.classList.toggle('selected', c.dataset.char === pick)); selectedChar = pick; const sel = document.querySelector('.charCard.selected'); if(sel) sel.focus(); });
+
+
+// audio
+const AudioCtx = window.AudioContext || window.webkitAudioContext; let audioCtx = null; function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
+function playCorrect(){ try{ ensureAudio(); const t = audioCtx.currentTime; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(880,t); o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.02); o.start(); o.frequency.exponentialRampToValueAtTime(1320,t+0.12); g.gain.exponentialRampToValueAtTime(0.0001,t+0.46); setTimeout(()=>o.stop(),520); }catch(e){} }
+function playWrong(){ try{ ensureAudio(); const t = audioCtx.currentTime; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='square'; o.frequency.setValueAtTime(140,t); o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.22,t+0.02); o.start(); g.gain.exponentialRampToValueAtTime(0.0001,t+0.6); setTimeout(()=>o.stop(),700); }catch(e){} }
+
+// reset & start
+function reset(){ running=false; pausedForQuestion=false; gameEnded=false; score=0; document.getElementById('score').textContent='0'; obstacles=[]; spawnTimer=0; spawnInterval = Math.max(900, Math.floor((JUMP_TOTAL_TIME * 1000) * 1.6)); baseSpeed=260; player.falling=false; player.jumping=false; player.vy=0; player.rotation=0; player.y=player.baseY; document.getElementById('gameOver').style.display='none'; quizEl.style.display='none'; }
+
+function start(){ // apply selected character colors
+  const c = characters[selectedChar]; player.color = c.color; player.belly = c.belly; // hide front screen
+  document.getElementById('frontScreen').style.display = 'none'; reset(); initWorld(); running=true; gameEnded=false; lastTS=0; spawnObstacleCandidate(); spawnTimer = spawnInterval * 0.6; spawnObstacleCandidate(); resize(); requestAnimationFrame(loop);
+  document.addEventListener('click', function unlock(){ try{ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} document.removeEventListener('click', unlock); }); }
+
+// initial UI state
+document.querySelector('.charCard[data-char="fox"]').classList.add('selected'); selectedChar = 'fox'; resize();
+</script>
+<script>
+    // Language translations
+    const translations = {'English': {'Engineering Forest Runner — Choose Your Hero & Level': 'Engineering Forest Runner — Choose Your Hero & Level', 'Engineering Forest Runner 🌲': 'Engineering Forest Runner 🌲', 'Pick a hero and your engineering level — then tackle engineering questions!': 'Pick a hero and your engineering level — then tackle engineering questions!', 'Foxy': 'Foxy', 'Bunny': 'Bunny', 'Panda': 'Panda', 'Start Adventure': 'Start Adventure', 'How to Play': 'How to Play', 'Surprise Me': 'Surprise Me', 'Select Level': 'Select Level', 'Questions will match the chosen level (Engineering topics).': 'Questions will match the chosen level (Engineering topics).', 'Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.': 'Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.', 'What is Engineering?': 'What is Engineering?', 'Science': 'Science', 'Technology': 'Technology', 'Engineering': 'Engineering', 'Mathematics': 'Mathematics', 'Learn by playing — answer questions to help your hero jump obstacles!': 'Learn by playing — answer questions to help your hero jump obstacles!', 'Engineering Facts': 'Engineering Facts', 'Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!': 'Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!', 'Quick Tip': 'Quick Tip', 'Press 1 / 2 / 3 for quick answers — perfect for fast learners!': 'Press 1 / 2 / 3 for quick answers — perfect for fast learners!', 'Score:': 'Score:', 'Tap answer buttons ✅': 'Tap answer buttons ✅', 'Question': 'Question', 'Correct → jump & continue • Wrong → fall & Game Over': 'Correct → jump & continue • Wrong → fall & Game Over', 'Game Over 😢': 'Game Over 😢', 'Your score:': 'Your score:', 'Try Again (same hero)': 'Try Again (same hero)', 'Choose Character': 'Choose Character', 'Language': 'Language', 'English': 'English', 'Hindi': 'हिंदी', 'Odia': 'ଓଡ଼ିଆ'}, 'Hindi': {'Engineering Forest Runner — Choose Your Hero & Level': 'इंजीनियरिंग फ़ॉरेस्ट रनर — अपना हीरो और स्तर चुनें', 'Engineering Forest Runner 🌲': 'इंजीनियरिंग फ़ॉरेस्ट रनर 🌲', 'Pick a hero and your engineering level — then tackle engineering questions!': 'एक हीरो और अपना इंजीनियरिंग स्तर चुनें — फिर इंजीनियरिंग प्रश्नों का सामना करें!', 'Foxy': 'लोमड़ी', 'Bunny': 'खरगोश', 'Panda': 'पांडा', 'Start Adventure': 'रोमांच शुरू करें', 'How to Play': 'कैसे खेलें', 'Surprise Me': 'मुझे आश्चर्यचकित करें', 'Select Level': 'स्तर चुनें', 'Questions will match the chosen level (Engineering topics).': 'प्रश्न चुने गए स्तर से मेल खाएंगे (इंजीनियरिंग विषय)।', 'Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.': 'सुझाव: प्रश्न आने पर तुरंत उत्तर देने के लिए 1 / 2 / 3 कीज़ का उपयोग करें।', 'What is Engineering?': 'इंजीनियरिंग क्या है?', 'Science': 'विज्ञान', 'Technology': 'प्रौद्योगिकी', 'Engineering': 'इंजीनियरिंग', 'Mathematics': 'गणित', 'Learn by playing — answer questions to help your hero jump obstacles!': 'खेल कर सीखें — अपने हीरो को बाधाओं को पार करने में मदद के लिए प्रश्नों के उत्तर दें!', 'Engineering Facts': 'इंजीनियरिंग तथ्य', 'Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!': 'क्या आप जानते हैं: बुर्ज खलीफा तेज हवाओं में 6 फीट तक हिल सकता है!', 'Quick Tip': 'त्वरित सुझाव', 'Press 1 / 2 / 3 for quick answers — perfect for fast learners!': 'त्वरित उत्तरों के लिए 1 / 2 / 3 दबाएं — तेज़ सीखने वालों के लिए बिल्कुल सही!', 'Score:': 'स्कोर:', 'Tap answer buttons ✅': 'उत्तर बटन पर टैप करें ✅', 'Question': 'प्रश्न', 'Correct → jump & continue • Wrong → fall & Game Over': 'सही → कूदें और जारी रखें • गलत → गिरें और गेम ओवर', 'Game Over 😢': 'गेम ओवर 😢', 'Your score:': 'आपका स्कोर:', 'Try Again (same hero)': 'फिर से कोशिश करें (वही हीरो)', 'Choose Character': 'चरित्र चुनें', 'Language': 'भाषा', 'English': 'English', 'Hindi': 'हिंदी', 'Odia': 'ଓଡ଼ିଆ'}, 'Odia': {'Engineering Forest Runner — Choose Your Hero & Level': 'ଇଞ୍ଜିନିୟରିଂ ଫରେଷ୍ଟ ରନର — ଆପଣଙ୍କ ହିରୋ ଏବଂ ସ୍ତର ବାଛନ୍ତୁ', 'Engineering Forest Runner 🌲': 'ଇଞ୍ଜିନିୟରିଂ ଫରେଷ୍ଟ ରନର 🌲', 'Pick a hero and your engineering level — then tackle engineering questions!': 'ଏକ ହିରୋ ଏବଂ ଆପଣଙ୍କ ଇଞ୍ଜିନିୟରିଂ ସ୍ତର ବାଛନ୍ତୁ — ତାପରେ ଇଞ୍ଜିନିୟରିଂ ପ୍ରଶ୍ନଗୁଡିକର ସମ୍ମୁଖୀନ ହୁଅନ୍ତୁ!', 'Foxy': 'ଶିଆଳ', 'Bunny': 'ଖରଗୋଶ', 'Panda': 'ପାଣ୍ଡା', 'Start Adventure': 'ଦୁସାହସିକ କାର୍ଯ୍ୟ ଆରମ୍ଭ କରନ୍ତୁ', 'How to Play': 'କିପରି ଖେଳିବେ', 'Surprise Me': 'ମୋତେ ଆଶ୍ଚର୍ଯ୍ୟ କରନ୍ତୁ', 'Select Level': 'ସ୍ତର ବାଛନ୍ତୁ', 'Questions will match the chosen level (Engineering topics).': 'ପ୍ରଶ୍ନଗୁଡିକ ବାଛିତ ସ୍ତର ସହିତ ମେଳ ଖାଇବ (ଇଞ୍ଜିନିୟରିଂ ବିଷୟ)।', 'Tip: Use 1 / 2 / 3 keys to answer quickly when a question appears.': 'ସୂଚନା: ପ୍ରଶ୍ନ ଆସିବା ସମୟରେ ଶୀଘ୍ର ଉତ୍ତର ଦେବା ପାଇଁ 1 / 2 / 3 କି ବ୍ୟବହାର କରନ୍ତୁ।', 'What is Engineering?': 'ଇଞ୍ଜିନିୟରିଂ କଣ?', 'Science': 'ବିଜ୍ଞାନ', 'Technology': 'ପ୍ରଯୁକ୍ତିବିଦ୍ୟା', 'Engineering': 'ଇଞ୍ଜିନିୟରିଂ', 'Mathematics': 'ଗଣିତ', 'Learn by playing — answer questions to help your hero jump obstacles!': 'ଖେଳି ଖେଳି ଶିଖନ୍ତୁ — ଆପଣଙ୍କ ହିରୋକୁ ବାଧା ଅତିକ୍ରମ କରିବାରେ ସାହାଯ୍ୟ କରିବା ପାଇଁ ପ୍ରଶ୍ନର ଉତ୍ତର ଦିଅନ୍ତୁ!', 'Engineering Facts': 'ଇଞ୍ଜିନିୟରିଂ ତଥ୍ୟ', 'Did you know: The Burj Khalifa can sway up to 6 feet in strong winds!': 'ଆପଣ ଜାଣନ୍ତି କି: ବୁର୍ଜ ଖଲିଫା ପ୍ରବଳ ପବନରେ 6 ଫୁଟ ପର୍ଯ୍ୟନ୍ତ ଦୋହଲି ପାରେ!', 'Quick Tip': 'ଶୀଘ୍ର ସୂଚନା', 'Press 1 / 2 / 3 for quick answers — perfect for fast learners!': 'ଶୀଘ୍ର ଉତ୍ତର ପାଇଁ 1 / 2 / 3 ଦବାନ୍ତୁ — ଦ୍ରୁତ ଶିକ୍ଷାର୍ଥୀମାନଙ୍କ ପାଇଁ ଉପଯୁକ୍ତ!', 'Score:': 'ସ୍କୋର:', 'Tap answer buttons ✅': 'ଉତ୍ତର ବଟନ୍\u200cଗୁଡିକରେ ଟ୍ୟାପ୍ କରନ୍ତୁ ✅', 'Question': 'ପ୍ରଶ୍ନ', 'Correct → jump & continue • Wrong → fall & Game Over': 'ସଠିକ୍ → ଡେଇଁ ଓ ଜାରି ରଖନ୍ତୁ • ଭୁଲ୍ → ପଡ଼ନ୍ତୁ ଓ ଗେମ୍ ଶେଷ', 'Game Over 😢': 'ଗେମ୍ ଶେଷ 😢', 'Your score:': 'ଆପଣଙ୍କ ସ୍କୋର:', 'Try Again (same hero)': 'ପୁନଃ ଚେଷ୍ଟା କରନ୍ତୁ (ସମାନ ହିରୋ)', 'Choose Character': 'ଚରିତ୍ର ବାଛନ୍ତୁ', 'Language': 'ଭାଷା', 'English': 'English', 'Hindi': 'हिंदी', 'Odia': 'ଓଡ଼ିଆ'}};
+
+    let currentLanguage = 'English';
+
+    function changeLanguage(lang) {
+        currentLanguage = lang;
+        translatePage();
+
+        // Update language selector buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.querySelector(`[data-lang="${lang}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+    }
+
+    function translatePage() {
+        // Get all elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (translations[currentLanguage] && translations[currentLanguage][key]) {
+                element.textContent = translations[currentLanguage][key];
+            }
+        });
+
+        // Update document title
+        const titleKey = 'Engineering Forest Runner — Choose Your Hero & Level';
+        if (translations[currentLanguage] && translations[currentLanguage][titleKey]) {
+            document.title = translations[currentLanguage][titleKey];
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        translatePage();
+    });
+    </script></body>
+</html>

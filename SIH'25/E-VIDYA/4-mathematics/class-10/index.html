@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Quest - E-Vidya</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1 class="logo">E-Vidya</h1>
+                    <span class="tagline">Learn • Play • Grow</span>
+                </div>
+                <nav class="nav-menu">
+                    <a href="#" class="nav-link">Home</a>
+                    <a href="#" class="nav-link">Games</a>
+                    <a href="#" class="nav-link">About</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Language Selection Screen -->
+        <div id="languageSelection" class="screen active">
+            <div class="container">
+                <div class="welcome-section">
+                    <h2 class="game-title">Probability Quest</h2>
+                    <p class="game-description">Master probability concepts through an exciting snakes and ladders adventure!</p>
+                    
+                    <div class="language-selector">
+                        <h3>Choose Your Language / अपनी भाषा चुनें / ଆପଣଙ୍କର ଭାଷା ବାଛନ୍ତୁ</h3>
+                        <div class="language-buttons">
+                            <button class="language-btn" data-lang="en">
+                                <span class="flag">🇬🇧</span>
+                                English
+                            </button>
+                            <button class="language-btn" data-lang="hi">
+                                <span class="flag">🇮🇳</span>
+                                हिन्दी
+                            </button>
+                            <button class="language-btn" data-lang="or">
+                                <span class="flag">🇮🇳</span>
+                                ଓଡ଼ିଆ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="container">
+                <div class="game-header">
+                    <div class="game-info">
+                        <h2 id="gameTitle">Probability Quest</h2>
+                        <div class="score-board">
+                            <span id="currentPosition">Position: 1</span>
+                            <span id="questionsAnswered">Questions: 0</span>
+                        </div>
+                    </div>
+                    <button id="languageToggle" class="secondary-btn">Change Language</button>
+                </div>
+
+                <div class="game-container">
+                    <!-- Game Board -->
+                    <div class="board-container">
+                        <div id="gameBoard" class="game-board"></div>
+                        
+                        <div class="game-controls">
+                            <button id="rollDice" class="primary-btn dice-btn">
+                                <span id="diceText">Roll Dice</span>
+                            </button>
+                            <div class="dice-container">
+                                <div id="animatedDice" class="dice">
+                                    <div class="dice-face dice-front">⚀</div>
+                                    <div class="dice-face dice-back">⚁</div>
+                                    <div class="dice-face dice-right">⚂</div>
+                                    <div class="dice-face dice-left">⚃</div>
+                                    <div class="dice-face dice-top">⚄</div>
+                                    <div class="dice-face dice-bottom">⚅</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Instructions and Legend -->
+                    <div class="instructions-panel">
+                        <div class="instructions-card">
+                            <h3 id="instructionsTitle">How to Play</h3>
+                            <ul id="instructions">
+                                <li>Roll the dice to move on the board</li>
+                                <li>Answer probability questions correctly to advance</li>
+                                <li>Climb ladders to jump ahead</li>
+                                <li>Avoid snakes that will pull you back</li>
+                                <li>First to reach 100 wins!</li>
+                            </ul>
+                        </div>
+
+                        <div class="legend-card">
+                            <h3 id="legendTitle">Game Guide</h3>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <div class="legend-icon snake-icon">🐍</div>
+                                    <span id="snakeLabel">Snake - Goes Down</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-icon ladder-icon">🪜</div>
+                                    <span id="ladderLabel">Ladder - Goes Up</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-icon player-icon">🎯</div>
+                                    <span id="playerLabel">Your Position</span>
+                                </div>
+                            </div>
+                            
+                            <div class="positions-guide">
+                                <h4 id="snakePositionsTitle">Snake Positions</h4>
+                                <div id="snakePositions" class="positions-list"></div>
+                                
+                                <h4 id="ladderPositionsTitle">Ladder Positions</h4>
+                                <div id="ladderPositions" class="positions-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Question Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="questionTitle">Probability Question</h3>
+            </div>
+            <div class="modal-body">
+                <p id="questionText"></p>
+                <div id="answerOptions" class="answer-options"></div>
+            </div>
+            <div class="modal-footer">
+                <div id="questionFeedback" class="question-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="winTitle">Congratulations!</h3>
+            </div>
+            <div class="modal-body">
+                <p id="winMessage">You've completed the Probability Quest!</p>
+                <div class="win-stats">
+                    <div class="stat">
+                        <span class="stat-label" id="totalQuestionsLabel">Questions Answered:</span>
+                        <span class="stat-value" id="totalQuestions">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label" id="correctAnswersLabel">Correct Answers:</span>
+                        <span class="stat-value" id="correctAnswers">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label" id="accuracyLabel">Accuracy:</span>
+                        <span class="stat-value" id="accuracy">0%</span>
+                    </div>
+                </div>
+                <button id="playAgain" class="primary-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

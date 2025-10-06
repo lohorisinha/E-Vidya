@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Vidya - Interactive Learning Platform</title>
+    <!-- External CSS Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS File -->
+    <link rel="stylesheet" href="fp.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10B981">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h2>E-Vidya</h2>
+            </div>
+            <div class="nav-links">
+                <a href="#home" onclick="scrollToSection('hero')">Home</a>
+                <a href="#subjects" onclick="scrollToSection('subjects')" id="subjectsLink">Subjects</a>
+                <a href="#features" onclick="scrollToSection('features')" id="featuresLink">Features</a>
+                <!-- User Section - Dynamic Login/Profile -->
+                <div id="userSection">
+                    <!-- Show this when user is NOT logged in -->
+                    <div id="loginSection" class="login-section">
+                        <div class="auth-buttons">
+                            <button class="btn btn--sm btn--outline-green" onclick="showAuthModal('teacher')">Teacher</button>
+                            <button class="btn btn--sm btn--primary" onclick="showAuthModal('student')">Student</button>
+                        </div>
+                    </div>
+
+                    <!-- Show this when user IS logged in (initially hidden) -->
+                    <div id="profileSection" class="profile-section" style="display: none;">
+                        <div class="profile-dropdown">
+                            <button class="profile-btn" onclick="toggleProfileMenu()">
+                                <div class="profile-avatar">
+                                    <span id="userInitials">JS</span>
+                                </div>
+                                <span id="userName">John Smith</span>
+                                <span class="user-role" id="userRole"></span>
+                                <span class="dropdown-arrow">▼</span>
+                            </button>
+                            <div class="profile-menu" id="profileMenu" style="display: none;">
+                                <div class="profile-menu-header">
+                                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                                        <span id="userInitialsLarge">JS</span>
+                                    </div>
+                                    <div class="profile-info">
+                                        <h4 id="userNameLarge">John Smith</h4>
+                                        <p id="userClassOrSchool">Class 10</p>
+                                        <span class="role-badge" id="roleBadge">Student</span>
+                                    </div>
+                                </div>
+                                <div class="profile-menu-items" id="profileMenuItems">
+                                    <!-- Menu items will be populated dynamically based on user role -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-mobile">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section - Dynamic based on user type -->
+    <section id="hero" class="hero-section">
+        <div class="container">
+            <div class="hero-content" id="heroContent">
+                <!-- Student Hero (Default) -->
+                <div id="studentHero" class="hero-variant">
+                    <div class="hero-text">
+                        <h1 class="hero-title">E-Vidya</h1>
+                        <p class="hero-tagline" id="dynamicTagline">Learn. Play. Conquer Science & Math!</p>
+                        <p class="hero-description">Interactive experiments, engaging quizzes, and virtual labs designed for Class 6-12 students</p>
+                        <div class="hero-buttons">
+                            <button class="btn btn--primary btn--lg" onclick="showAuthModal('student')">Start Learning</button>
+                            <button class="btn btn--outline-white btn--lg" onclick="scrollToSection('subjects')">Explore Subjects</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-animation">
+                    <div class="floating-icons">
+                        <div class="floating-icon" style="--delay: 0s;">🧪</div>
+                        <div class="floating-icon" style="--delay: 0.4s;">🔬</div>
+                        <div class="floating-icon" style="--delay: 0.8s;">📐</div>
+                        <div class="floating-icon" style="--delay: 1.2s;">🧮</div>
+                        <div class="floating-icon" style="--delay: 1.6s;">⚗️</div>
+                        <div class="floating-icon" style="--delay: 2s;">🔢</div>
+                    </div>
+                </div>
+
+                <!-- Teacher Hero (Hidden by default) -->
+                <div id="teacherHero" class="hero-variant" style="display: none;">
+                    <div class="hero-text">
+                        <h1 class="hero-title">E-Vidya for Educators</h1>
+                        <p class="hero-tagline">Empower Your Teaching with Data-Driven Insights</p>
+                        <p class="hero-description">Track student progress, analyze performance, and create engaging assignments with our comprehensive teacher dashboard</p>
+                        <div class="hero-buttons">
+                            <button class="btn btn--primary btn--lg" onclick="showAuthModal('teacher')">Access Dashboard</button>
+                            <button class="btn btn--outline-white btn--lg" onclick="scrollToSection('teacherFeatures')">Teacher Features</button>
+                        </div>
+                    </div>
+                    <div class="hero-animation">
+                        <div class="floating-icons teacher-icons">
+                            <div class="floating-icon" style="--delay: 0s;">📊</div>
+                            <div class="floating-icon" style="--delay: 0.4s;">📈</div>
+                            <div class="floating-icon" style="--delay: 0.8s;">📋</div>
+                            <div class="floating-icon" style="--delay: 1.2s;">🎯</div>
+                            <div class="floating-icon" style="--delay: 1.6s;">📚</div>
+                            <div class="floating-icon" style="--delay: 2s;">🏆</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher Dashboard (Hidden by default) -->
+                <div id="teacherDashboard" class="teacher-dashboard" style="display: none;">
+                    <div class="dashboard-header">
+                        <h2>Teacher Dashboard</h2>
+                        <p>Welcome back! Here's your class performance overview</p>
+                    </div>
+
+                    <!-- Dashboard Stats -->
+                    <div class="dashboard-stats">
+                        <div class="stat-card dashboard-stat clickable-stat" onclick="showTotalStudents()" role="button" aria-label="View all students" tabindex="0" onkeypress="if(event.key==='Enter') showTotalStudents()">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <h3 id="totalStudents">156</h3>
+                                <p>Total Students</p>
+                            </div>
+                            <div class="stat-arrow">→</div>
+                        </div>
+                        <div class="stat-card dashboard-stat clickable-stat" onclick="showCreatedQuizzes()">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-info">
+                                <h3 id="totalQuizzes">47</h3>
+                                <p>Quizzes Created</p>
+                            </div>
+                            <div class="stat-arrow">→</div>
+                        </div>
+                        <div class="stat-card dashboard-stat clickable-stat" onclick="showClassScoreBreakdown()">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-info">
+                                <h3 id="avgClassScore">78%</h3>
+                                <p>Average Class Score</p>
+                            </div>
+                            <div class="stat-arrow">→</div>
+                        </div>
+                        <div class="stat-card dashboard-stat clickable-stat" onclick="showActiveStudents()" role="button" aria-label="View active students this week" tabindex="0" onkeypress="if(event.key==='Enter') showActiveStudents()">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-info">
+                                <h3 id="activeStudents">134</h3>
+                                <p>Active This Week</p>
+                            </div>
+                            <div class="stat-arrow">→</div>
+                        </div>
+                    </div>
+
+                    <!-- Improved Dashboard Content Layout -->
+                    <div class="dashboard-content-improved">
+                        <!-- Left Column: Quick Actions & Analytics -->
+                        <div class="dashboard-left-column">
+                            <!-- Enhanced Quick Actions with Content -->
+                            <div class="enhanced-quick-actions">
+                                <div class="action-card" onclick="showStudentAnalytics()">
+                                    <div class="action-header">
+                                        <span class="action-icon">📈</span>
+                                        <h3>Student Analytics</h3>
+                                    </div>
+                                    <div class="action-content">
+                                        <div class="mini-chart">
+                                            <div class="chart-bars">
+                                                <div class="chart-bar" style="height: 60%"></div>
+                                                <div class="chart-bar" style="height: 80%"></div>
+                                                <div class="chart-bar" style="height: 45%"></div>
+                                                <div class="chart-bar" style="height: 90%"></div>
+                                                <div class="chart-bar" style="height: 70%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="action-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-value">+12%</span>
+                                                <span class="stat-label">This week</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-value">89%</span>
+                                                <span class="stat-label">Avg performance</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="action-card" onclick="showClassPerformance()">
+                                    <div class="action-header">
+                                        <span class="action-icon">📊</span>
+                                        <h3>Class Performance</h3>
+                                    </div>
+                                    <div class="action-content">
+                                        <div class="performance-overview">
+                                            <div class="subject-scores">
+                                                <div class="subject-score">
+                                                    <span class="subject-name">Math</span>
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill" style="width: 85%"></div>
+                                                    </div>
+                                                    <span class="score-value">85%</span>
+                                                </div>
+                                                <div class="subject-score">
+                                                    <span class="subject-name">Science</span>
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill" style="width: 78%"></div>
+                                                    </div>
+                                                    <span class="score-value">78%</span>
+                                                </div>
+                                                <div class="subject-score">
+                                                    <span class="subject-name">Physics</span>
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill" style="width: 92%"></div>
+                                                    </div>
+                                                    <span class="score-value">92%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="action-card" onclick="showQuizManagement()">
+                                    <div class="action-header">
+                                        <span class="action-icon">🎯</span>
+                                        <h3>Manage Quizzes</h3>
+                                    </div>
+                                    <div class="action-content">
+                                        <div class="quiz-summary">
+                                            <div class="quiz-stats">
+                                                <div class="quiz-stat">
+                                                    <div class="quiz-number">12</div>
+                                                    <div class="quiz-label">Active</div>
+                                                </div>
+                                                <div class="quiz-stat">
+                                                    <div class="quiz-number">35</div>
+                                                    <div class="quiz-label">Completed</div>
+                                                </div>
+                                                <div class="quiz-stat">
+                                                    <div class="quiz-number">3</div>
+                                                    <div class="quiz-label">Draft</div>
+                                                </div>
+                                            </div>
+                                            <div class="recent-quiz">
+                                                <span class="quiz-title">📝 "Quadratic Equations"</span>
+                                                <span class="quiz-status">89% completion</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="action-card" onclick="showStudentList()">
+                                    <div class="action-header">
+                                        <span class="action-icon">👥</span>
+                                        <h3>Student Directory</h3>
+                                    </div>
+                                    <div class="action-content">
+                                        <div class="student-preview">
+                                            <div class="top-students">
+                                                <h4>🏆 Top Performers</h4>
+                                                <div class="student-list">
+                                                    <div class="student-item">
+                                                        <div class="student-avatar">A</div>
+                                                        <div class="student-info">
+                                                            <span class="student-name">Aarav Sharma</span>
+                                                            <span class="student-score">96%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="student-item">
+                                                        <div class="student-avatar">P</div>
+                                                        <div class="student-info">
+                                                            <span class="student-name">Priya Patel</span>
+                                                            <span class="student-score">94%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="student-item">
+                                                        <div class="student-avatar">R</div>
+                                                        <div class="student-info">
+                                                            <span class="student-name">Rahul Singh</span>
+                                                            <span class="student-score">91%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity Section -->
+                            <div class="recent-activity-card">
+                                <h3>📋 Recent Activity</h3>
+                                <div class="activity-list">
+                                    <div class="activity-item">
+                                        <div class="activity-icon">✅</div>
+                                        <div class="activity-content">
+                                            <div class="activity-text">Priya completed "Algebra Quiz 3"</div>
+                                            <div class="activity-time">2 minutes ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon">📊</div>
+                                        <div class="activity-content">
+                                            <div class="activity-text">Class average improved by 5%</div>
+                                            <div class="activity-time">1 hour ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon">🎯</div>
+                                        <div class="activity-content">
+                                            <div class="activity-text">New quiz "Trigonometry Basics" created</div>
+                                            <div class="activity-time">3 hours ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon">👥</div>
+                                        <div class="activity-content">
+                                            <div class="activity-text">15 students active in last hour</div>
+                                            <div class="activity-time">1 hour ago</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Trophy Race Widget -->
+                        <div class="dashboard-right-column">
+                            <!-- Enhanced Vertical Trophy Race Widget -->
+                            <div class="vertical-race-widget">
+                                <div class="race-header">
+                                    <h3>🏆 Class Trophy Race</h3>
+                                    <div class="race-stats">
+                                        <span class="race-stat">Races: <span id="totalRaces">47</span></span>
+                                        <span class="race-stat">Record: <span id="fastestTime">12.3s</span></span>
+                                    </div>
+                                </div>
+
+                                <!-- Race Type Selector -->
+                                <div class="race-controls">
+                                    <select id="raceType" class="race-select">
+                                        <option value="classic">🏁 Classic Race</option>
+                                        <option value="timeAttack">⏱️ Time Attack</option>
+                                        <option value="relay">🔄 Relay Race</option>
+                                        <option value="obstacle">🚧 Obstacle Course</option>
+                                    </select>
+                                </div>
+
+                                <!-- Vertical Race Track -->
+                                <div class="vertical-race-track">
+                                    <div class="track-decorations">
+                                        <div class="track-cloud">☁️</div>
+                                        <div class="track-sun">☀️</div>
+                                        <div class="track-tree">🌲</div>
+                                    </div>
+
+                                    <div class="finish-line">
+                                        <div class="checkered-flag">🏁</div>
+                                        <span>FINISH</span>
+                                    </div>
+
+                                    <div class="race-lanes" id="raceLanes">
+                                        <!-- Race lanes will be populated dynamically -->
+                                    </div>
+
+                                    <div class="start-line">
+                                        <span>START</span>
+                                    </div>
+                                </div>
+
+                                <!-- Race Controls -->
+                                <div class="race-controls-bottom">
+                                    <button id="startRaceBtn" class="race-btn race-btn-primary">
+                                        <span>🚀 Start Race</span>
+                                    </button>
+                                    <div class="control-row">
+                                        <button id="resetRaceBtn" class="race-btn race-btn-secondary">Reset</button>
+                                        <button id="newRacersBtn" class="race-btn race-btn-secondary">Shuffle</button>
+                                    </div>
+                                    <div class="speed-control">
+                                        <label>Speed: </label>
+                                        <input type="range" id="speedSlider" min="0.5" max="2" step="0.5" value="1">
+                                        <span id="speedLabel">Normal</span>
+                                    </div>
+                                </div>
+
+                                <!-- Countdown Display -->
+                                <div id="countdown" class="countdown"></div>
+
+                                <!-- Winner Celebration -->
+                                <div id="winnerCelebration" class="winner-celebration">
+                                    <div class="celebration-content">
+                                        <div class="confetti">🎉</div>
+                                        <div id="winnerText"></div>
+                                        <div class="confetti">🎊</div>
+                                    </div>
+                                </div>
+
+                                <!-- Leaderboard -->
+                                <div class="leaderboard">
+                                    <h4>🏆 Leaderboard</h4>
+                                    <div id="leaderboardList" class="leaderboard-list">
+                                        <!-- Leaderboard items will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="particle-background">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section - Dynamic based on user type -->
+    <section class="stats-section" id="statsSection">
+        <div class="container">
+            <div class="stats-grid" id="statsGrid">
+                <!-- Student Stats (Default) -->
+                <div class="stat-card">
+                    <div class="stat-number" data-target="154200"></div>
+                    <div class="stat-label">Students Enrolled</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="6500"></div>
+                    <div class="stat-label">Experiments Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="50000"></div>
+                    <div class="stat-label">Quiz Questions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="8900"></div>
+                    <div class="stat-label">Teachers Registered</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subjects Section - Dynamic based on user type -->
+    <section id="subjects" class="subjects-section">
+        <div class="container">
+            <h2 class="section-title" id="subjectsTitle">Explore Subjects</h2>
+            <p class="section-subtitle" id="subjectsSubtitle">Dive deep into interactive learning with our comprehensive subject modules</p>
+            <div class="subjects-grid" id="subjectsGrid">
+                <!-- Science -->
+                <div class="subject-card" style="--subject-color: #059669;">
+                    <div class="subject-content">
+                        <div class="subject-icon">🔬</div>
+                        <h3>Science</h3>
+                        <p>Explore the wonders of physics, chemistry, biology, and environmental science</p>
+                        <div class="subject-topics">
+                            <span class="topic-tag">Physics</span>
+                            <span class="topic-tag">Chemistry</span>
+                            <span class="topic-tag">Biology</span>
+                        </div>
+                    </div>
+                    <div class="subject-button-container">
+                        <button class="btn btn--primary btn--subject" onclick="window.location.href='../1-science/science-fp.html'">Start Learning</button>
+                    </div>
+                </div>
+                <!-- Technology -->
+                <div class="subject-card" style="--subject-color: #047857;">
+                    <div class="subject-content">
+                        <div class="subject-icon">💻</div>
+                        <h3>Technology</h3>
+                        <p>Learn programming, algorithms, data structures, and digital literacy</p>
+                        <div class="subject-topics">
+                            <span class="topic-tag">Programming</span>
+                            <span class="topic-tag">Algorithms</span>
+                            <span class="topic-tag">Data Structures</span>
+                        </div>
+                    </div>
+                    <div class="subject-button-container">
+                        <button class="btn btn--primary btn--subject">Start Learning</button>
+                    </div>
+                </div>
+                <!-- Engineering -->
+                <div class="subject-card" style="--subject-color: #065f46;">
+                    <div class="subject-content">
+                        <div class="subject-icon">🧠</div>
+                        <h3>Engineering</h3>
+                        <p>Develop logical reasoning, problem-solving, and analytical thinking skills</p>
+                        <div class="subject-topics">
+                            <span class="topic-tag">Logic</span>
+                            <span class="topic-tag">Reasoning</span>
+                            <span class="topic-tag">Problem Solving</span>
+                        </div>
+                    </div>
+                    <div class="subject-button-container">
+                        <button class="btn btn--primary btn--subject" onclick="window.location.href='../3-engineering/engineering-fp.html'">Start Learning</button>
+                    </div>
+                </div>
+                <!-- Mathematics -->
+                <div class="subject-card" style="--subject-color: #10B981;">
+                    <div class="subject-content">
+                        <div class="subject-icon">🧮</div>
+                        <h3>Mathematics</h3>
+                        <p>Master algebra, geometry, trigonometry, calculus, and probability with interactive problem-solving</p>
+                        <div class="subject-topics">
+                            <span class="topic-tag">Algebra</span>
+                            <span class="topic-tag">Geometry</span>
+                            <span class="topic-tag">Trigonometry</span>
+                            <span class="topic-tag">Calculus</span>
+                            <span class="topic-tag">Probability</span>
+                        </div>
+                    </div>
+                    <div class="subject-button-container">
+                        <button class="btn btn--primary btn--subject" onclick="window.location.href='../4-mathematics/math-fp.html'">Start Learning</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teacher Features Section (Hidden by default) -->
+    <section id="teacherFeatures" class="features-section teacher-features" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Teacher Dashboard Features</h2>
+            <div class="features-grid">
+                <div class="feature-highlight">
+                    <div class="feature-icon">📈</div>
+                    <h3>Student Analytics</h3>
+                    <p>Track individual student progress with detailed performance metrics, time spent, and improvement trends.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">📊</div>
+                    <h3>Class Performance</h3>
+                    <p>Monitor overall class performance with interactive charts showing score distributions and subject-wise analytics.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Quiz Management</h3>
+                    <p>Create, edit, and manage quizzes with instant access to student responses and performance data.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">👥</div>
+                    <h3>Student Directory</h3>
+                    <p>Comprehensive student database with contact information, performance history, and engagement metrics.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">📝</div>
+                    <h3>Assignment Tracking</h3>
+                    <p>Monitor assignment completion rates, submission times, and provide personalized feedback to students.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Achievement System</h3>
+                    <p>Award badges and track student achievements to motivate learning and celebrate progress.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Regular Features Section -->
+    <section id="features" class="features-section student-features">
+        <div class="container">
+            <h2 class="section-title">Why Choose E-Vidya?</h2>
+            <div class="features-grid">
+                <div class="feature-highlight">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Gamified Learning</h3>
+                    <p>Turn studying into an adventure with points, levels, and achievements that make learning addictive and fun.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">🧪</div>
+                    <h3>Virtual Laboratories</h3>
+                    <p>Conduct safe chemistry experiments, physics simulations, and biology dissections from your device.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Adaptive Learning Path</h3>
+                    <p>AI-powered system that adjusts to your learning speed and identifies areas that need more attention.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">📊</div>
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your learning journey with detailed analytics and performance insights for continuous improvement.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">👨‍🏫</div>
+                    <h3>Expert-Curated Content</h3>
+                    <p>Learn from curriculum designed by education experts and verified by top educators across India.</p>
+                </div>
+                <div class="feature-highlight">
+                    <div class="feature-icon">📱</div>
+                    <h3>Learn Anywhere</h3>
+                    <p>Download lessons for offline access. Study on the bus, at home, or anywhere without internet connectivity.</p>
+                </div>
+            </div>
+            
+            <!-- Quick Demo Section (Student only) -->
+            <div class="demo-section" id="demoSection">
+                <h3>Experience E-Vidya in Action</h3>
+                <div class="demo-cards">
+                    <div class="demo-card">
+                        <h4>📝 Quick Assessment</h4>
+                        <p>Take a 2-minute quiz to see your current level</p>
+                        <button class="btn btn--outline-white">Try Sample Quiz</button>
+                    </div>
+                    <div class="demo-card">
+                        <h4>🧪 Virtual Lab Preview</h4>
+                        <p>Experience our interactive chemistry lab</p>
+                        <button class="btn btn--outline-white">Explore Lab</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <h2 class="section-title" id="testimonialsTitle">What Students Say</h2>
+            <div class="testimonials-slider" id="testimonialsSlider">
+                <div class="testimonial active">
+                    <div class="testimonial-text">"E-Vidya made chemistry so much fun! The virtual labs are amazing!"</div>
+                    <div class="testimonial-author">Priya S.</div>
+                    <div class="testimonial-class">Class 10</div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"Math became my favorite subject after using this platform."</div>
+                    <div class="testimonial-author">Arjun K.</div>
+                    <div class="testimonial-class">Class 12</div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"The interactive quizzes helped me ace my physics exam!"</div>
+                    <div class="testimonial-author">Sneha R.</div>
+                    <div class="testimonial-class">Class 9</div>
+                </div>
+            </div>
+            <div class="slider-controls">
+                <button class="slider-btn" onclick="prevTestimonial()">‹</button>
+                <button class="slider-btn" onclick="nextTestimonial()">›</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section" id="ctaSection">
+        <div class="container">
+            <div class="cta-content" id="ctaContent">
+                <h2 id="ctaTitle">Ready to Start Your Learning Journey?</h2>
+                <p id="ctaDescription">Join thousands of students who are already excelling in science and math!</p>
+                <div class="cta-buttons" id="ctaButtons">
+                    <button class="btn btn--primary btn--lg" onclick="showAuthModal('student')">Join as Student</button>
+                    <button class="btn btn--outline-white btn--lg" onclick="showAuthModal('teacher')">Join as Teacher</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>E-Vidya</h3>
+                    <p>Making science and math learning interactive and fun for students worldwide.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul id="footerLinks">
+                        <li><a href="#subjects">Subjects</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#" onclick="showAuthModal('student')">Student Login</a></li>
+                        <li><a href="#" onclick="showAuthModal('teacher')">Teacher Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Subjects</h4>
+                    <ul>
+                        <li><a href="#">Mathematics</a></li>
+                        <li><a href="#">Science</a></li>
+                        <li><a href="#">Computer Science</a></li>
+                        <li><a href="#">Critical Thinking</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 E-Vidya. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Student Login</h2>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full">Login</button>
+                    <div class="social-login">
+                        <button type="button" class="btn btn--social">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'/%3E%3Cpath fill='%2334A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'/%3E%3Cpath fill='%23FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'/%3E%3Cpath fill='%23EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'/%3E%3C/svg%3E" alt="Google" width="20">
+                            Continue with Google
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" class="form-input" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group" id="classGroupStudent">
+                            <label for="registerClass">Class</label>
+                            <select id="registerClass" class="form-input">
+                                <option value="">Select Class</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
+                                <option value="11">Class 11</option>
+                                <option value="12">Class 12</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="schoolGroupTeacher" style="display: none;">
+                            <label for="registerSchool">School/Institution</label>
+                            <input type="text" id="registerSchool" class="form-input" placeholder="Enter your school name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" placeholder="Enter your email address" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" class="form-input" placeholder="Create password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Confirm Password</label>
+                            <input type="password" id="registerConfirmPassword" class="form-input" placeholder="Confirm password" required>
+                        </div>
+                    </div>
+
+                    <!-- Avatar Selection for Students -->
+                    <div class="form-group" id="avatarGroupStudent">
+                        <label for="registerAvatar">Choose Your Avatar</label>
+                        <div class="avatar-selection">
+                            <div class="avatar-option" data-avatar="🐰" onclick="selectAvatar('🐰')">🐰</div>
+                            <div class="avatar-option" data-avatar="🐱" onclick="selectAvatar('🐱')">🐱</div>
+                            <div class="avatar-option" data-avatar="🐶" onclick="selectAvatar('🐶')">🐶</div>
+                            <div class="avatar-option" data-avatar="🐼" onclick="selectAvatar('🐼')">🐼</div>
+                            <div class="avatar-option" data-avatar="🦊" onclick="selectAvatar('🦊')">🦊</div>
+                            <div class="avatar-option" data-avatar="🐨" onclick="selectAvatar('🐨')">🐨</div>
+                            <div class="avatar-option" data-avatar="🐧" onclick="selectAvatar('🐧')">🐧</div>
+                            <div class="avatar-option" data-avatar="🦋" onclick="selectAvatar('🦋')">🦋</div>
+                        </div>
+                        <input type="hidden" id="selectedAvatar" value="🐰">
+                    </div>
+                    
+                    <button type="submit" class="btn btn--primary btn--full">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Analytics Modals -->
+    <!-- Student Analytics Modal -->
+    <div id="studentAnalyticsModal" class="modal">
+        <div class="modal-content analytics-modal-content">
+            <div class="modal-header">
+                <h2>Student Analytics</h2>
+                <button class="modal-close" onclick="closeStudentAnalyticsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-filters">
+                    <select id="studentFilter" class="filter-select" onchange="updateAnalyticsFilters()">
+                        <option value="all">All Students</option>
+                        <!-- Will be populated with actual students -->
+                    </select>
+                    <select id="subjectFilterAnalytics" class="filter-select" onchange="updateAnalyticsFilters()">
+                        <option value="all">All Subjects</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="computer">Computer Science</option>
+                    </select>
+                    <select id="timeRangeFilter" class="filter-select" onchange="updateAnalyticsFilters()">
+                        <option value="week">Last Week</option>
+                        <option value="month">Last Month</option>
+                        <option value="quarter">Last Quarter</option>
+                        <option value="year">Last Year</option>
+                    </select>
+                    <select id="classFilter" class="filter-select" onchange="updateAnalyticsFilters()">
+                        <option value="all">All Classes</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Student Performance Trends</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Subject-wise Scores</h3>
+                        <canvas id="subjectScoresChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="student-analytics-table">
+                    <h3>Detailed Student Data</h3>
+                    <div class="table-container" id="studentAnalyticsTable">
+                        <!-- Table will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Performance Modal -->
+    <div id="classPerformanceModal" class="modal">
+        <div class="modal-content analytics-modal-content">
+            <div class="modal-header">
+                <h2>Class Performance Overview</h2>
+                <button class="modal-close" onclick="closeClassPerformanceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="performance-stats">
+                    <div class="stat-card-small">
+                        <h3 id="classAverage">82%</h3>
+                        <p>Class Average</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="topPerformer">95%</h3>
+                        <p>Top Score</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="completionRate">87%</h3>
+                        <p>Completion Rate</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="improvementRate">+12%</h3>
+                        <p>Improvement Rate</p>
+                    </div>
+                </div>
+                
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Score Distribution</h3>
+                        <canvas id="scoreDistributionChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Performance by Grade Level</h3>
+                        <canvas id="gradePerformanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Engagement Metrics</h3>
+                        <canvas id="engagementChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Weekly Progress</h3>
+                        <canvas id="weeklyProgressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student List Modal -->
+    <div id="studentListModal" class="modal">
+        <div class="modal-content analytics-modal-content">
+            <div class="modal-header">
+                <h2>Student Directory</h2>
+                <button class="modal-close" onclick="closeStudentListModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="student-search">
+                    <input type="text" id="studentSearchInput" class="form-input" placeholder="Search students by name or email..." onkeyup="filterStudents()">
+                </div>
+                
+                <div class="students-grid" id="studentsGrid">
+                    <!-- Student cards will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Management Modal -->
+    <div id="quizManagementModal" class="modal">
+        <div class="modal-content analytics-modal-content">
+            <div class="modal-header">
+                <h2>Quiz Management</h2>
+                <button class="modal-close" onclick="closeQuizManagementModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="quiz-actions">
+                    <button class="btn btn--primary" onclick="createNewQuiz()">Create New Quiz</button>
+                    <button class="btn btn--outline" onclick="importQuiz()">Import Quiz</button>
+                </div>
+                
+                <div class="quiz-list" id="quizList">
+                    <!-- Quiz list will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Profile Modals (existing ones) -->
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm" class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileName" class="form-input" required>
+                        </div>
+                        <div class="form-group" id="profileClassGroup">
+                            <label for="profileClass">Class</label>
+                            <select id="profileClass" class="form-input" required>
+                                <option value="">Select Class</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
+                                <option value="11">Class 11</option>
+                                <option value="12">Class 12</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="profileSchoolGroup" style="display: none;">
+                            <label for="profileSchoolName">School/Institution</label>
+                            <input type="text" id="profileSchoolName" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" class="form-input" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profilePhone">Phone (Optional)</label>
+                            <input type="tel" id="profilePhone" class="form-input">
+                        </div>
+                        <div class="form-group" id="profileSubjectGroup" style="display: none;">
+                            <label for="profileSubjects">Subjects Teaching</label>
+                            <input type="text" id="profileSubjects" class="form-input" placeholder="e.g. Mathematics, Physics">
+                        </div>
+                    </div>
+
+                    <!-- Avatar Selection for Students -->
+                    <div class="form-group" id="profileAvatarGroup">
+                        <label for="profileAvatar">Choose Your Avatar</label>
+                        <div class="avatar-selection">
+                            <div class="avatar-option" data-avatar="🐰" onclick="selectProfileAvatar('🐰')">🐰</div>
+                            <div class="avatar-option" data-avatar="🐱" onclick="selectProfileAvatar('🐱')">🐱</div>
+                            <div class="avatar-option" data-avatar="🐶" onclick="selectProfileAvatar('🐶')">🐶</div>
+                            <div class="avatar-option" data-avatar="🐼" onclick="selectProfileAvatar('🐼')">🐼</div>
+                            <div class="avatar-option" data-avatar="🦊" onclick="selectProfileAvatar('🦊')">🦊</div>
+                            <div class="avatar-option" data-avatar="🐨" onclick="selectProfileAvatar('🐨')">🐨</div>
+                            <div class="avatar-option" data-avatar="🐧" onclick="selectProfileAvatar('🐧')">🐧</div>
+                            <div class="avatar-option" data-avatar="🦋" onclick="selectProfileAvatar('🦋')">🦋</div>
+                        </div>
+                        <input type="hidden" id="selectedProfileAvatar" value="">
+                    </div>
+
+                    <div class="form-group" id="profilePreferencesGroup">
+                        <label for="profilePreferences">Learning Preferences</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="preferences" value="visual"> Visual Learning
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="preferences" value="audio"> Audio Learning
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="preferences" value="practice"> Practice Focused
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="preferences" value="competitive"> Competitive Learning
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline" onclick="closeProfileModal()">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz History Modal (for students) -->
+    <div id="quizHistoryModal" class="modal">
+        <div class="modal-content quiz-history-modal-content">
+            <div class="modal-header">
+                <h2>Quiz History & Progress</h2>
+                <button class="modal-close" onclick="closeQuizHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-overview">
+                    <div class="stat-card-small">
+                        <h3 id="totalQuizzesStudent">0</h3>
+                        <p>Quizzes Taken</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="averageScoreStudent">0%</h3>
+                        <p>Average Score</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="bestScoreStudent">0%</h3>
+                        <p>Best Score</p>
+                    </div>
+                    <div class="stat-card-small">
+                        <h3 id="totalPointsStudent">0</h3>
+                        <p>Total Points</p>
+                    </div>
+                </div>
+                
+                <div class="quiz-filters">
+                    <select id="subjectFilterStudent" class="filter-select">
+                        <option value="all">All Subjects</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="computer">Computer Science</option>
+                    </select>
+                    <select id="classFilterStudent" class="filter-select">
+                        <option value="all">All Classes</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="quiz-history-list" id="quizHistoryList">
+                    <!-- Quiz history items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievementsModal" class="modal">
+        <div class="modal-content achievements-modal-content">
+            <div class="modal-header">
+                <h2>Achievements & Badges</h2>
+                <button class="modal-close" onclick="closeAchievementsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="achievements-grid" id="achievementsGrid">
+                    <!-- Achievement badges will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading amazing content...</p>
+    </div>
+    
+    <!-- Student Overview Modal -->
+     <div id="studentOverviewModal" class="student-overview-modal" style="display: none;">
+        <div class="student-overview-container">
+            <div class="student-overview-header">
+                <h2>All Students Overview</h2>
+                <button class="modal-close-btn" onclick="closeStudentOverview()">×</button>
+            </div>
+            <div class="student-search-container">
+                <input type="text" class="student-search-input" 
+                placeholder="Search students by name or email..." 
+                id="studentOverviewSearchInput" 
+                onkeyup="filterOverviewStudents()">
+            </div>
+            
+            <div class="students-content">
+                <div class="students-grid-overview" id="studentsGridOverview">
+                    <!-- Students will be populated dynamically -->
+                </div>
+                
+                <!-- Loading state -->
+                <div class="students-loading" id="studentsLoading" style="display: none;">
+                    Loading students...
+                </div>
+                
+                <!-- Empty state -->
+                <div class="students-empty" id="studentsEmpty" style="display: none;">
+                    <h3>No students found</h3>
+                    <p>Try adjusting your search terms or check back later.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript File -->
+    <script src="fp.js"></script>
+</body>
+</html>

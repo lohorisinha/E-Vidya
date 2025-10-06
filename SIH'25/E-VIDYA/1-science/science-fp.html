@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Curriculum - E-Vidya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="science-fp.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2 onclick="goHome()">E-Vidya</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Subjects</a>
+                <a href="#" class="nav-link">Features</a>
+                <select class="language-select" onchange="changeLanguage(this.value)">
+                    <option value="english">English</option>
+                    <option value="hindi">हिंदी</option>
+                    <option value="odia">ଓଡ଼ିଆ</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="floating-icons">
+            <!-- Left side icons -->
+            <div class="floating-icon" style="top: 25%; left: 12%; --delay: 0s">🧪</div>
+            <div class="floating-icon" style="top: 45%; left: 18%; --delay: 2s">⚗️</div>
+            <div class="floating-icon" style="top: 65%; left: 15%; --delay: 4s">⚖️</div>
+            
+            <!-- Right side icons -->
+            <div class="floating-icon" style="top: 30%; left: 82%; --delay: 1s">🔬</div>
+            <div class="floating-icon" style="top: 50%; left: 85%; --delay: 3s">🧬</div>
+            <div class="floating-icon" style="top: 70%; left: 88%; --delay: 5s">🌡️</div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title" data-translate="title">Science Curriculum</h1>
+            <p class="hero-subtitle" data-translate="subtitle">Explore Physics, Chemistry, and Biology</p>
+        </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section class="subjects-section">
+        <div class="container">
+            <div class="subjects-grid">
+                <!-- Physics Card -->
+                <div class="subject-card" data-subject="physics">
+                    <div class="card-header">
+                        <div class="subject-icon">🔬</div>
+                        <h3 class="subject-title" data-translate="physics">Physics</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="subject-description" data-translate="physicsDesc">
+                            Explore the fundamental laws that govern our universe through interactive experiments and simulations
+                        </p>
+                        <div class="topics-container">
+                            <div class="topic-tag">Mechanics</div>
+                            <div class="topic-tag">Thermodynamics</div>
+                            <div class="topic-tag">Optics</div>
+                            <div class="topic-tag">Electricity</div>
+                            <div class="topic-tag">Modern Physics</div>
+                        </div>
+                        <button class="start-btn" onclick="startLearning('Physics')" data-translate="startLearning">
+                            Start Learning
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chemistry Card -->
+                <div class="subject-card" data-subject="chemistry">
+                    <div class="card-header">
+                        <div class="subject-icon">🧪</div>
+                        <h3 class="subject-title" data-translate="chemistry">Chemistry</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="subject-description" data-translate="chemistryDesc">
+                            Discover the building blocks of matter and chemical reactions through virtual laboratory experiments
+                        </p>
+                        <div class="topics-container">
+                            <div class="topic-tag">Atomic Structure</div>
+                            <div class="topic-tag">Chemical Bonding</div>
+                            <div class="topic-tag">Reactions</div>
+                            <div class="topic-tag">Organic Chemistry</div>
+                            <div class="topic-tag">Periodic Table</div>
+                        </div>
+                        <button class="start-btn" onclick="startLearning('Chemistry')" data-translate="startLearning">
+                            Start Learning
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Biology Card -->
+                <div class="subject-card" data-subject="biology">
+                    <div class="card-header">
+                        <div class="subject-icon">🧬</div>
+                        <h3 class="subject-title" data-translate="biology">Biology</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="subject-description" data-translate="biologyDesc">
+                            Understand life processes and living organisms from molecules to ecosystems
+                        </p>
+                        <div class="topics-container">
+                            <div class="topic-tag">Cell Biology</div>
+                            <div class="topic-tag">Genetics</div>
+                            <div class="topic-tag">Evolution</div>
+                            <div class="topic-tag">Ecology</div>
+                            <div class="topic-tag">Human Physiology</div>
+                        </div>
+                        <button class="start-btn" onclick="startLearning('Biology')" data-translate="startLearning">
+                            Start Learning
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>E-Vidya</h3>
+                <p>Empowering minds through interactive learning</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 E-Vidya. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="science-fp.js"></script>
+</body>
+</html>

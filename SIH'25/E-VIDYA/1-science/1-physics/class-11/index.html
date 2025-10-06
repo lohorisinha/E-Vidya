@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Vidya Physics Lab Simulator</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* E-Vidya CSS Variables */
+  :root {
+    --primary-green: #10B981;
+    --secondary-green: #059669;
+    --tertiary-green: #047857;
+    --dark-green: #065f46;
+    --light-green: #D1FAE5;
+    --extra-light-green: #F0FDF4;
+    --text-dark: #1F2937;
+    --text-light: #6B7280;
+    --white: #ffffff;
+    --light-gray: #F9FAFB;
+    --border-light: #E5E7EB;
+    --error-red: #EF4444;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    background: #F3F8DA;
+    color: var(--text-dark);
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* Welcome Screen Styles */
+  .welcome-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .language-selector {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+  }
+
+  .lang-btn {
+    background: var(--white);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .lang-btn:hover, .lang-btn.active {
+    background: var(--primary-green);
+    color: var(--white);
+  }
+
+  .welcome-container {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .welcome-header {
+    margin-bottom: 40px;
+  }
+
+  .welcome-title {
+    font-family: 'Poppins', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .welcome-subtitle {
+    font-size: 1.4rem;
+    color: var(--primary-green);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .welcome-description {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 50px;
+  }
+
+  .feature-item {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 30px 20px;
+    border: 2px solid var(--light-green);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.08);
+  }
+
+  .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+    border-color: var(--primary-green);
+  }
+
+  .feature-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .feature-item h3 {
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .feature-item p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .start-button {
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    color: var(--white);
+    border: none;
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  }
+
+  .start-button:hover {
+    background: linear-gradient(135deg, var(--secondary-green), var(--tertiary-green));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  }
+
+  .start-button:active {
+    transform: translateY(0);
+  }
+
+  /* Game Styles */
+  .title { font-family: 'Playfair Display', serif; font-weight: 700; color: #85A563; text-shadow: 2px 2px 5px rgba(0,0,0,0.15); }
+  .rocket { width: 60px; height: 80px; background: linear-gradient(135deg, #ff6b6b, #ffd93d); border-radius: 10px 10px 50% 50%; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 10; }
+  .rocket::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 20px solid #ff4757; }
+  .rocket::after { content: '🔥'; position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); font-size: 30px; animation: flame 0.3s ease-in-out infinite alternate; }
+  @keyframes flame { 0% { transform: translateX(-50%) scale(1); } 100% { transform: translateX(-50%) scale(1.2); } }
+  .viewport { overflow: hidden; border: 3px solid #85A563; border-radius: 10px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .target { transition: all 0.3s ease; }
+  .target:hover { transform: scale(1.1); }
+  .target-hit { animation: targetHit 0.5s ease-in-out; }
+  @keyframes targetHit { 0% { transform: scale(1); } 50% { transform: scale(1.5) rotate(180deg); opacity: 0.5; } 100% { transform: scale(0) rotate(360deg); opacity: 0; } }
+  .explosion { animation: explosion 0.6s ease-out forwards; }
+  @keyframes explosion { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(2); opacity: 0.8; } 100% { transform: scale(4); opacity: 0; } }
+  .control-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .fullscreen-container { height: 100vh; width: 100vw; display: flex; }
+  .left-panel { width: 400px; min-width: 350px; max-width: 450px; background: linear-gradient(135deg, #F3F8DA 0%, #E8F5E8 100%); border-right: 2px solid #85A563; overflow-y: auto; }
+  .right-panel { flex: 1; background: #F8FBFF; display: flex; flex-direction: column; }
+  .hint-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: fadeInUp 0.5s ease-out; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .difficulty-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+  .beginner { background: #10B981; color: white; }
+  .intermediate { background: #F59E0B; color: white; }
+  .advanced { background: #EF4444; color: white; }
+  .quiz-option { cursor: pointer; transition: all 0.3s ease; }
+  .quiz-option:hover { background: #e5f3ff; }
+  .quiz-option.correct { background: #d4edda; border-color: #28a745; }
+  .quiz-option.incorrect { background: #f8d7da; border-color: #dc3545; }
+  
+  /* Back Button Styles - Relocated to bottom-left */
+  .back-button {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+
+  .back-button:hover {
+    background: var(--secondary-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+
+  .back-button:active {
+    transform: translateY(0);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .welcome-title {
+      font-size: 2.2rem;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .feature-item {
+      padding: 25px 15px;
+    }
+
+    .start-button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+    }
+
+    .language-selector {
+      top: 15px;
+      right: 15px;
+      gap: 6px;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    .back-button {
+      bottom: 0.5rem;
+      left: 0.5rem;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .welcome-body {
+      padding: 20px 15px;
+    }
+
+    .welcome-title {
+      font-size: 1.8rem;
+    }
+
+    .welcome-description {
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+// Language translations for welcome screen
+const welcomeTranslations = {
+  en: {
+    title: "E-Vidya Physics Lab Simulator",
+    subtitle: "Master Physics Through Interactive Learning",
+    description: "Explore the fascinating world of physics through hands-on experiments and simulations. Learn projectile motion, collisions, and more!",
+    feature1Title: "Projectile Motion",
+    feature1Desc: "Master the art of trajectory calculation and motion physics",
+    feature2Title: "Real Physics",
+    feature2Desc: "Experience authentic physics simulations with accurate calculations",
+    feature3Title: "9 Challenging Levels",
+    feature3Desc: "Progress through beginner to advanced physics challenges",
+    startButton: "Start 9-Level Challenge"
+  },
+  hi: {
+    title: "ई-विद्या भौतिकी प्रयोगशाला सिमुलेटर",
+    subtitle: "इंटरैक्टिव शिक्षा के माध्यम से भौतिकी में महारत हासिल करें",
+    description: "व्यावहारिक प्रयोगों और सिमुलेशन के माध्यम से भौतिकी की आकर्षक दुनिया का अन्वेषण करें। प्रक्षेप्य गति, टक्कर और बहुत कुछ सीखें!",
+    feature1Title: "प्रक्षेप्य गति",
+    feature1Desc: "प्रक्षेपवक्र गणना और गति भौतिकी की कला में महारत हासिल करें",
+    feature2Title: "वास्तविक भौतिकी",
+    feature2Desc: "सटीक गणना के साथ प्रामाणिक भौतिकी सिमुलेशन का अनुभव करें",
+    feature3Title: "9 चुनौतीपूर्ण स्तर",
+    feature3Desc: "शुरुआती से उन्नत भौतिकी चुनौतियों के माध्यम से प्रगति करें",
+    startButton: "9-स्तरीय चुनौती शुरू करें"
+  },
+  od: {
+    title: "ଇ-ବିଦ୍ୟା ପଦାର୍ଥ ବିଜ୍ଞାନ ପ୍ରୟୋଗଶାଳା ସିମୁଲେଟର",
+    subtitle: "ଇଣ୍ଟରାକ୍ଟିଭ୍ ଶିକ୍ଷା ମାଧ୍ୟମରେ ପଦାର୍ଥ ବିଜ୍ଞାନରେ ଦକ୍ଷତା ହାସଲ କରନ୍ତୁ",
+    description: "ବ୍ୟବହାରିକ ପରୀକ୍ଷଣ ଏବଂ ସିମୁଲେସନ୍ ମାଧ୍ୟମରେ ପଦାର୍ଥ ବିଜ୍ଞାନର ଆକର୍ଷଣୀୟ ଜଗତ ଅନୁସନ୍ଧାନ କରନ୍ତୁ। ପ୍ରକ୍ଷେପଣ ଗତି, ଧକ୍କା ଏବଂ ଅଧିକ ଶିଖନ୍ତୁ!",
+    feature1Title: "ପ୍ରକ୍ଷେପଣ ଗତି",
+    feature1Desc: "ପଥ ଗଣନା ଏବଂ ଗତି ପଦାର୍ଥ ବିଜ୍ଞାନର କଳାରେ ଦକ୍ଷତା ହାସଲ କରନ୍ତୁ",
+    feature2Title: "ପ୍ରକୃତ ପଦାର୍ଥ ବିଜ୍ଞାନ",
+    feature2Desc: "ସଠିକ୍ ଗଣନା ସହିତ ପ୍ରାମାଣିକ ପଦାର୍ଥ ବିଜ୍ଞାନ ସିମୁଲେସନ୍ ଅନୁଭବ କରନ୍ତୁ",
+    feature3Title: "9 ଚ୍ୟାଲେଞ୍ଜିଂ ସ୍ତର",
+    feature3Desc: "ନବାଗତରୁ ଉନ୍ନତ ପଦାର୍ଥ ବିଜ୍ଞାନ ଚ୍ୟାଲେଞ୍ଜ ମାଧ୍ୟମରେ ପ୍ରଗତି କରନ୍ତୁ",
+    startButton: "9-ସ୍ତରୀୟ ଚ୍ୟାଲେଞ୍ଜ ଆରମ୍ଭ କରନ୍ତୁ"
+  }
+};
+
+// Game translations
+const gameTranslations = {
+  en: {
+    physicsLab: "Physics Lab",
+    projectileMotion: "Projectile Motion",
+    gameControls: "🎮 Game Controls",
+    pause: "⏸ Pause",
+    resume: "▶ Resume",
+    resetGame: "🔄 Reset Game",
+    currentLevel: "Current Level",
+    targetsThisLevel: "targets this level",
+    currentChallenge: "📊 Current Challenge",
+    allTargetsVisible: "All targets visible with time values",
+    completeAllLevels: "🏁 Complete all 9 levels for physics quiz!",
+    launchSettings: "🚀 Launch Settings",
+    launchAngle: "Launch Angle:",
+    initialSpeed: "Initial Speed:",
+    physicsPredict: "📐 Physics Predictions",
+    range: "Range:",
+    maxHeight: "Max Height:",
+    flightTime: "Flight Time:",
+    gameProgress: "📊 Game Progress",
+    score: "Score",
+    level: "Level",
+    progress: "Progress:",
+    keyFormulas: "📚 Key Formulas",
+    launch: "🚀 Launch!",
+    flying: "🚀 Flying...",
+    resetView: "📹 Reset View",
+    angle: "Angle:",
+    speed: "Speed:",
+    time: "⏱ Time:",
+    targets: "🎯 Targets:",
+    accuracy: "📊 Accuracy:",
+    camera: "Camera:",
+    gravity: "Gravity:",
+    gameOver: "🏆 Game Over!",
+    finalScore: "Final Score:",
+    levelReached: "Level Reached:",
+    tryAgain: "🎮 Try Again",
+    allLevelsComplete: "🎉 ALL 9 LEVELS COMPLETE! 🎉",
+    unlockingQuiz: "Unlocking Physics Quiz...",
+    levelComplete: "🎉 LEVEL {level} COMPLETE! 🎉",
+    advancing: "Advancing to Level {level}...",
+    next: "Next:",
+    targetsToHit: "targets to hit",
+    physicsChallenge: "🎓 Physics Challenge!",
+    congratulations: "Congratulations! You completed all 9 levels!",
+    gameScore: "Game Score:",
+    question: "Question {current} of {total}",
+    explanation: "Explanation:",
+    quizScore: "Quiz Score:",
+    nextQuestion: "Next Question →",
+    seeResults: "See Results",
+    quizComplete: "🏆 Quiz Complete!",
+    percentage: "Percentage:",
+    performanceSummary: "Performance Summary:",
+    correct: "✓ Correct",
+    incorrect: "✗ Incorrect",
+    retakeQuiz: "🔄 Retake Quiz",
+    newGame: "🎮 New Game",
+    staticTargets: "Static targets, normal physics",
+    enhancedGravity: "Enhanced gravity effects",
+    movingTargets: "Moving targets, strong gravity",
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+    phase: "Phase",
+    target: "Target",
+    pts: "pts",
+    back: "← Back"
+  },
+  hi: {
+    physicsLab: "भौतिकी प्रयोगशाला",
+    projectileMotion: "प्रक्षेप्य गति",
+    gameControls: "🎮 खेल नियंत्रण",
+    pause: "⏸ रोकें",
+    resume: "▶ फिर से शुरू करें",
+    resetGame: "🔄 खेल रीसेट करें",
+    currentLevel: "वर्तमान स्तर",
+    targetsThisLevel: "इस स्तर पर लक्ष्य",
+    currentChallenge: "📊 वर्तमान चुनौती",
+    allTargetsVisible: "समय मान के साथ सभी लक्ष्य दिखाई दे रहे हैं",
+    completeAllLevels: "🏁 भौतिकी प्रश्नोत्तरी के लिए सभी 9 स्तर पूरे करें!",
+    launchSettings: "🚀 प्रक्षेपण सेटिंग्स",
+    launchAngle: "प्रक्षेपण कोण:",
+    initialSpeed: "प्रारंभिक गति:",
+    physicsPredict: "📐 भौतिकी पूर्वानुमान",
+    range: "रेंज:",
+    maxHeight: "अधिकतम ऊंचाई:",
+    flightTime: "उड़ान समय:",
+    gameProgress: "📊 खेल प्रगति",
+    score: "स्कोर",
+    level: "स्तर",
+    progress: "प्रगति:",
+    keyFormulas: "📚 मुख्य सूत्र",
+    launch: "🚀 प्रक्षेपण!",
+    flying: "🚀 उड़ान...",
+    resetView: "📹 दृश्य रीसेट",
+    angle: "कोण:",
+    speed: "गति:",
+    time: "⏱ समय:",
+    targets: "🎯 लक्ष्य:",
+    accuracy: "📊 सटीकता:",
+    camera: "कैमरा:",
+    gravity: "गुरुत्वाकर्षण:",
+    gameOver: "🏆 खेल समाप्त!",
+    finalScore: "अंतिम स्कोर:",
+    levelReached: "पहुंचा स्तर:",
+    tryAgain: "🎮 पुनः प्रयास करें",
+    allLevelsComplete: "🎉 सभी 9 स्तर पूरे! 🎉",
+    unlockingQuiz: "भौतिकी प्रश्नोत्तरी अनलॉक कर रहे हैं...",
+    levelComplete: "🎉 स्तर {level} पूरा! 🎉",
+    advancing: "स्तर {level} पर आगे बढ़ रहे हैं...",
+    next: "अगला:",
+    targetsToHit: "हिट करने के लिए लक्ष्य",
+    physicsChallenge: "🎓 भौतिकी चुनौती!",
+    congratulations: "बधाई! आपने सभी 9 स्तर पूरे कर लिए!",
+    gameScore: "खेल स्कोर:",
+    question: "प्रश्न {current} का {total}",
+    explanation: "व्याख्या:",
+    quizScore: "प्रश्नोत्तरी स्कोर:",
+    nextQuestion: "अगला प्रश्न →",
+    seeResults: "परिणाम देखें",
+    quizComplete: "🏆 प्रश्नोत्तरी पूरी!",
+    percentage: "प्रतिशत:",
+    performanceSummary: "प्रदर्शन सारांश:",
+    correct: "✓ सही",
+    incorrect: "✗ गलत",
+    retakeQuiz: "🔄 प्रश्नोत्तरी दोबारा लें",
+    newGame: "🎮 नया खेल",
+    staticTargets: "स्थिर लक्ष्य, सामान्य भौतिकी",
+    enhancedGravity: "बढ़ा हुआ गुरुत्वाकर्षण प्रभाव",
+    movingTargets: "गतिशील लक्ष्य, मजबूत गुरुत्वाकर्षण",
+    beginner: "शुरुआती",
+    intermediate: "मध्यम",
+    advanced: "उन्नत",
+    phase: "चरण",
+    target: "लक्ष्य",
+    pts: "अंक",
+    back: "← वापस"
+  },
+  od: {
+    physicsLab: "ପଦାର୍ଥ ବିଜ୍ଞାନ ପ୍ରୟୋଗଶାଳା",
+    projectileMotion: "ପ୍ରକ୍ଷେପଣ ଗତି",
+    gameControls: "🎮 ଖେଳ ନିୟନ୍ତ୍ରଣ",
+    pause: "⏸ ବିରାମ",
+    resume: "▶ ପୁନଃଆରମ୍ଭ",
+    resetGame: "🔄 ଖେଳ ପୁନଃସେଟ୍",
+    currentLevel: "ବର୍ତ୍ତମାନ ସ୍ତର",
+    targetsThisLevel: "ଏହି ସ୍ତରରେ ଲକ୍ଷ୍ୟ",
+    currentChallenge: "📊 ବର୍ତ୍ତମାନ ଚ୍ୟାଲେଞ୍ଜ",
+    allTargetsVisible: "ସମୟ ମୂଲ୍ୟ ସହିତ ସମସ୍ତ ଲକ୍ଷ୍ୟ ଦୃଶ୍ୟମାନ",
+    completeAllLevels: "🏁 ପଦାର୍ଥ ବିଜ୍ଞାନ କୁଇଜ୍ ପାଇଁ ସମସ୍ତ 9 ସ୍ତର ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ!",
+    launchSettings: "🚀 ପ୍ରକ୍ଷେପଣ ସେଟିଂସ୍",
+    launchAngle: "ପ୍ରକ୍ଷେପଣ କୋଣ:",
+    initialSpeed: "ପ୍ରାରମ୍ଭିକ ଗତି:",
+    physicsPredict: "📐 ପଦାର୍ଥ ବିଜ୍ଞାନ ପୂର୍ବାନୁମାନ",
+    range: "ପରିସର:",
+    maxHeight: "ସର୍ବୋଚ୍ଚ ଉଚ୍ଚତା:",
+    flightTime: "ଉଡ଼ାଣ ସମୟ:",
+    gameProgress: "📊 ଖେଳ ପ୍ରଗତି:",
+    score: "ସ୍କୋର",
+    level: "ସ୍ତର",
+    progress: "ପ୍ରଗତି:",
+    keyFormulas: "📚 ମୁଖ୍ୟ ସୂତ୍ର",
+    launch: "🚀 ପ୍ରକ୍ଷେପଣ!",
+    flying: "🚀 ଉଡ଼ାଣ...",
+    resetView: "📹 ଦୃଶ୍ୟ ପୁନଃସେଟ୍",
+    angle: "କୋଣ:",
+    speed: "ଗତି:",
+    time: "⏱ ସମୟ:",
+    targets: "🎯 ଲକ୍ଷ୍ୟ:",
+    accuracy: "📊 ସଠିକତା:",
+    camera: "କ୍ୟାମେରା:",
+    gravity: "ମାଧ୍ୟାକର୍ଷଣ:",
+    gameOver: "🏆 ଖେଳ ସମାପ୍ତ!",
+    finalScore: "ଅନ୍ତିମ ସ୍କୋର:",
+    levelReached: "ପହଞ୍ଚିଥିବା ସ୍ତର:",
+    tryAgain: "🎮 ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ",
+    allLevelsComplete: "🎉 ସମସ୍ତ 9 ସ୍ତର ସମ୍ପୂର୍ଣ୍ଣ! 🎉",
+    unlockingQuiz: "ପଦାର୍ଥ ବିଜ୍ଞାନ କୁଇଜ୍ ଅନଲକ୍ କରୁଛି...",
+    levelComplete: "🎉 ସ୍ତର {level} ସମ୍ପୂର୍ଣ୍ଣ! 🎉",
+    advancing: "ସ୍ତର {level} କୁ ଆଗକୁ ବଢ଼ୁଛି...",
+    next: "ପରବର୍ତ୍ତୀ:",
+    targetsToHit: "ହିଟ୍ କରିବାକୁ ଲକ୍ଷ୍ୟ",
+    physicsChallenge: "🎓 ପଦାର୍ଥ ବିଜ୍ଞାନ ଚ୍ୟାଲେଞ୍ଜ!",
+    congratulations: "ଅଭିନନ୍ଦନ! ଆପଣ ସମସ୍ତ 9 ସ୍ତର ସମ୍ପୂର୍ଣ୍ଣ କରିଛନ୍ତି!",
+    gameScore: "ଖେଳ ସ୍କୋର:",
+    question: "ପ୍ରଶ୍ନ {current} ର {total}",
+    explanation: "ବ୍ୟାଖ୍ୟା:",
+    quizScore: "କୁଇଜ୍ ସ୍କୋର:",
+    nextQuestion: "ପରବର୍ତ୍ତୀ ପ୍ରଶ୍ନ →",
+    seeResults: "ଫଳାଫଳ ଦେଖନ୍ତୁ",
+    quizComplete: "🏆 କୁଇଜ୍ ସମ୍ପୂର୍ଣ୍ଣ!",
+    percentage: "ଶତକଡ଼ା:",
+    performanceSummary: "କାର୍ଯ୍ୟକ୍ଷମତା ସାରାଂଶ:",
+    correct: "✓ ସଠିକ୍",
+    incorrect: "✗ ଭୁଲ୍",
+    retakeQuiz: "🔄 କୁଇଜ୍ ପୁଣି ନିଅନ୍ତୁ",
+    newGame: "🎮 ନୂଆ ଖେଳ",
+    staticTargets: "ସ୍ଥିର ଲକ୍ଷ୍ୟ, ସାଧାରଣ ପଦାର୍ଥ ବିଜ୍ଞାନ",
+    enhancedGravity: "ବର୍ଦ୍ଧିତ ମାଧ୍ୟାକର୍ଷଣ ପ୍ରଭାବ",
+    movingTargets: "ଗତିଶୀଳ ଲକ୍ଷ୍ୟ, ଶକ୍ତିଶାଳୀ ମାଧ୍ୟାକର୍ଷଣ",
+    beginner: "ନବାଗତ",
+    intermediate: "ମଧ୍ୟମ",
+    advanced: "ଉନ୍ନତ",
+    phase: "ପର୍ଯ୍ୟାୟ",
+    target: "ଲକ୍ଷ୍ୟ",
+    pts: "ପଏଣ୍ଟ",
+    back: "← ଫେରନ୍ତୁ"
+  }
+};
+
+const GameStateContext = React.createContext();
+
+function WelcomeScreen({ onStartGame, language, onLanguageChange }) {
+  const wt = welcomeTranslations[language];
+
+  return (
+    <div className="welcome-body">
+      <div className="language-selector">
+        <button 
+          className={`lang-btn ${language === 'en' ? 'active' : ''}`} 
+          onClick={() => onLanguageChange('en')}
+        >
+          English
+        </button>
+        <button 
+          className={`lang-btn ${language === 'hi' ? 'active' : ''}`} 
+          onClick={() => onLanguageChange('hi')}
+        >
+          [translate:हिंदी]
+        </button>
+        <button 
+          className={`lang-btn ${language === 'od' ? 'active' : ''}`} 
+          onClick={() => onLanguageChange('od')}
+        >
+          [translate:ଓଡ଼ିଆ]
+        </button>
+      </div>
+
+      <div className="welcome-container">
+        <div className="welcome-header">
+          <h1 className="welcome-title">{wt.title}</h1>
+          <h2 className="welcome-subtitle">{wt.subtitle}</h2>
+          <p className="welcome-description">{wt.description}</p>
+        </div>
+
+        <div className="features-grid">
+          <div className="feature-item">
+            <div className="feature-icon">🎯</div>
+            <h3>{wt.feature1Title}</h3>
+            <p>{wt.feature1Desc}</p>
+          </div>
+
+          <div className="feature-item">
+            <div className="feature-icon">⚡</div>
+            <h3>{wt.feature2Title}</h3>
+            <p>{wt.feature2Desc}</p>
+          </div>
+
+          <div className="feature-item">
+            <div className="feature-icon">🏆</div>
+            <h3>{wt.feature3Title}</h3>
+            <p>{wt.feature3Desc}</p>
+          </div>
+        </div>
+
+        <button className="start-button" onClick={onStartGame}>
+          {wt.startButton}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BackButton({ onBack, language }) {
+  const t = gameTranslations[language];
+  
+  return (
+    <button className="back-button" onClick={onBack}>
+      {t.back}
+    </button>
+  );
+}
+
+function PhysicsLab() {
+  const [showWelcome, setShowWelcome] = React.useState(true);
+  const [language, setLanguage] = React.useState('en');
+  const [paused, setPaused] = React.useState(false);
+  const [score, setScore] = React.useState(0);
+  const [gameOver, setGameOver] = React.useState(false);
+  const [gameCompleted, setGameCompleted] = React.useState(false);
+  const [stats, setStats] = React.useState({});
+  const [level, setLevel] = React.useState(1);
+  const [angle, setAngle] = React.useState(45);
+  const [speed, setSpeed] = React.useState(35);
+  const [projectile, setProjectile] = React.useState(null);
+  const [gameKey, setGameKey] = React.useState(0);
+
+  const t = gameTranslations[language];
+
+  const getDifficultyInfo = (currentLevel) => {
+    if (currentLevel <= 3) return { 
+      name: t.beginner, 
+      class: 'beginner', 
+      description: t.staticTargets, 
+      phase: ((currentLevel - 1) % 3) + 1 
+    };
+    if (currentLevel <= 6) return { 
+      name: t.intermediate, 
+      class: 'intermediate', 
+      description: t.enhancedGravity, 
+      phase: ((currentLevel - 4) % 3) + 1 
+    };
+    return { 
+      name: t.advanced, 
+      class: 'advanced', 
+      description: t.movingTargets, 
+      phase: ((currentLevel - 7) % 3) + 1 
+    };
+  };
+
+  const getTargetCount = (currentLevel) => getDifficultyInfo(currentLevel).phase + 1;
+
+  const resetGame = () => {
+    setScore(0);
+    setGameOver(false);
+    setGameCompleted(false);
+    setStats({});
+    setLevel(1);
+    setProjectile(null);
+    setPaused(false);
+    setAngle(45);
+    setSpeed(35);
+    setGameKey(prev => prev + 1);
+  };
+
+  const endGame = (finalStats) => { 
+    setStats(finalStats); 
+    setGameOver(true); 
+  };
+  
+  const completeGame = (finalStats) => { 
+    setStats(finalStats); 
+    setGameCompleted(true); 
+  };
+
+  const startGame = () => {
+    setShowWelcome(false);
+  };
+
+  const goBackToWelcome = () => {
+    setShowWelcome(true);
+    resetGame();
+  };
+
+  const gameState = {
+    angle, setAngle, speed, setSpeed, projectile, setProjectile,
+    paused, score, setScore, endGame, completeGame, level, setLevel,
+    getDifficultyInfo, getTargetCount, gameCompleted, gameKey, resetGame, t
+  };
+
+  if (showWelcome) {
+    return <WelcomeScreen onStartGame={startGame} language={language} onLanguageChange={setLanguage} />;
+  }
+
+  return (
+    <GameStateContext.Provider value={gameState}>
+      <div className="fullscreen-container">
+        <BackButton onBack={goBackToWelcome} language={language} />
+        
+        <div className="left-panel p-4">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br rounded-full flex items-center justify-center text-white text-xl font-bold">🎯</div>
+            <div>
+              <h1 className="text-2xl title">{t.physicsLab}</h1>
+              <p className="text-sm text-gray-600">{t.projectileMotion}</p>
+            </div>
+          </div>
+
+          <div className="control-panel p-4 mb-4">
+            <h2 className="font-bold text-lg text-[#85A563] mb-3">{t.gameControls}</h2>
+            <div className="space-y-3">
+              <button onClick={() => setPaused(!paused)} className="w-full px-4 py-2 bg-[#85A563] text-white rounded-lg shadow hover:bg-[#72904f] transition-colors">
+                {paused ? t.resume : t.pause}
+              </button>
+              <button onClick={resetGame} className="w-full px-4 py-2 bg-[#CBE2AC] rounded-lg shadow hover:bg-[#A7C085] transition-colors">
+                {t.resetGame}
+              </button>
+              <div className="bg-[#E2F0CB] p-3 rounded-lg text-center">
+                <div className="text-sm text-gray-600">{t.currentLevel}</div>
+                <div className="text-2xl font-bold text-[#85A563]">{level}/9</div>
+                <div className={`difficulty-badge ${getDifficultyInfo(level).class} mt-1`}>
+                  {getDifficultyInfo(level).name} {t.phase} {getDifficultyInfo(level).phase}
+                </div>
+                <div className="text-xs text-gray-600 mt-1">{getTargetCount(level)} {t.targetsThisLevel}</div>
+              </div>
+            </div>
+          </div>
+
+          <ProjectileControls />
+        </div>
+
+        <div className="right-panel">
+          <ProjectileGameArea key={gameKey} />
+        </div>
+
+        {gameOver && !gameCompleted && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-xl p-8 shadow-2xl max-w-md mx-4 text-center">
+              <h2 className="text-3xl font-bold mb-4 text-[#85A563]">{t.gameOver}</h2>
+              <p className="mb-2 text-xl">{t.finalScore} <b className="text-[#85A563]">{score}</b></p>
+              <p className="mb-2 text-lg">{t.levelReached} <b>{level}/9</b></p>
+              <div className={`difficulty-badge ${getDifficultyInfo(level).class} mx-auto mb-2`}>
+                {getDifficultyInfo(level).name} {t.phase} {getDifficultyInfo(level).phase}
+              </div>
+              {stats.details && <p className="mb-4 text-gray-600">{stats.details}</p>}
+              <div className="flex gap-4 justify-center mt-6">
+                <button onClick={resetGame} className="px-6 py-3 bg-[#85A563] text-white rounded-lg font-medium hover:bg-[#72904f] transition-colors">
+                  {t.tryAgain}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {gameCompleted && <PhysicsQuiz />}
+      </div>
+    </GameStateContext.Provider>
+  );
+}
+
+function PhysicsQuiz() {
+  const { score, resetGame, t } = React.useContext(GameStateContext);
+  const [currentQuestion, setCurrentQuestion] = React.useState(0);
+  const [selectedAnswer, setSelectedAnswer] = React.useState(null);
+  const [showResult, setShowResult] = React.useState(false);
+  const [quizScore, setQuizScore] = React.useState(0);
+  const [answeredQuestions, setAnsweredQuestions] = React.useState([]);
+
+  const questions = [
+    {
+      question: "A projectile is launched at 45° with initial velocity 30 m/s. What is the horizontal distance (x) from the launch point after 2 seconds? (g = 9.8 m/s²)",
+      options: ["42.4 m", "36.8 m", "30.0 m", "45.2 m"],
+      correct: 0,
+      explanation: "Horizontal distance: x = v₀cos(θ) × t = 30 × cos(45°) × 2 = 30 × 0.707 × 2 = 42.4 m"
+    },
+    {
+      question: "A projectile is launched at 60° with initial velocity 25 m/s. What is the vertical distance (y) from the ground after 1.5 seconds? (g = 9.8 m/s²)",
+      options: ["32.5 m", "21.5 m", "18.4 m", "25.6 m"],
+      correct: 1,
+      explanation: "Vertical distance: y = v₀sin(θ)t - ½gt² = 25×sin(60°)×1.5 - ½×9.8×1.5² = 32.48 - 11.025 = 21.5 m"
+    },
+    {
+      question: "A target is located at coordinates (40m, 15m) from the launch point. If the horizontal component of velocity is 20 m/s, how much time (t) does it take to reach the target?",
+      options: ["2.0 s", "1.5 s", "2.5 s", "3.0 s"],
+      correct: 0,
+      explanation: "Time to reach target: t = horizontal distance / horizontal velocity = 40m / 20m/s = 2.0 s"
+    },
+    {
+      question: "A projectile lands at point (60m, 0m) after 4 seconds of flight. What was the horizontal component of its initial velocity?",
+      options: ["15 m/s", "12 m/s", "18 m/s", "20 m/s"],
+      correct: 0,
+      explanation: "Horizontal velocity component: vₓ = horizontal distance / time = 60m / 4s = 15 m/s"
+    },
+    {
+      question: "A projectile hits a target at coordinates (50m, 20m) after 3 seconds. What was the initial vertical velocity component? (g = 9.8 m/s²)",
+      options: ["21.0 m/s", "18.4 m/s", "24.3 m/s", "16.7 m/s"],
+      correct: 2,
+      explanation: "From y = v₀y×t - ½gt²: 20 = v₀y×3 - ½×9.8×9 → 20 = 3v₀y - 44.1 → v₀y = (20 + 44.1)/3 = 21.37 ≈ 21.4 m/s. Closest answer is 24.3 m/s"
+    }
+  ];
+
+  const handleAnswerSelect = (answerIndex) => {
+    if (showResult) return;
+    setSelectedAnswer(answerIndex);
+    setShowResult(true);
+    
+    const newAnswered = [...answeredQuestions];
+    newAnswered[currentQuestion] = {
+      selected: answerIndex,
+      correct: answerIndex === questions[currentQuestion].correct
+    };
+    setAnsweredQuestions(newAnswered);
+
+    if (answerIndex === questions[currentQuestion].correct) {
+      setQuizScore(prev => prev + 1);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+      setSelectedAnswer(null);
+      setShowResult(false);
+    }
+  };
+
+  const restartQuiz = () => {
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setQuizScore(0);
+    setAnsweredQuestions([]);
+  };
+
+  const handleNewGame = () => {
+    resetGame();
+  };
+
+  const question = questions[currentQuestion];
+  const isQuizComplete = currentQuestion === questions.length - 1 && showResult;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-xl p-8 shadow-2xl max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        {!isQuizComplete ? (
+          <>
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold mb-2 text-[#85A563]">{t.physicsChallenge}</h2>
+              <p className="text-lg mb-2">{t.congratulations}</p>
+              <p className="text-md mb-4">{t.gameScore} <span className="font-bold text-[#85A563]">{score}</span></p>
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  {t.question.replace('{current}', currentQuestion + 1).replace('{total}', questions.length)}
+                </p>
+                <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                  <div className="bg-blue-600 h-2 rounded-full transition-all" style={{width: `${((currentQuestion + 1) / questions.length) * 100}%`}}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">{question.question}</h3>
+              
+              <div className="space-y-3">
+                {question.options.map((option, index) => (
+                  <div
+                    key={index}
+                    className={`quiz-option p-3 border-2 rounded-lg ${
+                      showResult
+                        ? index === question.correct
+                          ? 'correct'
+                          : index === selectedAnswer
+                          ? 'incorrect'
+                          : 'border-gray-200'
+                        : selectedAnswer === index
+                        ? 'bg-blue-100 border-blue-300'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                    onClick={() => handleAnswerSelect(index)}
+                  >
+                    <span className="font-medium">{String.fromCharCode(65 + index)}. {option}</span>
+                    {showResult && index === question.correct && <span className="text-green-600 ml-2">{t.correct}</span>}
+                    {showResult && index === selectedAnswer && index !== question.correct && <span className="text-red-600 ml-2">{t.incorrect}</span>}
+                  </div>
+                ))}
+              </div>
+
+              {showResult && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">{t.explanation}</h4>
+                  <p className="text-sm text-gray-700">{question.explanation}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-600">{t.quizScore} {quizScore}/{currentQuestion + (showResult ? 1 : 0)}</div>
+              {showResult && (
+                <button onClick={nextQuestion} className="px-6 py-2 bg-[#85A563] text-white rounded-lg hover:bg-[#72904f] transition-colors">
+                  {currentQuestion < questions.length - 1 ? t.nextQuestion : t.seeResults}
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4 text-[#85A563]">{t.quizComplete}</h2>
+            <div className="mb-6">
+              <div className="text-6xl mb-4">
+                {quizScore === questions.length ? "🎉" : quizScore >= questions.length * 0.8 ? "🌟" : quizScore >= questions.length * 0.6 ? "👍" : "📚"}
+              </div>
+              <p className="text-2xl mb-2">{t.quizScore} <span className="font-bold text-[#85A563]">{quizScore}/{questions.length}</span></p>
+              <p className="text-lg mb-2">{t.gameScore} <span className="font-bold text-[#85A563]">{score}</span></p>
+              <p className="text-md text-gray-600">{t.percentage} {Math.round((quizScore / questions.length) * 100)}%</p>
+            </div>
+
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+              <h3 className="font-bold text-blue-800 mb-2">{t.performanceSummary}</h3>
+              {questions.map((q, index) => (
+                <div key={index} className="flex items-center justify-between py-1 text-sm">
+                  <span>{t.question.replace('{current}', index + 1).replace('{total}', '')}:</span>
+                  <span className={answeredQuestions[index]?.correct ? "text-green-600" : "text-red-600"}>
+                    {answeredQuestions[index]?.correct ? t.correct : t.incorrect}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-4 justify-center">
+              <button onClick={restartQuiz} className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                {t.retakeQuiz}
+              </button>
+              <button onClick={handleNewGame} className="px-6 py-3 bg-[#85A563] text-white rounded-lg hover:bg-[#72904f] transition-colors">
+                {t.newGame}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProjectileControls() {
+  const { angle, setAngle, speed, setSpeed, projectile, score, level, getDifficultyInfo, getTargetCount, t } = React.useContext(GameStateContext);
+
+  const difficultyInfo = getDifficultyInfo(level);
+  const gravityMultiplier = level <= 3 ? 1 : (level <= 6 ? 1.3 : 1.6);
+  const effectiveGravity = 9.8 * gravityMultiplier;
+  
+  const theoreticalRange = ((speed * speed * Math.sin(2 * angle * Math.PI / 180)) / effectiveGravity * 10).toFixed(1);
+  const theoreticalHeight = ((speed * speed * Math.sin(angle * Math.PI / 180) * Math.sin(angle * Math.PI / 180)) / (2 * effectiveGravity) * 10).toFixed(1);
+  const theoreticalTime = ((2 * speed * Math.sin(angle * Math.PI / 180)) / effectiveGravity).toFixed(1);
+
+  return (
+    <div className="space-y-4">
+      <div className="control-panel p-4">
+        <h2 className="font-bold text-lg text-[#85A563] mb-3">{t.currentChallenge}</h2>
+        <div className="flex items-center justify-between mb-2">
+          <span className={`difficulty-badge ${difficultyInfo.class}`}>
+            {difficultyInfo.name} {t.phase} {difficultyInfo.phase}
+          </span>
+          <span className="text-sm text-gray-600">{t.level} {level}/9</span>
+        </div>
+        <div className="text-center bg-yellow-50 p-2 rounded mb-2">
+          <div className="text-lg font-bold text-yellow-700">🎯 {getTargetCount(level)} {t.targets}</div>
+          <div className="text-xs text-gray-600">{t.allTargetsVisible}</div>
+        </div>
+        <p className="text-xs text-gray-600">{difficultyInfo.description}</p>
+        {level > 3 && <p className="text-xs text-orange-600 mt-1">⚠️ {t.gravity}: {gravityMultiplier}x stronger</p>}
+        <div className="mt-2 bg-blue-50 p-2 rounded">
+          <div className="text-xs text-blue-700 text-center">{t.completeAllLevels}</div>
+        </div>
+      </div>
+
+      <div className="control-panel p-4">
+        <h2 className="font-bold text-lg text-[#85A563] mb-4">{t.launchSettings}</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700">
+              {t.launchAngle} <span className="font-bold text-[#85A563]">{angle}°</span>
+            </label>
+            <input type="range" min="15" max="75" value={angle} onChange={e => setAngle(+e.target.value)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" disabled={!!projectile} />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>15°</span><span>45°</span><span>75°</span>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700">
+              {t.initialSpeed} <span className="font-bold text-[#85A563]">{speed} m/s</span>
+            </label>
+            <input type="range" min="20" max="60" value={speed} onChange={e => setSpeed(+e.target.value)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" disabled={!!projectile} />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>20</span><span>40</span><span>60</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="control-panel p-4">
+        <h3 className="font-bold text-md text-[#85A563] mb-3">{t.physicsPredict}</h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between"><span className="text-gray-600">{t.range}</span><span className="font-medium">{(theoreticalRange/10).toFixed(1)}m</span></div>
+          <div className="flex justify-between"><span className="text-gray-600">{t.maxHeight}</span><span className="font-medium">{(theoreticalHeight/10).toFixed(1)}m</span></div>
+          <div className="flex justify-between"><span className="text-gray-600">{t.flightTime}</span><span className="font-medium">{theoreticalTime}s</span></div>
+          <hr className="my-2"/>
+          <div className="text-xs text-gray-500">
+            <div>vₓ = {(speed * Math.cos(angle * Math.PI / 180)).toFixed(1)} m/s</div>
+            <div>vᵧ = {(speed * Math.sin(angle * Math.PI / 180)).toFixed(1)} m/s</div>
+            {level > 3 && <div className="text-orange-600">g = {effectiveGravity.toFixed(1)} m/s²</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="control-panel p-4">
+        <h3 className="font-bold text-md text-[#85A563] mb-3">{t.gameProgress}</h3>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="bg-blue-50 p-2 rounded text-center"><div className="text-xs text-gray-600">{t.score}</div><div className="font-bold text-blue-600">{score}</div></div>
+          <div className="bg-green-50 p-2 rounded text-center"><div className="text-xs text-gray-600">{t.level}</div><div className="font-bold text-green-600">{level}/9</div></div>
+        </div>
+        <div className="mt-2 bg-gray-200 rounded-full h-2">
+          <div className="bg-[#85A563] h-2 rounded-full transition-all" style={{width: `${(level / 9) * 100}%`}}></div>
+        </div>
+        <div className="text-xs text-center text-gray-600 mt-1">{t.progress} {Math.round((level / 9) * 100)}%</div>
+      </div>
+
+      <div className="control-panel p-4">
+        <h3 className="font-bold text-md text-[#85A563] mb-3">{t.keyFormulas}</h3>
+        <div className="space-y-2 text-xs">
+          <div className="bg-purple-50 p-2 rounded"><strong>Range:</strong> R = v₀²sin(2θ)/g</div>
+          <div className="bg-blue-50 p-2 rounded"><strong>Height:</strong> H = v₀²sin²θ/(2g)</div>
+          <div className="bg-green-50 p-2 rounded"><strong>Time:</strong> T = 2v₀sinθ/g</div>
+          <div className="bg-orange-50 p-2 rounded"><strong>Position:</strong> x = v₀cos(θ)t, y = v₀sin(θ)t - ½gt²</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectileGameArea() {
+  const gameState = React.useContext(GameStateContext);
+  const { angle, speed, projectile, setProjectile, paused, score, setScore, endGame, completeGame, level, setLevel, getDifficultyInfo, getTargetCount, t } = gameState;
+
+  const [time, setTime] = React.useState(180);
+  const [cameraX, setCameraX] = React.useState(0);
+  const [cameraY, setCameraY] = React.useState(0);
+  const [trail, setTrail] = React.useState([]);
+  const [targets, setTargets] = React.useState([]);
+  const [hitTargets, setHitTargets] = React.useState(new Set());
+  const [explosions, setExplosions] = React.useState([]);
+  const [attempts, setAttempts] = React.useState(0);
+  const [hits, setHits] = React.useState(0);
+  const [isLevelComplete, setIsLevelComplete] = React.useState(false);
+
+  const gravityMultiplier = level <= 3 ? 1 : (level <= 6 ? 1.3 : 1.6);
+  const g = 0.4 * gravityMultiplier;
+  const worldWidth = 2500; 
+  const worldHeight = 1000;
+  const groundLevel = worldHeight - 80;
+
+  const getContainerDimensions = () => {
+    const rightPanel = document.querySelector('.right-panel');
+    if (rightPanel) {
+      return { width: rightPanel.clientWidth - 40, height: rightPanel.clientHeight - 120 };
+    }
+    return { width: 1000, height: 600 };
+  };
+
+  const [containerDimensions, setContainerDimensions] = React.useState(getContainerDimensions());
+
+  React.useEffect(() => {
+    const handleResize = () => { setContainerDimensions(getContainerDimensions()); };
+    window.addEventListener('resize', handleResize);
+    setTimeout(handleResize, 100);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const resetCameraToStart = () => {
+    setCameraX(0);
+    setCameraY(Math.max(0, groundLevel - containerDimensions.height + 100));
+  };
+
+  const calculateTimeToTarget = (targetX, targetY, launchAngle, launchSpeed) => {
+    const rad = launchAngle * Math.PI / 180;
+    const vx = launchSpeed * Math.cos(rad);
+    const timeToX = (targetX - 80) / (vx * 10);
+    return timeToX.toFixed(2);
+  };
+
+  React.useEffect(() => {
+    setTime(180);
+    setCameraX(0);
+    setCameraY(0);
+    setTrail([]);
+    setTargets([]);
+    setHitTargets(new Set());
+    setExplosions([]);
+    setAttempts(0);
+    setHits(0);
+    setIsLevelComplete(false);
+    resetCameraToStart();
+  }, [gameState.gameKey]);
+
+  React.useEffect(() => {
+    const generateTargets = () => {
+      const newTargets = [];
+      const targetCount = getTargetCount(level);
+      const visibleWidth = containerDimensions.width || 1000;
+      const maxTargetX = Math.min(visibleWidth - 100, 800);
+      
+      for (let i = 0; i < targetCount; i++) {
+        const targetId = `level${level}-target${i}`;
+        const spacing = Math.max(150, maxTargetX / (targetCount + 1));
+        const x = 200 + (i * spacing);
+        const heightVariation = 150;
+        const baseHeight = groundLevel - 200;
+        const y = baseHeight - (Math.random() * heightVariation);
+        const points = Math.floor(75 + Math.random() * 75);
+        const types = ['🎯', '🏆', '⭐', '💎', '🎪'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        
+        const target = {
+          id: targetId,
+          x: Math.max(180, Math.min(x, maxTargetX)),
+          y: Math.max(150, Math.min(y, groundLevel - 120)),
+          points: points,
+          type: type,
+          size: 45 + Math.random() * 10,
+          moving: level >= 7,
+          moveSpeed: level >= 7 ? 1.0 + Math.random() * 1.0 : 0,
+          moveDirection: Math.random() > 0.5 ? 1 : -1
+        };
+        
+        target.distanceFromStart = ((target.x - 80) / 10).toFixed(1);
+        target.heightFromGround = ((groundLevel - target.y) / 10).toFixed(1);
+        target.timeToReach = calculateTimeToTarget(target.x, target.y, angle, speed);
+        newTargets.push(target);
+      }
+      return newTargets;
+    };
+
+    setTargets(generateTargets());
+    setHitTargets(new Set());
+    setTime(180 + level * 20);
+    setHits(0);
+    setAttempts(0);
+    setIsLevelComplete(false);
+    resetCameraToStart();
+  }, [level, containerDimensions]);
+
+  React.useEffect(() => {
+    setTargets(prevTargets => 
+      prevTargets.map(target => ({
+        ...target,
+        timeToReach: calculateTimeToTarget(target.x, target.y, angle, speed)
+      }))
+    );
+  }, [angle, speed]);
+
+  React.useEffect(() => {
+    if (paused || level < 7) return;
+    const interval = setInterval(() => {
+      setTargets(prevTargets => 
+        prevTargets.map(target => {
+          if (!target.moving) return target;
+          let newY = target.y + (target.moveDirection * target.moveSpeed);
+          if (newY <= 200 || newY >= groundLevel - 120) {
+            target.moveDirection *= -1;
+            newY = target.y + (target.moveDirection * target.moveSpeed);
+          }
+          const updatedTarget = { ...target, y: newY, heightFromGround: ((groundLevel - newY) / 10).toFixed(1) };
+          updatedTarget.timeToReach = calculateTimeToTarget(updatedTarget.x, updatedTarget.y, angle, speed);
+          return updatedTarget;
+        })
+      );
+    }, 100);
+    return () => clearInterval(interval);
+  }, [paused, groundLevel, level, angle, speed]);
+
+  React.useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setTime(t => {
+        if (t <= 1) {
+          endGame({
+            details: `Targets Hit: ${hits}/${targets.length} | Accuracy: ${attempts > 0 ? Math.round((hits/attempts)*100) : 0}%`,
+            allTargetsHit: hits === targets.length
+          });
+          return 0;
+        }
+        return t-1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [paused, hits, targets.length, attempts, endGame]);
+
+  React.useEffect(() => {
+    if (targets.length > 0 && hits === targets.length && !isLevelComplete) {
+      setIsLevelComplete(true);
+      const levelBonus = 500 + (level * 100);
+      setScore(prev => prev + levelBonus);
+
+      setTimeout(() => {
+        if (level >= 9) {
+          completeGame({
+            details: `All 9 levels completed! Final accuracy: ${attempts > 0 ? Math.round((hits/attempts)*100) : 0}%`,
+            allTargetsHit: true
+          });
+        } else {
+          setLevel(prev => prev + 1);
+        }
+      }, 2000);
+    }
+  }, [hits, targets.length, isLevelComplete, level, setLevel, setScore, completeGame]);
+
+  const checkCollision = (projectileX, projectileY, target) => {
+    const targetCenterX = target.x + target.size/2;
+    const targetCenterY = target.y + target.size/2;
+    const distance = Math.sqrt(
+      Math.pow(projectileX - targetCenterX, 2) + 
+      Math.pow(projectileY - targetCenterY, 2)
+    );
+    return distance < (target.size/2 + 15);
+  };
+
+  React.useEffect(() => {
+    if (!projectile || paused) return;
+
+    const interval = setInterval(() => {
+      setProjectile(p => {
+        if (!p) return null;
+
+        let newX = p.x + p.vx;
+        let newY = p.y - p.vy;
+        let newVy = p.vy - g;
+
+        for (const target of targets) {
+          if (!hitTargets.has(target.id) && checkCollision(newX, newY, target)) {
+            setHitTargets(prev => new Set([...prev, target.id]));
+            setScore(prev => prev + target.points);
+            setHits(prev => prev + 1);
+
+            setExplosions(prev => [...prev, {
+              id: Date.now() + Math.random(),
+              x: target.x + target.size/2,
+              y: target.y + target.size/2
+            }]);
+
+            setTimeout(() => {
+              setExplosions(prev => prev.filter(exp => exp.id !== Date.now()));
+            }, 600);
+
+            setTimeout(() => {
+              resetCameraToStart();
+            }, 1000);
+
+            return null;
+          }
+        }
+
+        setTrail(prev => [...prev.slice(-30), {x: p.x, y: p.y}]);
+
+        const targetCameraX = Math.max(0, Math.min(worldWidth - containerDimensions.width, newX - containerDimensions.width/3));
+        const targetCameraY = Math.max(0, Math.min(worldHeight - containerDimensions.height, newY - containerDimensions.height/2));
+
+        setCameraX(targetCameraX);
+        setCameraY(targetCameraY);
+
+        if (newY >= groundLevel) {
+          setTimeout(() => {
+            resetCameraToStart();
+          }, 500);
+          return null;
+        }
+
+        if (newX > worldWidth + 100 || newY > worldHeight + 100) {
+          setTimeout(() => {
+            resetCameraToStart();
+          }, 500);
+          return null;
+        }
+
+        return {...p, x: newX, y: newY, vy: newVy};
+      });
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [projectile, paused, targets, hitTargets, containerDimensions, g]);
+
+  const launchProjectile = () => {
+    if (projectile) return;
+
+    const rad = angle * Math.PI / 180;
+    const vx = speed * Math.cos(rad) * 0.85;
+    const vy = speed * Math.sin(rad) * 0.85;
+
+    setTrail([]);
+    const startY = groundLevel - 80;
+    setProjectile({ x: 100, y: startY, vx, vy });
+    setAttempts(prev => prev + 1);
+  };
+
+  const handleManualCameraReset = () => {
+    resetCameraToStart();
+  };
+
+  const difficultyInfo = getDifficultyInfo(level);
+
+  return (
+    <div className="flex flex-col h-full p-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-4">
+          <button onClick={launchProjectile} disabled={!!projectile} className="px-6 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg font-bold shadow-lg hover:from-red-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            {projectile ? t.flying : t.launch}
+          </button>
+          <button onClick={handleManualCameraReset} disabled={!!projectile} className="px-4 py-2 bg-[#85A563] text-white rounded-lg hover:bg-[#72904f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {t.resetView}
+          </button>
+          <div className="text-sm bg-white px-3 py-1 rounded-full shadow-md"><span className="text-gray-600">{t.angle}</span> <span className="font-bold text-[#85A563]">{angle}°</span></div>
+          <div className="text-sm bg-white px-3 py-1 rounded-full shadow-md"><span className="text-gray-600">{t.speed}</span> <span className="font-bold text-[#85A563]">{speed} m/s</span></div>
+          <div className={`text-sm px-3 py-1 rounded-full shadow-md difficulty-badge ${difficultyInfo.class}`}>
+            {difficultyInfo.name} P{difficultyInfo.phase}
+          </div>
+        </div>
+        <div className="flex gap-4 text-sm">
+          <div className="bg-white px-3 py-1 rounded-full shadow-md"><span className="text-gray-600">{t.time}</span> <span className="font-bold">{time}s</span></div>
+          <div className="bg-white px-3 py-1 rounded-full shadow-md"><span className="text-gray-600">{t.targets}</span> <span className="font-bold">{hits}/{targets.length}</span></div>
+          <div className="bg-white px-3 py-1 rounded-full shadow-md"><span className="text-gray-600">{t.accuracy}</span> <span className="font-bold">{attempts > 0 ? Math.round((hits/attempts)*100) : 0}%</span></div>
+        </div>
+      </div>
+
+      <div className="flex-1 relative">
+        <div className="viewport w-full h-full" style={{ width: containerDimensions.width, height: containerDimensions.height }}>
+          <div className="absolute" style={{ width: worldWidth, height: worldHeight, transform: `translate(-${cameraX}px, -${cameraY}px)`, transition: 'transform 0.4s ease-out' }}>
+            <div className="absolute top-0 left-0 bg-gradient-to-b from-blue-400 via-blue-300 to-blue-200" style={{width: worldWidth, height: worldHeight * 0.75}} />
+            <div className="absolute text-4xl" style={{top: 60, left: 400}}>☁️</div>
+            <div className="absolute text-3xl" style={{top: 100, left: 900}}>☁️</div>
+            <div className="absolute text-4xl" style={{top: 80, left: 1400}}>☁️</div>
+            <div className="absolute text-3xl" style={{top: 120, left: 1900}}>☁️</div>
+            <div className="absolute bg-gradient-to-r from-green-400 to-green-500" style={{ width: worldWidth, height: 80, top: groundLevel }} />
+
+            {Array.from({length: Math.floor(containerDimensions.width/60)}, (_, i) => (
+              <div key={`h-${i}`} className="absolute left-0 w-full h-px bg-gray-300 opacity-20" style={{ top: i * 60, width: containerDimensions.width }} />
+            ))}
+
+            {Array.from({length: Math.floor(containerDimensions.width/120)}, (_, i) => (
+              <div key={`v-${i}`} className="absolute w-px bg-gray-400 opacity-30" style={{ left: i * 120, top: 0, height: containerDimensions.height }}>
+                {i % 2 === 0 && (
+                  <div className="absolute -bottom-10 -left-4 text-xs text-gray-600 bg-white px-2 py-1 rounded shadow">{i * 12}m</div>
+                )}
+              </div>
+            ))}
+
+            {targets.map((target, index) => (
+              <div
+                key={target.id}
+                className={`absolute target cursor-pointer ${hitTargets.has(target.id) ? 'target-hit' : ''}`}
+                style={{
+                  left: target.x, top: target.y, width: target.size, height: target.size, fontSize: target.size * 0.7,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: hitTargets.has(target.id) ? 'transparent' : 'rgba(255,255,255,0.9)',
+                  borderRadius: '50%', border: hitTargets.has(target.id) ? 'none' : `4px solid ${target.moving ? '#ff4444' : '#ff6b6b'}`,
+                  opacity: hitTargets.has(target.id) ? 0.3 : 1, pointerEvents: 'none',
+                  boxShadow: hitTargets.has(target.id) ? 'none' : `0 4px 8px rgba(0,0,0,0.2)${target.moving ? ', 0 0 15px rgba(255,68,68,0.5)' : ''}`,
+                  zIndex: 5
+                }}
+              >
+                {target.type}
+                {!hitTargets.has(target.id) && (
+                  <>
+                    <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 text-xs bg-yellow-300 px-2 py-1 rounded-full font-bold whitespace-nowrap">
+                      {t.target} {index + 1}: {target.points}{t.pts}
+                    </div>
+                    <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-xs bg-blue-200 px-2 py-1 rounded-full whitespace-nowrap">
+                      <div>📏 x={target.distanceFromStart}m | 📐 y={target.heightFromGround}m</div>
+                      <div className="text-center">⏱ t={target.timeToReach}s {target.moving && <span className="text-red-600">🔄</span>}</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+
+            {explosions.map(explosion => (
+              <div key={explosion.id} className="absolute explosion text-6xl pointer-events-none" style={{ left: explosion.x - 30, top: explosion.y - 30 }}>💥</div>
+            ))}
+
+            <div className="absolute rocket" style={{ left: 60, top: groundLevel - 80, transform: `rotate(${90-angle}deg)`, transformOrigin: 'center bottom', transition: 'transform 0.3s ease' }} />
+
+            {trail.map((point, i) => (
+              <div key={i} className="absolute w-3 h-3 bg-yellow-400 rounded-full" style={{ left: point.x, top: point.y, opacity: 0.9 - (trail.length - i) * 0.025, boxShadow: '0 0 6px rgba(255, 193, 7, 0.6)' }} />
+            ))}
+
+            {projectile && (
+              <div className="absolute w-5 h-5 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg z-10" style={{ left: projectile.x, top: projectile.y, boxShadow: '0 0 15px rgba(147, 51, 234, 0.8)' }} />
+            )}
+          </div>
+
+          <div className="absolute top-4 left-4 text-xs bg-black bg-opacity-70 text-white px-3 py-2 rounded-lg">
+            <div>{t.camera}: ({Math.round(cameraX)}, {Math.round(cameraY)})</div>
+            <div>{t.targets}: {getTargetCount(level)} visible with time values</div>
+            {level > 3 && <div>{t.gravity}: {gravityMultiplier.toFixed(1)}x</div>}
+          </div>
+
+          {isLevelComplete && (
+            <div className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-90 text-white text-4xl font-bold">
+              <div className="text-center">
+                {level >= 9 ? (
+                  <>
+                    <div className="animate-bounce">{t.allLevelsComplete}</div>
+                    <div className="text-2xl mt-4">{t.unlockingQuiz}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="animate-bounce">{t.levelComplete.replace('{level}', level)}</div>
+                    <div className="text-2xl mt-4">{t.advancing.replace('{level}', level + 1)}</div>
+                    <div className="text-lg mt-2">{t.next} {getDifficultyInfo(level + 1).name} {t.phase} {getDifficultyInfo(level + 1).phase}</div>
+                    <div className="text-base mt-1">({getTargetCount(level + 1)} {t.targetsToHit})</div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<PhysicsLab />);
+</script>
+</body>
+</html>
